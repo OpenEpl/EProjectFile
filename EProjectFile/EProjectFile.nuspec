@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>QIQI.EProjectFile</id>
+    <version>1.0.0-beta</version>
+    <title>Epl Project Editor</title>
+	<description>A 3th-party library to edit Epl Project</description>
+    <authors>QIQI</authors>
+    <owners>QIQI</owners>
+	<projectUrl>https://github.com/1354092549/EProjectFile</projectUrl>
+    <tags>EPL</tags>
+  </metadata>
+</package>
