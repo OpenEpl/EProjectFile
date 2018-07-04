@@ -5,14 +5,37 @@ namespace QIQI.EProjectFile
 {
     public class VariableInfo:IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; }
+
         public VariableInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
         public int DataType;
         public int Flags;
+        /// <summary>
+        /// 仅局部变量有效
+        /// </summary>
+        public bool Static { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
+        /// <summary>
+        /// 仅参数、自定义类型成员有效
+        /// </summary>
+        public bool ByRef { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
+        /// <summary>
+        /// 仅参数有效
+        /// </summary>
+        public bool OptionalParameter { get => (Flags & 0x4) != 0; set => Flags = (Flags & ~0x4) | (value ? 0x4 : 0); }
+        /// <summary>
+        /// 仅参数有效
+        /// </summary>
+        public bool ArrayParameter { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
+        /// <summary>
+        /// 仅全局变量有效
+        /// </summary>
+        public bool Public { get => (Flags & 0x100) != 0; set => Flags = (Flags & ~0x100) | (value ? 0x100 : 0); }
+        /// <summary>
+        /// 仅变量、自定义类型成员有效
+        /// </summary>
         public int[] UBound;
         public string Name;
         public string Comment;

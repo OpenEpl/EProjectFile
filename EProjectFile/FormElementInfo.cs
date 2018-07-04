@@ -4,8 +4,7 @@ namespace QIQI.EProjectFile
 {
     public abstract class FormElementInfo : IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; private set; }
 
         public int DataType;
         public string Name;
@@ -25,7 +24,7 @@ namespace QIQI.EProjectFile
                 {
                     elem = FormControlInfo.ReadWithoutDataType(r, length - 4);
                 }
-                elem.id = id;
+                elem.Id = id;
                 elem.DataType = dataType;
                 return elem;
             });

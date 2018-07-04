@@ -25,11 +25,11 @@ namespace QIQI.EProjectFile
     }
     public class MethodInfo : IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; }
+
         public MethodInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
         [JsonIgnore]
         public int UnknownAfterId;
@@ -38,6 +38,7 @@ namespace QIQI.EProjectFile
         /// </summary>
         public int Class;
         public int Flags;
+        public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
         public int ReturnDataType;
         public string Name;
         public string Comment;

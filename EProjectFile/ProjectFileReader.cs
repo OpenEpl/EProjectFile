@@ -11,8 +11,8 @@ namespace QIQI.EProjectFile
         public bool IsFinish => reader.BaseStream.Position == reader.BaseStream.Length;
 
         private BinaryReader reader;
-        private bool cryptEc = false;
-        public bool CryptEc => cryptEc;
+        public bool CryptEc { get; } = false;
+
         public ProjectFileReader(Stream stream, OnInputPassword inputPassword = null)
         {
             reader = new BinaryReader(stream, Encoding.GetEncoding("gbk"));
@@ -32,11 +32,11 @@ namespace QIQI.EProjectFile
                 }
                 var cryptECReadStream = new CryptECReadStream(stream, password, stream.Position);
                 reader = new BinaryReader(cryptECReadStream, Encoding.GetEncoding("gbk"));
-                if(!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash_ASCII))
+                if(!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash))
                 {
                     throw new Exception("密码错误");
                 }
-                cryptEc = true;
+                CryptEc = true;
 
                 magic1 = reader.ReadInt32();
                 magic2 = reader.ReadInt32();
@@ -62,7 +62,7 @@ namespace QIQI.EProjectFile
             section.CanSkip = reader.ReadInt32() != 0;
             reader.ReadInt32();//Skip DataCheckSum
             int DataLength = reader.ReadInt32();
-            if (cryptEc)
+            if (CryptEc)
             {
                 DataLength ^= 1;
             }

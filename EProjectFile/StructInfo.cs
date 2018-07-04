@@ -6,15 +6,16 @@ namespace QIQI.EProjectFile
 {
     public class StructInfo :IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; }
+
         public StructInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
         [JsonIgnore]
         public int UnknownAfterId;
         public int Flags;
+        public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public string Name;
         public string Comment;
         public VariableInfo[] Member;

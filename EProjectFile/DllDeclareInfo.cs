@@ -6,16 +6,17 @@ namespace QIQI.EProjectFile
 {
     public class DllDeclareInfo :IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; }
+
         public DllDeclareInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
 
         [JsonIgnore]
         public int UnknownAfterId;
         public int Flags;
+        public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
         public int ReturnDataType;
         public string Name;
         public string Comment;

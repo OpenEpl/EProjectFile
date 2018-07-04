@@ -7,16 +7,16 @@ namespace QIQI.EProjectFile
 {
     class CryptECReadStream : Stream
     {
-        private Stream stream;
-        private byte[] keyTable;
-        private byte[] passwordHash_ASCII;//非标准密码MD5
-        private long lengthOfUncryptedBlock;
-        public byte[] PasswordHash_ASCII => passwordHash_ASCII;
-        public long LengthOfUncryptedBlock => lengthOfUncryptedBlock;
-        public Stream Stream => stream;
+        private byte[] KeyTable;
+
+        public byte[] PasswordHash { get; }
+
+        public long LengthOfUncryptedBlock { get; }
+        public Stream BaseStream { get; }
+
         public CryptECReadStream(Stream stream, string password, long lengthOfUncryptedBlock)
         {
-            this.stream = stream;
+            this.BaseStream = stream;
             byte[] passwordBytes = Encoding.GetEncoding("gbk").GetBytes(password);
 
             {
@@ -35,10 +35,10 @@ namespace QIQI.EProjectFile
                 {
                     stringBuilder.Append(passwordMd5[i].ToString("x2"));
                 }
-                this.passwordHash_ASCII = Encoding.ASCII.GetBytes(stringBuilder.ToString());
+                this.PasswordHash = Encoding.ASCII.GetBytes(stringBuilder.ToString());
             }
-            InitKeyTable(passwordBytes, out this.keyTable);
-            this.lengthOfUncryptedBlock = lengthOfUncryptedBlock;
+            InitKeyTable(passwordBytes, out this.KeyTable);
+            this.LengthOfUncryptedBlock = lengthOfUncryptedBlock;
         }
 
         public static void InitKeyTable(byte[] key, out byte[] keyTable)
@@ -105,22 +105,22 @@ namespace QIQI.EProjectFile
 
         public override bool CanWrite => false;
 
-        public override long Length => stream.Length;
+        public override long Length => BaseStream.Length;
 
-        public override long Position { get => stream.Position; set => stream.Position = value; }
+        public override long Position { get => BaseStream.Position; set => BaseStream.Position = value; }
 
         public override void Flush()
         {
-            stream.Flush();
+            BaseStream.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            long startPos = stream.Position;
-            int lengthOfData = stream.Read(buffer, 0, count);
+            long startPos = BaseStream.Position;
+            int lengthOfData = BaseStream.Read(buffer, 0, count);
             long index = 0;
             long lengthOfCrypted = lengthOfData;
-            long lengthOfDataInUncryptedBlock = lengthOfUncryptedBlock - startPos;
+            long lengthOfDataInUncryptedBlock = LengthOfUncryptedBlock - startPos;
             if (lengthOfDataInUncryptedBlock > 0)
             {
                 lengthOfCrypted -= lengthOfDataInUncryptedBlock;
@@ -131,10 +131,10 @@ namespace QIQI.EProjectFile
             if (lengthOfCrypted > 0)
             {
                 byte[] tempKey = new byte[40];
-                Array.Copy(passwordHash_ASCII, 0, tempKey, 8, 32);
+                Array.Copy(PasswordHash, 0, tempKey, 8, 32);
 
                 byte[] tempKeyTable = new byte[258];
-                Array.Copy(this.keyTable, tempKeyTable, 258);
+                Array.Copy(this.KeyTable, tempKeyTable, 258);
                 SkipDataButUpdateKeyTable(8 * (startPos / 4096), tempKeyTable);
 
                 int keyParamIndex = 0;
@@ -186,7 +186,7 @@ namespace QIQI.EProjectFile
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return stream.Seek(offset, origin);
+            return BaseStream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
@@ -202,7 +202,7 @@ namespace QIQI.EProjectFile
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            stream.Dispose();
+            BaseStream.Dispose();
         }
     }
 

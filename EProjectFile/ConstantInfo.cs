@@ -46,7 +46,7 @@ namespace QIQI.EProjectFile
                             }
                             else if("date".Equals(keyName))
                             {
-                                value = new IsoDateTimeConverter().ReadJson(reader, typeof(byte[]), null, serializer);
+                                value = new IsoDateTimeConverter().ReadJson(reader, typeof(DateTime), null, serializer);
                             }
                             else
                             {
@@ -86,20 +86,20 @@ namespace QIQI.EProjectFile
                 }
             }
         }
+        public int Id { get; }
 
-
-        private int id;
-        public int Id => id;
         public ConstantInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
-
-        public int Flags;//1=未验证（此时<Value is string>）
+        public int Flags;
+        public bool Unexamined { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
+        public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
+        public bool LongText { get => (Flags & 0x10) != 0; set => Flags = (Flags & ~0x10) | (value ? 0x10 : 0); }
         public string Name;
         public string Comment;
         [JsonConverter(typeof(ConstantValueConverter))]
-        public Object Value;
+        public object Value;//对于未验证代码，此值为string
 
         public static ConstantInfo[] ReadConstants(BinaryReader r)
         {
@@ -180,7 +180,7 @@ namespace QIQI.EProjectFile
                 else if (elem.Value is string)
                 {
                     writer.Write((byte)26);
-                    writer.WriteBStr((string)elem.Value);
+                    writer.WriteBStr((string)elem.Value ?? "");
                 }
                 else
                 {

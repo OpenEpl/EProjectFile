@@ -6,11 +6,11 @@ namespace QIQI.EProjectFile
 {
     public class ClassInfo : IHasId
     {
-        private int id;
-        public int Id => id;
+        public int Id { get; }
+
         public ClassInfo(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
 
         [JsonIgnore]

@@ -121,7 +121,7 @@ namespace QIQI.EProjectFile
                             {
                                 lineOffestWriter.Write((int)reader.BaseStream.Position - 1);
                                 var caseInfo = new SwitchStatement.CaseInfo();
-                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, out caseInfo.InvalidCode, out caseInfo.Comment, out caseInfo.Mask).ParamList.ElementAtOrDefault(0);
+                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, out caseInfo.UnexaminedCode, out caseInfo.Comment, out caseInfo.Mask).ParamList.ElementAtOrDefault(0);
                                 caseInfo.Block = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
                                 s.Case.Add(caseInfo);
                                 if (reader.ReadByte() != 0x53)
@@ -147,7 +147,7 @@ namespace QIQI.EProjectFile
                         }
                         continue;
                 }
-                var exp = ParseCallExpressionWithoutType(reader, out string invalidCode, out string comment, out bool mask);
+                var exp = ParseCallExpressionWithoutType(reader, out string unexaminedCode, out string comment, out bool mask);
                 switch (type)
                 {
                     case 0x70: //循环开始语句：XX循环首(参数...)
@@ -165,13 +165,13 @@ namespace QIQI.EProjectFile
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
 
-                            string endexp_invalidCode;
+                            string endexp_unexaminedCode;
                             string endexp_comment;
                             bool endexp_mask;
                             switch (reader.ReadByte())
                             {
                                 case 0x71:
-                                    endexp = ParseCallExpressionWithoutType(reader, out endexp_invalidCode, out endexp_comment, out endexp_mask);
+                                    endexp = ParseCallExpressionWithoutType(reader, out endexp_unexaminedCode, out endexp_comment, out endexp_mask);
                                     break;
                                 default:
                                     throw new Exception();
@@ -188,7 +188,7 @@ namespace QIQI.EProjectFile
                                     {
                                         Condition = exp.ParamList.ElementAtOrDefault(0),
                                         Block = loopblock,
-                                        InvalidCode = invalidCode
+                                        UnexaminedCode = unexaminedCode
                                     };
                                     break;
                                 case 5:
@@ -196,7 +196,7 @@ namespace QIQI.EProjectFile
                                     {
                                         Condition = endexp.ParamList.ElementAtOrDefault(0),
                                         Block = loopblock,
-                                        InvalidCode = endexp_invalidCode
+                                        UnexaminedCode = endexp_unexaminedCode
                                     };
                                     break;
                                 case 7:
@@ -205,7 +205,7 @@ namespace QIQI.EProjectFile
                                         Count = exp.ParamList.ElementAtOrDefault(0),
                                         Var = exp.ParamList.ElementAtOrDefault(1),
                                         Block = loopblock,
-                                        InvalidCode = invalidCode
+                                        UnexaminedCode = unexaminedCode
                                     };
                                     break;
                                 case 9:
@@ -216,7 +216,7 @@ namespace QIQI.EProjectFile
                                         Step = exp.ParamList.ElementAtOrDefault(2),
                                         Var = exp.ParamList.ElementAtOrDefault(3),
                                         Block = loopblock,
-                                        InvalidCode = invalidCode
+                                        UnexaminedCode = unexaminedCode
                                     };
                                     break;
                                 default:
@@ -242,7 +242,7 @@ namespace QIQI.EProjectFile
                             var s = new IfStatement()
                             {
                                 Condition = exp.ParamList.ElementAtOrDefault(0),
-                                InvalidCode = invalidCode,
+                                UnexaminedCode = unexaminedCode,
                                 Block = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter),
                                 Comment = comment,
                                 Mask = mask
@@ -267,7 +267,7 @@ namespace QIQI.EProjectFile
                             var s = new IfElseStatement()
                             {
                                 Condition = exp.ParamList.ElementAtOrDefault(0),
-                                InvalidCode = invalidCode,
+                                UnexaminedCode = unexaminedCode,
                                 Comment = comment,
                                 Mask = mask
                             };
@@ -299,11 +299,11 @@ namespace QIQI.EProjectFile
                         break;
                     case 0x6A: // 常规Call
                         {
-                            if (invalidCode != null)
+                            if (unexaminedCode != null)
                             {
-                                block.Add(new InvalidStatement()
+                                block.Add(new UnexaminedStatement()
                                 {
-                                    InvalidCode = invalidCode,
+                                    UnexaminedCode = unexaminedCode,
                                     Mask = mask
                                 });
                             }
@@ -459,22 +459,22 @@ namespace QIQI.EProjectFile
         }
         private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader)
         {
-            var exp = ParseCallExpressionWithoutType(reader, out string invalidCode, out string comment, out bool mask);
+            var exp = ParseCallExpressionWithoutType(reader, out string unexaminedCode, out string comment, out bool mask);
             return exp;
         }
 
-        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader, out string invalidCode, out string comment, out bool mask)
+        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader, out string unexaminedCode, out string comment, out bool mask)
         {
             var methodId = reader.ReadInt32();
             var libraryId = reader.ReadInt16();
             var flag = reader.ReadInt16();
-            invalidCode = reader.ReadBStr();
+            unexaminedCode = reader.ReadBStr();
             comment = reader.ReadBStr();
             mask = (flag & 0x20) != 0;
             //bool expand = (flag & 0x1) != 0;
-            if ("".Equals(invalidCode))
+            if ("".Equals(unexaminedCode))
             {
-                invalidCode = null;
+                unexaminedCode = null;
             }
             if ("".Equals(comment))
             {
@@ -635,26 +635,26 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 未验证代码语句
     /// </summary>
-    public class InvalidStatement : Statement
+    public class UnexaminedStatement : Statement
     {
-        private string invalidCode;
+        private string unexaminedCode;
         public bool Mask;
 
-        public string InvalidCode { get => invalidCode; set => invalidCode = value ?? throw new ArgumentNullException(nameof(InvalidCode)); }
+        public string UnexaminedCode { get => unexaminedCode; set => unexaminedCode = value ?? throw new ArgumentNullException(nameof(UnexaminedCode)); }
 
-        public InvalidStatement()
+        public UnexaminedStatement()
         {
         }
 
-        public InvalidStatement(string invalidCode, bool mask)
+        public UnexaminedStatement(string unexaminedCode, bool mask)
         {
-            InvalidCode = invalidCode;
+            UnexaminedCode = unexaminedCode;
             Mask = mask;
         }
 
         public override string ToString()
         {
-            return (Mask ? "' " : "") + $"{InvalidCode}\r\n";
+            return (Mask ? "' " : "") + $"{UnexaminedCode}\r\n";
         }
         internal void WriteTo(MethodCodeDataWriterArgs a, byte type)
         {
@@ -663,7 +663,7 @@ namespace QIQI.EProjectFile
             a.ExpressionData.Write(0);
             a.ExpressionData.Write((short)-1);
             a.ExpressionData.Write(Mask);
-            a.ExpressionData.WriteBStr(InvalidCode);
+            a.ExpressionData.WriteBStr(UnexaminedCode);
             a.ExpressionData.WriteBStr(null);
             a.ExpressionData.Write((byte)0x36);
             ParamListEnd.Instance.WriteTo(a);
@@ -681,7 +681,7 @@ namespace QIQI.EProjectFile
     public class IfElseStatement : Statement
     {
         public Expression Condition;
-        public string InvalidCode;//InvalidCode!=null时Condition==null
+        public string UnexaminedCode;//UnexaminedCode!=null时Condition==null
         public StatementBlock BlockOnTrue;
         public StatementBlock BlockOnFalse;
         public string Comment;
@@ -689,7 +689,7 @@ namespace QIQI.EProjectFile
 
         public override string ToString()
         {
-            return (Mask ? "' " : "") + (InvalidCode == null ? $".如果 ({Condition})" : $".{InvalidCode}") + (Comment == null ? "" : "' " + Comment) + "\r\n"
+            return (Mask ? "' " : "") + (UnexaminedCode == null ? $".如果 ({Condition})" : $".{UnexaminedCode}") + (Comment == null ? "" : "' " + Comment) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(BlockOnTrue.ToString(), "    ")
                 + ".否则\r\n"
                 + CodeDataParser.AddPrefixInEachLine(BlockOnFalse.ToString(), "    ")
@@ -699,8 +699,8 @@ namespace QIQI.EProjectFile
         {
             using (a.NewBlock(1))
             {
-                if (InvalidCode != null)
-                    new InvalidStatement(InvalidCode, Mask).WriteTo(a, 0x6B);
+                if (UnexaminedCode != null)
+                    new UnexaminedStatement(UnexaminedCode, Mask).WriteTo(a, 0x6B);
                 else
                     new ExpressionStatement(new CallExpression(0, 0, new ParamListExpression() { Condition }), Mask, Comment).WriteTo(a, 0x6B);
                 BlockOnTrue.WriteTo(a);
@@ -717,13 +717,13 @@ namespace QIQI.EProjectFile
     public class IfStatement : Statement
     {
         public Expression Condition;
-        public string InvalidCode;//InvalidCode!=null时Condition==null
+        public string UnexaminedCode;//UnexaminedCode!=null时Condition==null
         public StatementBlock Block;
         public string Comment;
         public bool Mask;
         public override string ToString()
         {
-            return (Mask ? "' " : "") + (InvalidCode == null ? $".如果真 ({Condition})" : $".{InvalidCode}") + (Comment == null ? "" : "' " + Comment) + "\r\n"
+            return (Mask ? "' " : "") + (UnexaminedCode == null ? $".如果真 ({Condition})" : $".{UnexaminedCode}") + (Comment == null ? "" : "' " + Comment) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(Block.ToString(), "    ")
                 + ".如果真结束\r\n";
         }
@@ -731,8 +731,8 @@ namespace QIQI.EProjectFile
         {
             using (a.NewBlock(2))
             {
-                if (InvalidCode != null)
-                    new InvalidStatement(InvalidCode, Mask).WriteTo(a, 0x6C);
+                if (UnexaminedCode != null)
+                    new UnexaminedStatement(UnexaminedCode, Mask).WriteTo(a, 0x6C);
                 else
                     new ExpressionStatement(new CallExpression(0, 1, new ParamListExpression() { Condition }), Mask, Comment).WriteTo(a, 0x6C);
                 Block.WriteTo(a);
@@ -747,7 +747,7 @@ namespace QIQI.EProjectFile
     public class LoopStatement : Statement
     {
         public StatementBlock Block;
-        public string InvalidCode;//InvalidCode!=null其他循环参数为null
+        public string UnexaminedCode;//UnexaminedCode!=null其他循环参数为null
         public string CommentOnStart;
         public string CommentOnEnd;
         public bool MaskOnStart;
@@ -762,7 +762,7 @@ namespace QIQI.EProjectFile
         public override string ToString()
         {
 
-            return (MaskOnStart ? "' " : "") + (InvalidCode == null ? $".判断循环首 ({Condition})" : $".{InvalidCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
+            return (MaskOnStart ? "' " : "") + (UnexaminedCode == null ? $".判断循环首 ({Condition})" : $".{UnexaminedCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(Block.ToString(), "    ")
                 + (MaskOnEnd ? "' " : "") + ".判断循环尾 ()" + (CommentOnEnd == null ? "" : "' " + CommentOnEnd) + "\r\n";
         }
@@ -770,8 +770,8 @@ namespace QIQI.EProjectFile
         {
             using (a.NewBlock(3))
             {
-                if (InvalidCode != null)
-                    new InvalidStatement(InvalidCode, MaskOnStart).WriteTo(a, 0x70);
+                if (UnexaminedCode != null)
+                    new UnexaminedStatement(UnexaminedCode, MaskOnStart).WriteTo(a, 0x70);
                 else
                     new ExpressionStatement(new CallExpression(0, 3, new ParamListExpression() { Condition }), MaskOnStart, CommentOnStart).WriteTo(a, 0x70);
                 Block.WriteTo(a);
@@ -790,7 +790,7 @@ namespace QIQI.EProjectFile
         {
             return (MaskOnStart ? "' " : "") + $".循环判断首 ()" + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(Block.ToString(), "    ")
-                + (MaskOnEnd ? "' " : "") + (InvalidCode == null ? $".循环判断尾 ({Condition})" : $".{InvalidCode}") + (CommentOnEnd == null ? "" : "' " + CommentOnEnd) + "\r\n";
+                + (MaskOnEnd ? "' " : "") + (UnexaminedCode == null ? $".循环判断尾 ({Condition})" : $".{UnexaminedCode}") + (CommentOnEnd == null ? "" : "' " + CommentOnEnd) + "\r\n";
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
@@ -800,8 +800,8 @@ namespace QIQI.EProjectFile
                 Block.WriteTo(a);
                 a.ExpressionData.Write((byte)0x55);
             }
-            if (InvalidCode != null)
-                new InvalidStatement(InvalidCode, MaskOnEnd).WriteTo(a, 0x71);
+            if (UnexaminedCode != null)
+                new UnexaminedStatement(UnexaminedCode, MaskOnEnd).WriteTo(a, 0x71);
             else
                 new ExpressionStatement(new CallExpression(0, 5, new ParamListExpression() { Condition }), MaskOnEnd, CommentOnEnd).WriteTo(a, 0x71);
         }
@@ -815,7 +815,7 @@ namespace QIQI.EProjectFile
         public Expression Var;
         public override string ToString()
         {
-            return (MaskOnStart ? "' " : "") + (InvalidCode == null ? $".计次循环首 ({Count}, {Var})" : $".{InvalidCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
+            return (MaskOnStart ? "' " : "") + (UnexaminedCode == null ? $".计次循环首 ({Count}, {Var})" : $".{UnexaminedCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(Block.ToString(), "    ")
                 + (MaskOnEnd ? "' " : "") + $".计次循环尾 ()" + (CommentOnEnd == null ? "" : "' " + CommentOnEnd) + "\r\n";
         }
@@ -823,8 +823,8 @@ namespace QIQI.EProjectFile
         {
             using (a.NewBlock(3))
             {
-                if (InvalidCode != null)
-                    new InvalidStatement(InvalidCode, MaskOnStart).WriteTo(a, 0x70);
+                if (UnexaminedCode != null)
+                    new UnexaminedStatement(UnexaminedCode, MaskOnStart).WriteTo(a, 0x70);
                 else
                     new ExpressionStatement(new CallExpression(0, 7, new ParamListExpression() { Count, Var }), MaskOnStart, CommentOnStart).WriteTo(a, 0x70);
                 Block.WriteTo(a);
@@ -844,7 +844,7 @@ namespace QIQI.EProjectFile
         public Expression Var;
         public override string ToString()
         {
-            return (MaskOnStart ? "' " : "") + (InvalidCode == null ? $".变量循环首 ({Start}, {End}, {Step}, {Var})" : $".{InvalidCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
+            return (MaskOnStart ? "' " : "") + (UnexaminedCode == null ? $".变量循环首 ({Start}, {End}, {Step}, {Var})" : $".{UnexaminedCode}") + (CommentOnStart == null ? "" : "' " + CommentOnStart) + "\r\n"
                 + CodeDataParser.AddPrefixInEachLine(Block.ToString(), "    ")
                 + (MaskOnEnd ? "' " : "") + $".变量循环尾 ()" + (CommentOnEnd == null ? "" : "' " + CommentOnEnd) + "\r\n";
         }
@@ -852,8 +852,8 @@ namespace QIQI.EProjectFile
         {
             using (a.NewBlock(3))
             {
-                if (InvalidCode != null)
-                    new InvalidStatement(InvalidCode, MaskOnStart).WriteTo(a, 0x70);
+                if (UnexaminedCode != null)
+                    new UnexaminedStatement(UnexaminedCode, MaskOnStart).WriteTo(a, 0x70);
                 else
                     new ExpressionStatement(new CallExpression(0, 9, new ParamListExpression() { Start, End, Step, Var }), MaskOnStart, CommentOnStart).WriteTo(a, 0x70);
                 Block.WriteTo(a);
@@ -872,7 +872,7 @@ namespace QIQI.EProjectFile
         public class CaseInfo
         {
             public Expression Condition;
-            public string InvalidCode;
+            public string UnexaminedCode;
             public StatementBlock Block;
             public string Comment;
             public bool Mask;
@@ -885,7 +885,7 @@ namespace QIQI.EProjectFile
             if (Case.Count > 0)
             {
                 stringBuilder.Append(Case[0].Mask ? "' " : "");
-                stringBuilder.Append(Case[0].InvalidCode == null ? $".判断开始 ({Case[0].Condition})" : $".{Case[0].InvalidCode}");
+                stringBuilder.Append(Case[0].UnexaminedCode == null ? $".判断开始 ({Case[0].Condition})" : $".{Case[0].UnexaminedCode}");
                 stringBuilder.Append(Case[0].Comment == null ? "" : "' " + Case[0].Comment);
                 stringBuilder.Append("\r\n");
             }
@@ -900,7 +900,7 @@ namespace QIQI.EProjectFile
             for (int i = 1; i < Case.Count; i++)
             {
                 stringBuilder.Append(Case[i].Mask ? "' " : "");
-                stringBuilder.Append(Case[i].InvalidCode == null ? $".判断 ({Case[i].Condition})" : $".{Case[i].InvalidCode}");
+                stringBuilder.Append(Case[i].UnexaminedCode == null ? $".判断 ({Case[i].Condition})" : $".{Case[i].UnexaminedCode}");
                 stringBuilder.Append(Case[i].Comment == null ? "" : "' " + Case[i].Comment);
                 stringBuilder.Append("\r\n");
                 stringBuilder.Append(CodeDataParser.AddPrefixInEachLine(Case[i].Block.ToString(), "    "));
@@ -917,8 +917,8 @@ namespace QIQI.EProjectFile
                 a.ExpressionData.Write((byte)0x6D);
                 foreach (var curCase in Case)
                 {
-                    if (curCase.InvalidCode != null)
-                        new InvalidStatement(curCase.InvalidCode, curCase.Mask).WriteTo(a, 0x6E);
+                    if (curCase.UnexaminedCode != null)
+                        new UnexaminedStatement(curCase.UnexaminedCode, curCase.Mask).WriteTo(a, 0x6E);
                     else
                         new ExpressionStatement(new CallExpression(0, 2, new ParamListExpression() { curCase.Condition }), curCase.Mask, curCase.Comment).WriteTo(a, 0x6E);
                     curCase.Block.WriteTo(a);
