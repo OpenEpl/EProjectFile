@@ -502,50 +502,52 @@ namespace QIQI.EProjectFile
         }
     }
 
+
+    internal struct MethodCodeDataWriterArgs
+    {
+        public BinaryWriter LineOffest;
+        public BinaryWriter BlockOffest;
+        public BinaryWriter MethodReference;
+        public BinaryWriter VariableReference;
+        public BinaryWriter ConstantReference;
+        public BinaryWriter ExpressionData;
+        public int Offest => (int)ExpressionData.BaseStream.Position;
+        public IDisposable NewBlock(byte type)
+        {
+            return new BlockOffestHelper(this, type);
+        }
+        private struct BlockOffestHelper : IDisposable
+        {
+            private bool Disposed;
+            private MethodCodeDataWriterArgs a;
+            private long posToFillEndOffest;
+            public BlockOffestHelper(MethodCodeDataWriterArgs writers, byte type)
+            {
+                Disposed = false;
+                a = writers;
+                a.BlockOffest.Write(type);
+                a.BlockOffest.Write(a.Offest);
+                posToFillEndOffest = a.BlockOffest.BaseStream.Position;
+                a.BlockOffest.Write(0);
+            }
+            public void Dispose()
+            {
+                if (Disposed) return; else Disposed = true;
+                long curPos = a.BlockOffest.BaseStream.Position;
+                a.BlockOffest.BaseStream.Position = posToFillEndOffest;
+                a.BlockOffest.Write(a.Offest);
+                a.BlockOffest.BaseStream.Position = curPos;
+            }
+        }
+
+    }
+
     /// <summary>
     /// 表达式 基类
     /// </summary>
     public abstract class Expression
     {
-        internal struct MethodCodeDataWriterArgs
-        {
-            public BinaryWriter LineOffest;
-            public BinaryWriter BlockOffest;
-            public BinaryWriter MethodReference;
-            public BinaryWriter VariableReference;
-            public BinaryWriter ConstantReference;
-            public BinaryWriter ExpressionData;
-            public int Offest => (int)ExpressionData.BaseStream.Position;
-            public IDisposable NewBlock(byte type)
-            {
-                return new BlockOffestHelper(this, type);
-            }
-            private struct BlockOffestHelper : IDisposable
-            {
-                private bool Disposed;
-                private MethodCodeDataWriterArgs a;
-                private long posToFillEndOffest;
-                public BlockOffestHelper(MethodCodeDataWriterArgs writers, byte type)
-                {
-                    Disposed = false;
-                    a = writers;
-                    a.BlockOffest.Write(type);
-                    a.BlockOffest.Write(a.Offest);
-                    posToFillEndOffest = a.BlockOffest.BaseStream.Position;
-                    a.BlockOffest.Write(0);
-                }
-                public void Dispose()
-                {
-                    if (Disposed) return; else Disposed = true;
-                    long curPos = a.BlockOffest.BaseStream.Position;
-                    a.BlockOffest.BaseStream.Position = posToFillEndOffest;
-                    a.BlockOffest.Write(a.Offest);
-                    a.BlockOffest.BaseStream.Position = curPos;
-                }
-            }
-
-        }
-        internal virtual void WriteTo(MethodCodeDataWriterArgs a) => throw new NotImplementedException();
+        internal abstract void WriteTo(MethodCodeDataWriterArgs a);
     }
     /// <summary>
     /// 解析时临时标记（参数列表结束标识）
@@ -587,8 +589,9 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 语句 基类
     /// </summary>
-    public class Statement : Expression
+    public abstract class Statement
     {
+        internal abstract void WriteTo(MethodCodeDataWriterArgs a);
     }
     /// <summary>
     /// 表达式语句
@@ -744,7 +747,7 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 循环语句块 基类
     /// </summary>
-    public class LoopStatement : Statement
+    public abstract class LoopStatement : Statement
     {
         public StatementBlock Block;
         public string UnexaminedCode;//UnexaminedCode!=null其他循环参数为null
@@ -948,7 +951,7 @@ namespace QIQI.EProjectFile
         {
 
         }
-        internal void WriteTo(Expression.MethodCodeDataWriterArgs a)
+        internal void WriteTo(MethodCodeDataWriterArgs a)
         {
             Statements.ForEach(x => x.WriteTo(a));
         }
@@ -964,7 +967,7 @@ namespace QIQI.EProjectFile
                 constantReference = newWriter(),
                 expressionData = newWriter())
             {
-                var a = new Expression.MethodCodeDataWriterArgs
+                var a = new MethodCodeDataWriterArgs
                 {
                     LineOffest = lineOffest,
                     BlockOffest = blockOffest,
@@ -1419,7 +1422,7 @@ namespace QIQI.EProjectFile
     }
     public abstract class In0x38Expression : Expression
     {
-        internal abstract void WriteTo(Expression.MethodCodeDataWriterArgs a, bool need0x1DAnd0x37);
+        internal abstract void WriteTo(MethodCodeDataWriterArgs a, bool need0x1DAnd0x37);
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
             WriteTo(a, true);
