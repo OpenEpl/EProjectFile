@@ -105,7 +105,14 @@
     <Compile Include="HexConverter.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="InitEcSectionInfo.cs" />
-    <Compile Include="LibraryInfo.cs" />
+	<Compile Include="LibInfo\LibCmdInfo.cs" />
+    <Compile Include="LibInfo\LibConstantInfo.cs" />
+    <Compile Include="LibInfo\LibDataTypeInfo.cs" />
+    <Compile Include="LibInfo\LibEvnetInfo.cs" />
+    <Compile Include="LibInfo\LibInfo.cs" />
+    <Compile Include="LibInfo\LibPropertyInfo.cs" />
+    <Compile Include="LibInfo\LibMemberInfo.cs" />
+    <Compile Include="LibraryRefInfo.cs" />
     <Compile Include="MethodInfo.cs" />
     <Compile Include="ProjectConfigInfo.cs" />
     <Compile Include="ProjectFileReader.cs" />

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
+<package>
+  <metadata minClientVersion="2.5">
     <id>QIQI.EProjectFile</id>
     <version>1.0.0-beta</version>
     <title>Epl Project Editor</title>
@@ -10,4 +10,8 @@
 	<projectUrl>https://github.com/1354092549/EProjectFile</projectUrl>
     <tags>EPL</tags>
   </metadata>
+  <files>
+    <file src="QIQI.EProjectFile.targets" target="build" />
+    <file src="bin/Release/LibNameInfoToJson.exe" target="build" />
+  </files>
 </package>

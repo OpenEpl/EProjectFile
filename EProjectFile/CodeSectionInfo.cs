@@ -14,7 +14,7 @@ namespace QIQI.EProjectFile
         public byte[] UnknownBeforeLibrary_2;
         [JsonIgnore]
         public byte[] UnknownBeforeLibrary_3;
-        public LibraryInfo[] Libraries;
+        public LibraryRefInfo[] Libraries;
         public int Flag;
         /// <summary>
         /// 【仅用于不带有编辑信息的EC文件】“_启动子程序”，系统将在 初始模块段 保存的方法被调用完成后调用
@@ -45,14 +45,14 @@ namespace QIQI.EProjectFile
                     codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix();//Unknown
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
-                    codeSectionInfo.Libraries = LibraryInfo.ReadLibraries(reader);
+                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
                     codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix();//Unknown
                 }
                 else
                 {
                     codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix();//Unknown
                     codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix();//Unknown
-                    codeSectionInfo.Libraries = LibraryInfo.ReadLibraries(reader);
+                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                 }
@@ -110,7 +110,7 @@ namespace QIQI.EProjectFile
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_1);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_2);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_3);
-            LibraryInfo.WriteLibraries(writer, Libraries);
+            LibraryRefInfo.WriteLibraries(writer, Libraries);
             writer.Write(Flag);
             writer.Write(MainMethod);
             if (UnknownBeforeIconData != null)
