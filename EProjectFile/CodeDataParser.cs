@@ -9,21 +9,6 @@ namespace QIQI.EProjectFile
 {
     public static class CodeDataParser
     {
-        internal static string AddPrefixInEachLine(string x, string c)//Debug用
-        {
-            if (string.IsNullOrEmpty(x))
-            {
-                return "";
-            }
-            if (x.EndsWith("\r\n"))
-            {
-                return c + x.Substring(0, x.Length - 2).Replace("\r\n", "\r\n" + c) + "\r\n";
-            }
-            else
-            {
-                return c + x.Replace("\r\n", "\r\n" + c);
-            }
-        }
         public static StatementBlock ParseStatementBlock(byte[] expressionData)
         {
             return ParseStatementBlock(expressionData, out var lineOffest, out var blockOffest);
@@ -1405,6 +1390,9 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class CallExpression : Expression
     {
+        /// <summary>
+        /// >=0：支持库索引，-1：空，-2：用户定义子程序，-3：外部DLL命令
+        /// </summary>
         public readonly short LibraryId;
         public readonly int MethodId;
         public Expression Target;//ThisCall
@@ -1423,7 +1411,7 @@ namespace QIQI.EProjectFile
                 Target.ToTextCode(nameMap, result);
                 result.Append(".");
             }
-            result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
+            result.Append(LibraryId == -2 || LibraryId == -3 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
             ParamList.ToTextCode(nameMap, result);
         }
         internal void WriteTo(MethodCodeDataWriterArgs a, byte type, bool mask, string comment)
