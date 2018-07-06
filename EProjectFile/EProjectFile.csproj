@@ -103,7 +103,7 @@
     <Compile Include="FormControlInfo.cs" />
     <Compile Include="FormMenuInfo.cs" />
     <Compile Include="HexConverter.cs" />
-    <Compile Include="IDToNameMap.cs" />
+    <Compile Include="IdToNameMap.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="InitEcSectionInfo.cs" />
     <Compile Include="LibInfo\LibCmdInfo.cs" />

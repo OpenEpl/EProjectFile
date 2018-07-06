@@ -39,7 +39,14 @@
 
         public static int GetType(int id) => id & Mask_Type;
         
+        /// <summary>
+        /// 无类型（如 某子程序无返回值）
+        /// </summary>
         public const int DataType_Void = unchecked((int)0x00000000);
+        /// <summary>
+        /// 通用型
+        /// </summary>
+        public const int DataType_Any = unchecked((int)0x80000000);
         public const int DataType_Byte = unchecked((int)0x80000101);
         public const int DataType_Short = unchecked((int)0x80000201);
         public const int DataType_Int = unchecked((int)0x80000301);
