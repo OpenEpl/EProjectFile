@@ -31,29 +31,32 @@ namespace QIQI.EProjectFile
             }
 
         }
+        private static readonly int[] knownTypeId = new int[]
+        {
+            0x50, // 否则
+            0x51, // 如果结束
+            0x52, // 如果真结束
+            0x53, // .判断 某Case结束
+            0x54, // .判断结束
+            0x55, // 循环体结束标识（0x71前）
+            0x6A, // 常规Call
+            0x6B, // 如果
+            0x6C, // 如果真
+            0x6D, // .判断开始（紧接着就是 0x6E）
+            0x6E, // .判断 某Case开始
+            0x6F, // .默认
+            0x70, // 循环开始语句：XX循环首(参数...)
+            0x71, // 循环结束语句：XX循环尾(参数...)
+        };
+        static CodeDataParser()
+        {
+            Array.Sort(knownTypeId);
+        }
         private static StatementBlock ParseStatementBlock(BinaryReader reader, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
         {
             var block = new StatementBlock();
             while (!(reader.BaseStream.Position == reader.BaseStream.Length))
             {
-                var knownTypeId = new int[]
-                {
-                    0x50, // 否则
-                    0x51, // 如果结束
-                    0x52, // 如果真结束
-                    0x53, // .判断 某Case结束
-                    0x54, // .判断结束
-                    0x55, // 循环体结束标识（0x71前）
-                    0x6A, // 常规Call
-                    0x6B, // 如果
-                    0x6C, // 如果真
-                    0x6D, // .判断开始（紧接着就是 0x6E）
-                    0x6E, // .判断 某Case开始
-                    0x6F, // .默认
-                    0x70, // 循环开始语句：XX循环首(参数...)
-                    0x71, // 循环结束语句：XX循环尾(参数...)
-                };
-                Array.Sort(knownTypeId);
                 var type = reader.ReadByte();
                 while (Array.BinarySearch(knownTypeId, type) < 0)
                 {
