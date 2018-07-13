@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace QIQI.EProjectFile
 {
-    public class ResourceSectionInfo
+    public class ResourceSectionInfo : IToTextCodeAble
     {
         public const string SectionName = "程序资源段";
         public FormInfo[] Forms;
@@ -41,6 +43,11 @@ namespace QIQI.EProjectFile
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        {
+            TextCodeUtils.WriteJoinCode(Constants, Environment.NewLine, nameMap, result, indent);
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class DllDeclareInfo :IHasId
+    public class DllDeclareInfo :IHasId, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -20,9 +21,9 @@ namespace QIQI.EProjectFile
         public int ReturnDataType;
         public string Name;
         public string Comment;
-        public string NameInLibrary;
-        public string LibraryFile;
-        public VariableInfo[] Parameters;
+        public string EntryPoint;
+        public string LibraryName;
+        public DllParameterInfo[] Parameters;
         public static DllDeclareInfo[] ReadDllDeclares(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();
@@ -39,9 +40,9 @@ namespace QIQI.EProjectFile
                     ReturnDataType = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(),
                     Comment = reader.ReadStringWithLengthPrefix(),
-                    LibraryFile = reader.ReadStringWithLengthPrefix(),
-                    NameInLibrary = reader.ReadStringWithLengthPrefix(),
-                    Parameters = VariableInfo.ReadVariables(reader)
+                    LibraryName = reader.ReadStringWithLengthPrefix(),
+                    EntryPoint = reader.ReadStringWithLengthPrefix(),
+                    Parameters = AbstractVariableInfo.ReadVariables(reader, x => new DllParameterInfo(x))
                 };
                 dllDeclares[i] = dllDeclareInfo;
             }
@@ -59,10 +60,16 @@ namespace QIQI.EProjectFile
                 writer.Write(dllDeclare.ReturnDataType);
                 writer.WriteStringWithLengthPrefix(dllDeclare.Name);
                 writer.WriteStringWithLengthPrefix(dllDeclare.Comment);
-                writer.WriteStringWithLengthPrefix(dllDeclare.LibraryFile);
-                writer.WriteStringWithLengthPrefix(dllDeclare.NameInLibrary);
-                VariableInfo.WriteVariables(writer, dllDeclare.Parameters);
+                writer.WriteStringWithLengthPrefix(dllDeclare.LibraryName);
+                writer.WriteStringWithLengthPrefix(dllDeclare.EntryPoint);
+                AbstractVariableInfo.WriteVariables(writer, dllDeclare.Parameters);
             }
+        }
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
+        {
+            TextCodeUtils.WriteDefinedCode(result, indent, "DLL命令", Name, nameMap.GetDataTypeName(ReturnDataType), LibraryName, EntryPoint, Public ? "公开" : "", Comment);
+            result.AppendLine();
+            TextCodeUtils.WriteJoinCode(Parameters, Environment.NewLine, nameMap, result, indent + 1);
         }
         public override string ToString()
         {

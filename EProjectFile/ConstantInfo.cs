@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class ConstantInfo : IHasId
+    public class ConstantInfo : IHasId, IToTextCodeAble
     {
         private class ConstantValueConverter : JsonConverter
         {
@@ -154,41 +156,69 @@ namespace QIQI.EProjectFile
                 writer.Write((short)elem.Flags);
                 writer.WriteCStyleString(elem.Name);
                 writer.WriteCStyleString(elem.Comment);
-                if (elem.Value is byte[])
+                switch (elem.Value)
                 {
-                    writer.WriteBytesWithLengthPrefix((byte[])elem.Value);
-                }
-                else if (elem.Value == null)
-                {
-                    writer.Write((byte)22);
-                }
-                else if (elem.Value is double)
-                {
-                    writer.Write((byte)23);
-                    writer.Write((double)elem.Value);
-                }
-                else if (elem.Value is bool)
-                {
-                    writer.Write((byte)24);
-                    writer.Write(((bool)elem.Value) ? 1 : 0);
-                }
-                else if (elem.Value is DateTime)
-                {
-                    writer.Write((byte)25);
-                    writer.Write(((DateTime)elem.Value).ToOADate());
-                }
-                else if (elem.Value is string)
-                {
-                    writer.Write((byte)26);
-                    writer.WriteBStr((string)elem.Value ?? "");
-                }
-                else
-                {
-                    throw new Exception();
+                    case null:
+                        writer.Write((byte)22);
+                        break;
+                    case byte[] v:
+                        writer.WriteBytesWithLengthPrefix(v);
+                        break;
+                    case double v:
+                        writer.Write((byte)23);
+                        writer.Write(v);
+                        break;
+                    case bool v:
+                        writer.Write((byte)24);
+                        writer.Write(v ? 1 : 0);
+                        break;
+                    case DateTime v:
+                        writer.Write((byte)25);
+                        writer.Write(v.ToOADate());
+                        break;
+                    case string v:
+                        writer.Write((byte)26);
+                        writer.WriteBStr(v);
+                        break;
+                    default:
+                        throw new Exception();
                 }
             });
         }
-
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        {
+            for (int i = 0; i < indent; i++)
+                result.Append("    ");
+            string valueCode;
+            switch (Value)
+            {
+                case null:
+                    valueCode = "";
+                    break;
+                case string str:
+                    if(LongText)
+                        valueCode = $"\"<文本长度: {Encoding.GetEncoding("gbk").GetBytes(str).Length}>\"";
+                    else
+                        valueCode = $"\"“{str}”\"";
+                    break;
+                case byte[] bytes:
+                    valueCode = $"\"<资源: {Convert.ToBase64String(bytes)}>\"";
+                    break;
+                case bool boolValue:
+                    valueCode = "\"" + (boolValue ? "真" : "假") + "\"";
+                    break;
+                case DateTime dateTime:
+                    if (dateTime.TimeOfDay.TotalSeconds == 0)
+                        valueCode = dateTime.ToString("\"[yyyy年MM月dd日]\"");
+                    else
+                        valueCode = dateTime.ToString("\"[yyyy年MM月dd日HH时mm分ss秒]\"");
+                    break;
+                default:
+                    valueCode = $"\"{Value}\"";
+                    break;
+            }
+            result.AppendFormat(".常量 {0}, {1}, {2}, {3}", Name, valueCode, Public ? "公开" : "", Comment);
+        }
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);

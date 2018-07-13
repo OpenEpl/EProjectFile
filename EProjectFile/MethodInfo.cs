@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
@@ -23,7 +24,7 @@ namespace QIQI.EProjectFile
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
-    public class MethodInfo : IHasId
+    public class MethodInfo : IHasId, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -42,8 +43,8 @@ namespace QIQI.EProjectFile
         public int ReturnDataType;
         public string Name;
         public string Comment;
-        public VariableInfo[] Variables;
-        public VariableInfo[] Parameters;
+        public LocalVariableInfo[] Variables;
+        public MethodParameterInfo[] Parameters;
         public MethodCodeData CodeData;
         public static MethodInfo[] ReadMethods(BinaryReader reader)
         {
@@ -62,8 +63,8 @@ namespace QIQI.EProjectFile
                     ReturnDataType = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(),
                     Comment = reader.ReadStringWithLengthPrefix(),
-                    Variables = VariableInfo.ReadVariables(reader),
-                    Parameters = VariableInfo.ReadVariables(reader)
+                    Variables = AbstractVariableInfo.ReadVariables(reader, x => new LocalVariableInfo(x)),
+                    Parameters = AbstractVariableInfo.ReadVariables(reader, x => new MethodParameterInfo(x))
                 };
                 methodInfo.CodeData.LineOffest = reader.ReadBytesWithLengthPrefix();
                 methodInfo.CodeData.BlockOffest = reader.ReadBytesWithLengthPrefix();
@@ -88,8 +89,8 @@ namespace QIQI.EProjectFile
                 writer.Write(method.ReturnDataType);
                 writer.WriteStringWithLengthPrefix(method.Name);
                 writer.WriteStringWithLengthPrefix(method.Comment);
-                VariableInfo.WriteVariables(writer, method.Variables);
-                VariableInfo.WriteVariables(writer, method.Parameters);
+                AbstractVariableInfo.WriteVariables(writer, method.Variables);
+                AbstractVariableInfo.WriteVariables(writer, method.Parameters);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.LineOffest);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.BlockOffest);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.MethodReference);
@@ -101,6 +102,28 @@ namespace QIQI.EProjectFile
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, bool writeCode)
+        {
+            TextCodeUtils.WriteDefinedCode(result, indent, "子程序", Name, nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
+            if (Parameters != null && Parameters.Length != 0)
+            {
+                result.AppendLine();
+                TextCodeUtils.WriteJoinCode(Parameters, Environment.NewLine, nameMap, result, indent);
+            }
+            if (!writeCode) return;
+            if (Variables != null && Variables.Length != 0)
+            {
+                result.AppendLine();
+                TextCodeUtils.WriteJoinCode(Variables, Environment.NewLine, nameMap, result, indent);
+            }
+            result.AppendLine();
+            result.AppendLine();
+            CodeDataParser.ParseStatementBlock(CodeData.ExpressionData).ToTextCode(nameMap, result, indent);
+        }
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        {
+            ToTextCode(nameMap, result, indent, true);
         }
     }
 }

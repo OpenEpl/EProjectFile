@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class CodeSectionInfo
+    public class CodeSectionInfo : IToTextCodeAble
     {
         public const string SectionName = "程序段";
 
@@ -26,7 +28,7 @@ namespace QIQI.EProjectFile
         public string DebugCommandParameters;
         public ClassInfo[] Classes;
         public MethodInfo[] Methods;
-        public VariableInfo[] GlobalVariables;
+        public GlobalVariableInfo[] GlobalVariables;
         public StructInfo[] Structs;
         public DllDeclareInfo[] DllDeclares;
 
@@ -68,7 +70,7 @@ namespace QIQI.EProjectFile
                     reader.ReadBytes(12);
                     codeSectionInfo.Methods = MethodInfo.ReadMethods(reader);
                     codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader);
-                    codeSectionInfo.GlobalVariables = VariableInfo.ReadVariables(reader);
+                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, x => new GlobalVariableInfo(x));
                     codeSectionInfo.Classes = ClassInfo.ReadClasses(reader);
                     codeSectionInfo.Structs = StructInfo.ReadStructs(reader);
                 }
@@ -76,7 +78,7 @@ namespace QIQI.EProjectFile
                 {
                     codeSectionInfo.Classes = ClassInfo.ReadClasses(reader);
                     codeSectionInfo.Methods = MethodInfo.ReadMethods(reader);
-                    codeSectionInfo.GlobalVariables = VariableInfo.ReadVariables(reader);
+                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, x => new GlobalVariableInfo(x));
                     codeSectionInfo.Structs = StructInfo.ReadStructs(reader);
                     codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader);
                 }
@@ -121,7 +123,7 @@ namespace QIQI.EProjectFile
             writer.WriteStringWithLengthPrefix(DebugCommandParameters);
             ClassInfo.WriteClasses(writer, Classes);
             MethodInfo.WriteMethods(writer, Methods);
-            VariableInfo.WriteVariables(writer, GlobalVariables);
+            AbstractVariableInfo.WriteVariables(writer, GlobalVariables);
             StructInfo.WriteStructs(writer, Structs);
             DllDeclareInfo.WriteDllDeclares(writer, DllDeclares);
             writer.Write(new byte[40]);//Unknown（40个0）
@@ -130,6 +132,29 @@ namespace QIQI.EProjectFile
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        {
+            ToTextCode(nameMap, result, indent, true);
+        }
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, bool writeMethod, bool writeCode = true)
+        {
+            if (GlobalVariables != null && GlobalVariables.Length != 0)
+            {
+                TextCodeUtils.WriteJoinCode(GlobalVariables, Environment.NewLine, nameMap, result, indent);
+                result.AppendLine();
+            }
+            TextCodeUtils.WriteJoinCode(Classes, Environment.NewLine, writeMethod ? this : null, nameMap, result, indent, writeCode);
+            if (DllDeclares != null && DllDeclares.Length != 0)
+            {
+                result.AppendLine();
+                TextCodeUtils.WriteJoinCode(DllDeclares, Environment.NewLine, nameMap, result, indent);
+            }
+            if (Structs != null && Structs.Length != 0)
+            {
+                result.AppendLine();
+                TextCodeUtils.WriteJoinCode(Structs, Environment.NewLine, nameMap, result, indent);
+            }
         }
     }
 }

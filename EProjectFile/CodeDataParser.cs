@@ -539,17 +539,11 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 表达式 基类
     /// </summary>
-    public abstract class Expression
+    public abstract class Expression : IToTextCodeAble
     {
         internal abstract void WriteTo(MethodCodeDataWriterArgs a);
-        public abstract void ToTextCode(IdToNameMap nameMap,StringBuilder result);
-        public string ToTextCode(IdToNameMap nameMap)
-        {
-            var builder = new StringBuilder();
-            ToTextCode(nameMap, builder);
-            return builder.ToString();
-        }
-        public sealed override string ToString() => ToTextCode(IdToNameMap.Empty);
+        public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
+        public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0);
     }
     /// <summary>
     /// 解析时临时标记（参数列表结束标识）
@@ -562,7 +556,7 @@ namespace QIQI.EProjectFile
             if (Instance != null) throw new NotSupportedException();
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result) => throw new NotImplementedException();
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0) => throw new NotImplementedException();
 
         internal override void WriteTo(MethodCodeDataWriterArgs a) => a.ExpressionData.Write((byte)0x01);
     }
@@ -576,7 +570,7 @@ namespace QIQI.EProjectFile
         {
             if (Instance != null) throw new NotSupportedException();
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result) => throw new NotImplementedException();
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0) => throw new NotImplementedException();
 
         internal override void WriteTo(MethodCodeDataWriterArgs a) => a.ExpressionData.Write((byte)0x20);
     }
@@ -588,7 +582,7 @@ namespace QIQI.EProjectFile
             if (Instance != null) throw new NotSupportedException();
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a) => a.ExpressionData.Write((byte)0x16);
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             //Nothing need doing.
         }
@@ -596,23 +590,11 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 语句 基类
     /// </summary>
-    public abstract class Statement
+    public abstract class Statement : IToTextCodeAble
     {
         internal abstract void WriteTo(MethodCodeDataWriterArgs a);
-        /// <summary>
-        /// 开头含缩进，结尾不含换行
-        /// </summary>
-        /// <param name="nameMap"></param>
-        /// <param name="result"></param>
-        /// <param name="indent"></param>
         public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result,int indent = 0);
-        public string ToTextCode(IdToNameMap nameMap)
-        {
-            var builder = new StringBuilder();
-            ToTextCode(nameMap, builder);
-            return builder.ToString();
-        }
-        public sealed override string ToString() => ToTextCode(IdToNameMap.Empty);
+        public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
     }
     /// <summary>
     /// 表达式语句
@@ -641,10 +623,10 @@ namespace QIQI.EProjectFile
                 result.Append("    ");
             if (Mask)
                 result.Append("' ");
-            Expression?.ToTextCode(nameMap, result);
+            Expression?.ToTextCode(nameMap, result, indent);
             if (Comment != null) 
             {
-                result.Append("' ");
+                result.Append(Expression == null ? "' " : "  ' ");
                 result.Append(Comment);
             }
         }
@@ -733,7 +715,7 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".如果 (");
-                Condition.ToTextCode(nameMap, result);
+                Condition.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -743,7 +725,7 @@ namespace QIQI.EProjectFile
             }
             if (Comment != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(Comment);
             }
             result.AppendLine();
@@ -793,7 +775,7 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".如果真 (");
-                Condition.ToTextCode(nameMap, result);
+                Condition.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -803,7 +785,7 @@ namespace QIQI.EProjectFile
             }
             if (Comment != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(Comment);
             }
             result.AppendLine();
@@ -854,7 +836,7 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".判断循环首 (");
-                Condition.ToTextCode(nameMap, result);
+                Condition.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -864,7 +846,7 @@ namespace QIQI.EProjectFile
             }
             if (CommentOnStart != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnStart);
             }
             result.AppendLine();
@@ -877,7 +859,7 @@ namespace QIQI.EProjectFile
             result.Append(".判断循环尾 ()");
             if (CommentOnEnd != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnEnd);
             }
         }
@@ -910,7 +892,7 @@ namespace QIQI.EProjectFile
             result.Append(".判断循环首 ()");
             if (CommentOnStart != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnStart);
             }
             result.AppendLine();
@@ -923,7 +905,7 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".判断循环尾 (");
-                Condition.ToTextCode(nameMap, result);
+                Condition.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -933,7 +915,7 @@ namespace QIQI.EProjectFile
             }
             if (CommentOnEnd != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnEnd);
             }
         }
@@ -967,9 +949,9 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".计次循环首 (");
-                Count.ToTextCode(nameMap, result);
+                Count.ToTextCode(nameMap, result, indent);
                 result.Append(", ");
-                Var.ToTextCode(nameMap, result);
+                Var.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -979,7 +961,7 @@ namespace QIQI.EProjectFile
             }
             if (CommentOnStart != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnStart);
             }
             result.AppendLine();
@@ -992,7 +974,7 @@ namespace QIQI.EProjectFile
             result.Append(".计次循环尾 ()");
             if (CommentOnEnd != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnEnd);
             }
         }
@@ -1029,13 +1011,13 @@ namespace QIQI.EProjectFile
             if (UnexaminedCode == null)
             {
                 result.Append(".变量循环首 (");
-                Start.ToTextCode(nameMap, result);
+                Start.ToTextCode(nameMap, result, indent);
                 result.Append(", ");
-                End.ToTextCode(nameMap, result);
+                End.ToTextCode(nameMap, result, indent);
                 result.Append(", ");
-                Step.ToTextCode(nameMap, result);
+                Step.ToTextCode(nameMap, result, indent);
                 result.Append(", ");
-                Var.ToTextCode(nameMap, result);
+                Var.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -1045,7 +1027,7 @@ namespace QIQI.EProjectFile
             }
             if (CommentOnStart != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnStart);
             }
             result.AppendLine();
@@ -1058,7 +1040,7 @@ namespace QIQI.EProjectFile
             result.Append(".变量循环尾 ()");
             if (CommentOnEnd != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(CommentOnEnd);
             }
         }
@@ -1104,7 +1086,7 @@ namespace QIQI.EProjectFile
             if (Case[0].UnexaminedCode == null)
             {
                 result.Append(".判断开始 (");
-                Case[0].Condition.ToTextCode(nameMap, result);
+                Case[0].Condition.ToTextCode(nameMap, result, indent);
                 result.Append(")");
             }
             else
@@ -1114,7 +1096,7 @@ namespace QIQI.EProjectFile
             }
             if (Case[0].Comment != null)
             {
-                result.Append("' ");
+                result.Append("  ' ");
                 result.Append(Case[0].Comment);
             }
             result.AppendLine();
@@ -1129,7 +1111,7 @@ namespace QIQI.EProjectFile
                 if (Case[i].UnexaminedCode == null)
                 {
                     result.Append(".判断 (");
-                    Case[i].Condition.ToTextCode(nameMap, result);
+                    Case[i].Condition.ToTextCode(nameMap, result, indent);
                     result.Append(")");
                 }
                 else
@@ -1139,7 +1121,7 @@ namespace QIQI.EProjectFile
                 }
                 if (Case[i].Comment != null)
                 {
-                    result.Append("' ");
+                    result.Append("  ' ");
                     result.Append(Case[i].Comment);
                 }
                 result.AppendLine();
@@ -1179,7 +1161,7 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 语句块
     /// </summary>
-    public class StatementBlock : IList<Statement>
+    public class StatementBlock : IList<Statement>, IToTextCodeAble
     {
         private List<Statement> Statements = new List<Statement>();
 
@@ -1232,20 +1214,9 @@ namespace QIQI.EProjectFile
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
-            for (int i = 0; i < Count; i++)
-            {
-                if (i != 0)
-                    result.AppendLine();
-                this[i].ToTextCode(nameMap, result, indent);
-            }
+            TextCodeUtils.WriteJoinCode(this, Environment.NewLine, nameMap, result, indent);
         }
-        public string ToTextCode(IdToNameMap nameMap)
-        {
-            var builder = new StringBuilder();
-            ToTextCode(nameMap, builder);
-            return builder.ToString();
-        }
-        public sealed override string ToString() => ToTextCode(IdToNameMap.Empty);
+        public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
 
         public int IndexOf(Statement item)
         {
@@ -1314,7 +1285,7 @@ namespace QIQI.EProjectFile
             this.LibraryId = -2;
             this.ConstantId = ConstantId;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("#");
             result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(ConstantId):nameMap.GetLibConstantName(LibraryId,ConstantId));
@@ -1356,7 +1327,7 @@ namespace QIQI.EProjectFile
             a.ExpressionData.Write((short)(LibraryId + 1));
             a.ExpressionData.Write(MemberId);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("#");
             result.Append(nameMap.GetLibTypeName(LibraryId, StructId));
@@ -1382,7 +1353,7 @@ namespace QIQI.EProjectFile
             a.ExpressionData.Write((byte)0x1E);
             a.ExpressionData.Write(MethodId);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("&");
             result.Append(nameMap.GetUserDefinedName(MethodId));
@@ -1407,15 +1378,16 @@ namespace QIQI.EProjectFile
             ParamList = paramList;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             if (Target != null) 
             {
-                Target.ToTextCode(nameMap, result);
+                Target.ToTextCode(nameMap, result, indent);
                 result.Append(".");
             }
             result.Append(LibraryId == -2 || LibraryId == -3 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
-            ParamList.ToTextCode(nameMap, result);
+            result.Append(" ");
+            ParamList.ToTextCode(nameMap, result, indent);
         }
         internal void WriteTo(MethodCodeDataWriterArgs a, byte type, bool mask, string comment)
         {
@@ -1474,15 +1446,10 @@ namespace QIQI.EProjectFile
             Value.ForEach(x => x.WriteTo(a));
             ParamListEnd.Instance.WriteTo(a);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("(");
-            for (int i = 0; i < Count; i++)
-            {
-                if (i != 0)
-                    result.Append(", ");
-                this[i].ToTextCode(nameMap, result);
-            }
+            TextCodeUtils.WriteJoinCode(this, ", ", nameMap, result, indent);
             result.Append(")");
         }
 
@@ -1581,15 +1548,10 @@ namespace QIQI.EProjectFile
         {
             Value.RemoveAt(index);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("{");
-            for (int i = 0; i < Count; i++)
-            {
-                if (i != 0)
-                    result.Append(", ");
-                this[i].ToTextCode(nameMap, result);
-            }
+            TextCodeUtils.WriteJoinCode(this, ", ", nameMap, result, indent);
             result.Append("}");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
@@ -1616,7 +1578,7 @@ namespace QIQI.EProjectFile
             this.Value = value;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("[");
             if (Value != null)
@@ -1645,7 +1607,7 @@ namespace QIQI.EProjectFile
         {
             this.Value = value;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("“");
             result.Append(Value ?? "");
@@ -1667,7 +1629,7 @@ namespace QIQI.EProjectFile
         {
             this.Value = value;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append(Value);
         }
@@ -1693,7 +1655,7 @@ namespace QIQI.EProjectFile
         {
             this.Value = value;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append(Value ? "真" : "假");
         }
@@ -1735,9 +1697,9 @@ namespace QIQI.EProjectFile
             MemberId = memberId;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
-            Target.ToTextCode(nameMap, result);
+            Target.ToTextCode(nameMap, result, indent);
             result.Append(".");
             result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(MemberId) : nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
         }
@@ -1780,7 +1742,7 @@ namespace QIQI.EProjectFile
             this.Id = Id;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append(nameMap.GetUserDefinedName(Id));
         }
@@ -1809,11 +1771,11 @@ namespace QIQI.EProjectFile
             this.Index = index;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result)
+        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
-            Target.ToTextCode(nameMap, result);
+            Target.ToTextCode(nameMap, result, indent);
             result.Append("[");
-            Index.ToTextCode(nameMap, result);
+            Index.ToTextCode(nameMap, result, indent);
             result.Append("]");
         }
 

@@ -91,6 +91,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassInfo.cs" />
+    <Compile Include="TextCodeUtils.cs" />
+    <Compile Include="VariableInfo\ClassVariableInfo.cs" />
     <Compile Include="CodeDataParser.cs" />
     <Compile Include="CodeSectionInfo.cs" />
     <Compile Include="ConstantInfo.cs" />
@@ -102,10 +104,13 @@
     <Compile Include="FormInfo.cs" />
     <Compile Include="FormControlInfo.cs" />
     <Compile Include="FormMenuInfo.cs" />
+    <Compile Include="VariableInfo\DllParameterInfo.cs" />
+    <Compile Include="VariableInfo\GlobalVariableInfo.cs" />
     <Compile Include="HexConverter.cs" />
     <Compile Include="IdToNameMap.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="InitEcSectionInfo.cs" />
+    <Compile Include="IToTextCodeAble.cs" />
     <Compile Include="LibInfo\LibCmdInfo.cs" />
     <Compile Include="LibInfo\LibConstantInfo.cs" />
     <Compile Include="LibInfo\LibDataTypeInfo.cs" />
@@ -114,7 +119,9 @@
     <Compile Include="LibInfo\LibPropertyInfo.cs" />
     <Compile Include="LibInfo\LibMemberInfo.cs" />
     <Compile Include="LibraryRefInfo.cs" />
+    <Compile Include="VariableInfo\LocalVariableInfo.cs" />
     <Compile Include="MethodInfo.cs" />
+    <Compile Include="VariableInfo\MethodParameterInfo.cs" />
     <Compile Include="ProjectConfigInfo.cs" />
     <Compile Include="ProjectFileReader.cs" />
     <Compile Include="ProjectFileWriter.cs" />
@@ -124,7 +131,8 @@
     <Compile Include="SectionInfo.cs" />
     <Compile Include="StructInfo.cs" />
     <Compile Include="EplSystemId.cs" />
-    <Compile Include="VariableInfo.cs" />
+    <Compile Include="VariableInfo\StructMemberInfo.cs" />
+    <Compile Include="VariableInfo\AbstractVariableInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

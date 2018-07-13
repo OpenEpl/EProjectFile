@@ -17,7 +17,7 @@ Package Manager `Install-Package QIQI.EProjectFile`
 4. 对于使用本项目造成的一切损失，概不负责
 5. 本项目可能造成被操作文件的数据丢失，请提前备份
 6. 禁止用于非法用途，包括但不限于：破解他人软件
-7. **本项目目前处于起步阶段，基本只提供底层解析/生成支持，功能极不完善，甚至不支持将代码数据转换为文本代码**
+7. **本项目目前处于起步阶段，基本只提供底层解析/生成支持，功能极不完善**
 
 # 交流
 一般bug请用Github的Issues模块反馈  
@@ -90,9 +90,9 @@ catch (Exception)
 			Name = "Tag",
 			Class = tagStaticClass,
 			CodeData = new StatementBlock(){ new ExpressionStatement() }.ToCodeData(),
-			Parameters = new VariableInfo[]
+			Parameters = new MethodParameterInfo[]
 			{
-				new VariableInfo(codeSectionInfo.AllocId(EplSystemId.Type_Local))
+				new MethodParameterInfo(codeSectionInfo.AllocId(EplSystemId.Type_Local))
 				{
 					Name = "Name",
 					DataType = EplSystemId.DataType_String
@@ -114,7 +114,7 @@ foreach (var method in codeSectionInfo.Methods) if (method.Id != tagMethod)
 				if (callExpression.LibraryId == -2 && callExpression.MethodId == tagMethod)
 					block.RemoveAt(0);
 		}
-		block.Insert(0, new ExpressionStatement(new CallExpression(-2, tagMethod, new ParamListExpression() { new StringLiteral(method.Name) }), false, "AutoGen"));
+		block.Insert(0, new ExpressionStatement(new CallExpression(-2, tagMethod, new ParamListExpression() { new StringLiteral(method.Name) }), false, "Added from C# Project \"EProjectFile\""));
 		method.CodeData = block.ToCodeData();
 	}
 

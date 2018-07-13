@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class StructInfo :IHasId
+    public class StructInfo :IHasId, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -18,7 +19,7 @@ namespace QIQI.EProjectFile
         public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public string Name;
         public string Comment;
-        public VariableInfo[] Member;
+        public StructMemberInfo[] Member;
         public static StructInfo[] ReadStructs(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();
@@ -34,7 +35,7 @@ namespace QIQI.EProjectFile
                     Flags = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(),
                     Comment = reader.ReadStringWithLengthPrefix(),
-                    Member = VariableInfo.ReadVariables(reader)
+                    Member = AbstractVariableInfo.ReadVariables(reader, x => new StructMemberInfo(x))
                 };
                 structs[i] = structInfo;
             }
@@ -51,12 +52,19 @@ namespace QIQI.EProjectFile
                 writer.Write(structInfo.Flags);
                 writer.WriteStringWithLengthPrefix(structInfo.Name);
                 writer.WriteStringWithLengthPrefix(structInfo.Comment);
-                VariableInfo.WriteVariables(writer, structInfo.Member);
+                AbstractVariableInfo.WriteVariables(writer, structInfo.Member);
             }
         }
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
+        {
+            TextCodeUtils.WriteDefinedCode(result, indent, "数据类型", Name, Public ? "公开" : "", Comment);
+            result.AppendLine();
+            TextCodeUtils.WriteJoinCode(Member, Environment.NewLine, nameMap, result, indent + 1);
         }
     }
 }

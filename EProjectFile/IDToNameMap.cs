@@ -6,6 +6,20 @@ namespace QIQI.EProjectFile
 {
     public class IdToNameMap
     {
+        public static readonly Dictionary<int, string> SystemDataTypeName = new Dictionary<int, string> {
+            {EplSystemId.DataType_Bin, "字节集"},
+            {EplSystemId.DataType_Bool, "逻辑型"},
+            {EplSystemId.DataType_Byte, "字节型"},
+            {EplSystemId.DataType_DateTime, "日期时间型"},
+            {EplSystemId.DataType_Double, "双精度小数型"},
+            {EplSystemId.DataType_Float, "小数型"},
+            {EplSystemId.DataType_Int, "整数型"},
+            {EplSystemId.DataType_Long, "长整数型"},
+            {EplSystemId.DataType_MethodPtr, "子程序指针"},
+            {EplSystemId.DataType_Short, "短整数型"},
+            {EplSystemId.DataType_String, "文本型"},
+            {EplSystemId.DataType_Void, ""}
+        };
         public static readonly IdToNameMap Empty = new IdToNameMap();
         private readonly Dictionary<int, string> UserDefinedName;
         private readonly LibInfo.LibInfo[] LibDefinedName;
@@ -195,6 +209,22 @@ namespace QIQI.EProjectFile
             catch (Exception)
             {
                 return $"_Lib{lib}Type{typeId}Mem{id}";
+            }
+        }
+        public string GetDataTypeName(int id)
+        {
+            if (SystemDataTypeName.TryGetValue(id, out var result))
+            {
+                return result;
+            }
+            else if (EplSystemId.IsLibDataType(id))
+            {
+                EplSystemId.DecomposeLibDataTypeId(id, out var lib, out var type);
+                return GetLibTypeName(lib, type);
+            }
+            else
+            {
+                return GetUserDefinedName(id);
             }
         }
     }

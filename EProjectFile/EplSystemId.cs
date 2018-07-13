@@ -1,4 +1,6 @@
-﻿namespace QIQI.EProjectFile
+﻿using System;
+
+namespace QIQI.EProjectFile
 {
     public class EplSystemId
     {
@@ -37,6 +39,11 @@
         public const int Mask_Num = 0x00FFFFFF;
         public const int Mask_Type = unchecked((int)0xFF000000);
 
+        /// <summary>
+        /// 只用于用户定义Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static int GetType(int id) => id & Mask_Type;
         
         /// <summary>
@@ -58,5 +65,34 @@
         public const int DataType_String = unchecked((int)0x80000004);
         public const int DataType_Bin = unchecked((int)0x80000005);
         public const int DataType_MethodPtr = unchecked((int)0x80000006);
+
+        public static int MakeSureIsSpecifiedType(int id, params int[] type) => Array.IndexOf(type, GetType(id)) >= 0 ? id : throw new Exception("不是指定类型的Id");
+
+        public static bool IsLibDataType(int id) => (id & 0xF0000000) == 0 && id != DataType_Void;
+
+        /// <summary>
+        /// 合成库类型Id
+        /// </summary>
+        /// <param name="lib">索引从0开始（CStyle）</param>
+        /// <param name="type">索引从0开始（CStyle）</param>
+        /// <returns></returns>
+        public static int MakeLibDataTypeId(short lib, short type) => ((int)(lib + 1) << 16) | (int)(type + 1);
+        /// <summary>
+        /// 分解库类型Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="lib">索引从0开始（CStyle）</param>
+        /// <param name="type">索引从0开始（CStyle）</param>
+        public static void DecomposeLibDataTypeId(int id, out short lib, out short type)
+        {
+            if (!IsLibDataType(id)) throw new Exception("DecomposeLibDataTypeId只能处理库类型Id");
+            unchecked
+            {
+                lib = (short)(id >> 16);
+                lib--;
+                type = (short)(id);
+                type--;
+            }
+        }
     }
 }
