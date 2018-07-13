@@ -16,7 +16,7 @@ namespace QIQI.EProjectFile
 
         [JsonIgnore]
         public int UnknownAfterId;
-        public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
+        public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
         public int Flags;
         public int BaseClass;
         public string Name;
