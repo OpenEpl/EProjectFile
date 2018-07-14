@@ -19,7 +19,7 @@ namespace QIQI.EProjectFile
                 strForUBound = "\"0\"";
             else
                 strForUBound = "\"" + string.Join(",", UBound.Select(x => x == 0 ? "" : x.ToString())) + "\"";
-            TextCodeUtils.WriteDefinedCode(result, indent, "程序集变量", Name, nameMap.GetDataTypeName(DataType),  "", strForUBound, Comment);
+            TextCodeUtils.WriteDefinedCode(result, indent, "程序集变量", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType),  "", strForUBound, Comment);
         }
     }
 }

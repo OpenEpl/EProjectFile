@@ -105,7 +105,7 @@ namespace QIQI.EProjectFile
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, bool writeCode)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "子程序", Name, nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinedCode(result, indent, "子程序", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
             if (Parameters != null && Parameters.Length != 0)
             {
                 result.AppendLine();

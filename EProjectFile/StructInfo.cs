@@ -62,7 +62,7 @@ namespace QIQI.EProjectFile
 
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "数据类型", Name, Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinedCode(result, indent, "数据类型", nameMap.GetUserDefinedName(Id), Public ? "公开" : "", Comment);
             result.AppendLine();
             TextCodeUtils.WriteJoinCode(Member, Environment.NewLine, nameMap, result, indent + 1);
         }

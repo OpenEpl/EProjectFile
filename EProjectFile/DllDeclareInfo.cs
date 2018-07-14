@@ -67,7 +67,7 @@ namespace QIQI.EProjectFile
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "DLL命令", Name, nameMap.GetDataTypeName(ReturnDataType), LibraryName, EntryPoint, Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinedCode(result, indent, "DLL命令", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), LibraryName, EntryPoint, Public ? "公开" : "", Comment);
             result.AppendLine();
             TextCodeUtils.WriteJoinCode(Parameters, Environment.NewLine, nameMap, result, indent + 1);
         }

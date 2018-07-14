@@ -84,7 +84,7 @@ namespace QIQI.EProjectFile
         /// <param name="indent">起始缩进</param>
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, CodeSectionInfo codeSection, bool writeCode = true)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "程序集", Name, BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinedCode(result, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
             result.AppendLine();
             TextCodeUtils.WriteJoinCode(Variables, Environment.NewLine, nameMap, result, indent);
             if (codeSection != null) 
