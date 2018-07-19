@@ -178,6 +178,11 @@ namespace QIQI.EProjectFile
                 return $"_Lib{lib}Const{id}";
             }
         }
+        public string GetLibTypeEventName(int typeId, int id)
+        {
+            EplSystemId.DecomposeLibDataTypeId(typeId, out var lib, out var type);
+            return GetLibTypeEventName(lib, type, id);
+        }
         public string GetLibTypeEventName(int lib, int typeId, int id)
         {
             try
@@ -189,6 +194,11 @@ namespace QIQI.EProjectFile
                 return $"_Lib{lib}Type{typeId}Event{id}";
             }
         }
+        public string GetLibTypePropertyName(int typeId, int id)
+        {
+            EplSystemId.DecomposeLibDataTypeId(typeId, out var lib, out var type);
+            return GetLibTypePropertyName(lib, type, id);
+        }
         public string GetLibTypePropertyName(int lib, int typeId, int id)
         {
             try
@@ -199,6 +209,11 @@ namespace QIQI.EProjectFile
             {
                 return $"_Lib{lib}Type{typeId}Prop{id}";
             }
+        }
+        public string GetLibTypeMemberName(int typeId, int id)
+        {
+            EplSystemId.DecomposeLibDataTypeId(typeId, out var lib, out var type);
+            return GetLibTypeMemberName(lib, type, id);
         }
         public string GetLibTypeMemberName(int lib, int typeId, int id)
         {
