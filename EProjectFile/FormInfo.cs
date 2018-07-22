@@ -6,16 +6,16 @@ namespace QIQI.EProjectFile
 {
     public class FormInfo
     {
-        public int Id;
-        public int UnknownAfterId;
-        public int UnknownBeforeClass;
+        public int Id { get; set; }
+        public int UnknownAfterId { get; set; }
+        public int UnknownBeforeClass { get; set; }
         /// <summary>
         /// 对应的窗口程序集
         /// </summary>
-        public int Class;
-        public string Name;
-        public string Comment;
-        public FormElementInfo[] Elements;
+        public int Class { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
+        public FormElementInfo[] Elements { get; set; }
         public static FormInfo[] ReadForms(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();
@@ -51,7 +51,7 @@ namespace QIQI.EProjectFile
                 writer.Write(form.Class);
                 writer.WriteStringWithLengthPrefix(form.Name);
                 writer.WriteStringWithLengthPrefix(form.Comment);
-                FormElementInfo.WriteFormElements(writer,form.Elements);
+                FormElementInfo.WriteFormElements(writer, form.Elements);
             }
         }
 

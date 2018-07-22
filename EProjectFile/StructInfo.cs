@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class StructInfo :IHasId, IToTextCodeAble
+    public class StructInfo : IHasId, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -14,12 +14,12 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
         [JsonIgnore]
-        public int UnknownAfterId;
-        public int Flags;
+        public int UnknownAfterId { get; set; }
+        public int Flags { get; set; }
         public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
-        public string Name;
-        public string Comment;
-        public StructMemberInfo[] Member;
+        public string Name { get; set; }
+        public string Comment { get; set; }
+        public StructMemberInfo[] Member { get; set; }
         public static StructInfo[] ReadStructs(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();

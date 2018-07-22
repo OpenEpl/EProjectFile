@@ -18,7 +18,7 @@ namespace QIQI.EProjectFile
 
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
             {
-                switch(reader.TokenType)
+                switch (reader.TokenType)
                 {
                     case JsonToken.Boolean:
                     case JsonToken.Float:
@@ -26,7 +26,7 @@ namespace QIQI.EProjectFile
                     case JsonToken.String:
                         return reader.Value;
                 }
-                if(reader.TokenType != JsonToken.StartObject)
+                if (reader.TokenType != JsonToken.StartObject)
                 {
                     throw new Exception();
                 }
@@ -36,7 +36,7 @@ namespace QIQI.EProjectFile
                     switch (reader.TokenType)
                     {
                         case JsonToken.PropertyName:
-                            if(value != null)
+                            if (value != null)
                             {
                                 throw new Exception();
                             }
@@ -46,7 +46,7 @@ namespace QIQI.EProjectFile
                             {
                                 value = new HexConverter().ReadJson(reader, typeof(byte[]), null, serializer);
                             }
-                            else if("date".Equals(keyName))
+                            else if ("date".Equals(keyName))
                             {
                                 value = new IsoDateTimeConverter().ReadJson(reader, typeof(DateTime), null, serializer);
                             }
@@ -68,23 +68,23 @@ namespace QIQI.EProjectFile
 
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
-                if(value is byte[])
+                switch (value)
                 {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("bytes");
-                    new HexConverter().WriteJson(writer, value, serializer);
-                    writer.WriteEndObject();
-                }
-                else if(value is DateTime)
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("date");
-                    new IsoDateTimeConverter().WriteJson(writer, value, serializer);
-                    writer.WriteEndObject();
-                }
-                else
-                {
-                    writer.WriteValue(value);
+                    case byte[] _:
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("bytes");
+                        new HexConverter().WriteJson(writer, value, serializer);
+                        writer.WriteEndObject();
+                        break;
+                    case DateTime _:
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("date");
+                        new IsoDateTimeConverter().WriteJson(writer, value, serializer);
+                        writer.WriteEndObject();
+                        break;
+                    default:
+                        writer.WriteValue(value);
+                        break;
                 }
             }
         }
@@ -94,18 +94,19 @@ namespace QIQI.EProjectFile
         {
             this.Id = id;
         }
-        public int Flags;
+        public int Flags { get; set; }
         public bool Unexamined { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
         public bool LongText { get => (Flags & 0x10) != 0; set => Flags = (Flags & ~0x10) | (value ? 0x10 : 0); }
-        public string Name;
-        public string Comment;
+        public string Name { get; set; }
+        public string Comment { get; set; }
         [JsonConverter(typeof(ConstantValueConverter))]
-        public object Value;//对于未验证代码，此值为string
+        public object Value { get; set; } // 对于未验证代码，此值为string
 
         public static ConstantInfo[] ReadConstants(BinaryReader r)
         {
-            return r.ReadBlocksWithIdAndOffest((reader, id) =>
+            return r.ReadBlocksWithIdAndOffest(
+                (reader, id) =>
                 {
                     var constant = new ConstantInfo(id)
                     {
@@ -115,7 +116,7 @@ namespace QIQI.EProjectFile
                     };
                     switch (unchecked((uint)id) >> 28)
                     {
-                        case 1://常量
+                        case 1: // 常量
                             byte type = reader.ReadByte();
                             switch (type)
                             {
@@ -138,52 +139,53 @@ namespace QIQI.EProjectFile
                                     throw new Exception();
                             }
                             break;
-                        case 2://图片
-                        case 3://声音
+                        case 2: // 图片
+                        case 3: // 声音
                             constant.Value = reader.ReadBytesWithLengthPrefix();
                             break;
                         default:
                             throw new Exception();
                     }
                     return constant;
-                }
-            );
+                });
         }
         public static void WriteConstants(BinaryWriter w, ConstantInfo[] constants)
         {
-            w.WriteBlocksWithIdAndOffest(constants, (writer, elem) =>
-            {
-                writer.Write((short)elem.Flags);
-                writer.WriteCStyleString(elem.Name);
-                writer.WriteCStyleString(elem.Comment);
-                switch (elem.Value)
+            w.WriteBlocksWithIdAndOffest(
+                constants,
+                (writer, elem) =>
                 {
-                    case null:
-                        writer.Write((byte)22);
-                        break;
-                    case byte[] v:
-                        writer.WriteBytesWithLengthPrefix(v);
-                        break;
-                    case double v:
-                        writer.Write((byte)23);
-                        writer.Write(v);
-                        break;
-                    case bool v:
-                        writer.Write((byte)24);
-                        writer.Write(v ? 1 : 0);
-                        break;
-                    case DateTime v:
-                        writer.Write((byte)25);
-                        writer.Write(v.ToOADate());
-                        break;
-                    case string v:
-                        writer.Write((byte)26);
-                        writer.WriteBStr(v);
-                        break;
-                    default:
-                        throw new Exception();
-                }
-            });
+                    writer.Write((short)elem.Flags);
+                    writer.WriteCStyleString(elem.Name);
+                    writer.WriteCStyleString(elem.Comment);
+                    switch (elem.Value)
+                    {
+                        case null:
+                            writer.Write((byte)22);
+                            break;
+                        case byte[] v:
+                            writer.WriteBytesWithLengthPrefix(v);
+                            break;
+                        case double v:
+                            writer.Write((byte)23);
+                            writer.Write(v);
+                            break;
+                        case bool v:
+                            writer.Write((byte)24);
+                            writer.Write(v ? 1 : 0);
+                            break;
+                        case DateTime v:
+                            writer.Write((byte)25);
+                            writer.Write(v.ToOADate());
+                            break;
+                        case string v:
+                            writer.Write((byte)26);
+                            writer.WriteBStr(v);
+                            break;
+                        default:
+                            throw new Exception();
+                    }
+                });
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
@@ -196,7 +198,7 @@ namespace QIQI.EProjectFile
                     valueCode = "";
                     break;
                 case string str:
-                    if(LongText)
+                    if (LongText) 
                         valueCode = $"\"<文本长度: {Encoding.GetEncoding("gbk").GetBytes(str).Length}>\"";
                     else
                         valueCode = $"\"“{str}”\"";

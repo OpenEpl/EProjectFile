@@ -8,8 +8,8 @@ namespace QIQI.EProjectFile
     public class ResourceSectionInfo : IToTextCodeAble
     {
         public const string SectionName = "程序资源段";
-        public FormInfo[] Forms;
-        public ConstantInfo[] Constants;
+        public FormInfo[] Forms { get; set; }
+        public ConstantInfo[] Constants { get; set; }
         public static ResourceSectionInfo Parse(byte[] data)
         {
             ResourceSectionInfo resourceSectionInfo;

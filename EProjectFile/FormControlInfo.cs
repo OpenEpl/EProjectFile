@@ -9,36 +9,36 @@ namespace QIQI.EProjectFile
     public class FormControlInfo : FormElementInfo
     {
         [JsonIgnore]
-        public byte[] UnknownBeforeName;
-        public string Comment;
+        public byte[] UnknownBeforeName { get; set; }
+        public string Comment { get; set; }
         [JsonIgnore]
-        public int UnknownBeforeLeft;//!=0
-        public int Left;
-        public int Top;
-        public int Width;
-        public int Height;
+        public int UnknownBeforeLeft { get; set; } // !=0
+        public int Left { get; set; }
+        public int Top { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         [JsonIgnore]
-        public int UnknownBeforeParent;
-        public int Parent;
-        public int[] Children;
+        public int UnknownBeforeParent { get; set; }
+        public int Parent { get; set; }
+        public int[] Children { get; set; }
         [JsonConverter(typeof(HexConverter))]
-        public byte[] Cursor;
-        public string Tag;
+        public byte[] Cursor { get; set; }
+        public string Tag { get; set; }
         [JsonIgnore]
-        public int UnknownBeforeVisible;
+        public int UnknownBeforeVisible { get; set; }
         [JsonIgnore]
-        public int UnknownBeforeEvents;
+        public int UnknownBeforeEvents { get; set; }
         /// <summary>
         /// 【仅用于不带有编辑信息的EC文件】事件处理程序映射表
         /// </summary>
-        public KeyValuePair<int, int>[] Events;
+        public KeyValuePair<int, int>[] Events { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeExtensionData;
+        public byte[] UnknownBeforeExtensionData { get; set; }
         /// <summary>
         /// 控件特有数据
         /// </summary>
         [JsonConverter(typeof(HexConverter))]
-        public byte[] ExtensionData;
+        public byte[] ExtensionData { get; set; }
         internal static FormControlInfo ReadWithoutDataType(BinaryReader reader, int length)
         {
             var startPosition = reader.BaseStream.Position;
@@ -88,11 +88,13 @@ namespace QIQI.EProjectFile
             writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0));
             writer.Write(UnknownBeforeEvents);
             writer.Write(Events.Length);
-            Array.ForEach(Events, x =>
-            {
-                writer.Write(x.Key);
-                writer.Write(x.Value);
-            });
+            Array.ForEach(
+                Events, 
+                x =>
+                {
+                    writer.Write(x.Key);
+                    writer.Write(x.Value);
+                });
             writer.Write(UnknownBeforeExtensionData);
             writer.Write(ExtensionData);
         }

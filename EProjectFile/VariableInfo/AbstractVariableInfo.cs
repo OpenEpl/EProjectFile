@@ -14,13 +14,10 @@ namespace QIQI.EProjectFile
         {
             this.Id = id;
         }
-        public int DataType;
-        public int Flags;
-        /// <summary>
-        /// 仅变量、自定义类型成员有效
-        /// </summary>
-        public string Name;
-        public string Comment;
+        public int DataType { get; set; }
+        public int Flags { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
         internal static TElem[] ReadVariables<TElem>(BinaryReader r, Func<int, TElem> newFunction) where TElem : AbstractVariableInfo
         {
             return r.ReadBlocksWithIdAndOffest((reader, id) =>
@@ -36,11 +33,13 @@ namespace QIQI.EProjectFile
         }
         internal static void WriteVariables(BinaryWriter w, AbstractVariableInfo[] variables)
         {
-            w.WriteBlocksWithIdAndOffest(variables, (writer, elem) =>
+            w.WriteBlocksWithIdAndOffest(
+                variables,
+                (writer, elem) =>
                 {
                     writer.Write(elem.DataType);
                     writer.Write((short)elem.Flags);
-                    if (elem.UBound == null) 
+                    if (elem.UBound == null)
                     {
                         writer.Write((byte)0);
                     }

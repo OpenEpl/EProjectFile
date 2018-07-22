@@ -130,7 +130,9 @@
     <Compile Include="ResourceSectionInfo.cs" />
     <Compile Include="SectionInfo.cs" />
     <Compile Include="StructInfo.cs" />
-    <Compile Include="EplSystemId.cs" />
+    <Compile Include="EplSystemId.cs">
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="VariableInfo\StructMemberInfo.cs" />
     <Compile Include="VariableInfo\AbstractVariableInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -7,8 +7,8 @@ namespace QIQI.EProjectFile
     {
 
         public const string SectionName = "初始模块段";
-        public string[] EcName;
-        public int[] InitMethod;
+        public string[] EcName { get; set; }
+        public int[] InitMethod { get; set; }
         public static InitEcSectionInfo Parse(byte[] data)
         {
             var initEcSectionInfo = new InitEcSectionInfo();

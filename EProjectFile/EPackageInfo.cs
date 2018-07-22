@@ -11,7 +11,7 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// 与每个子程序一一对应，null表示对应子程序非调用易包的子程序
         /// </summary>
-        public string[] FileNames;
+        public string[] FileNames { get; set; }
         public static EPackageInfo Parse(byte[] data)
         {
             var packageInfo = new EPackageInfo();
@@ -20,7 +20,7 @@ namespace QIQI.EProjectFile
                 while (!(reader.BaseStream.Position == reader.BaseStream.Length))
                 {
                     var name = reader.ReadStringWithLengthPrefix();
-                    if("".Equals(name))
+                    if ("".Equals(name)) 
                     {
                         name = null;
                     }

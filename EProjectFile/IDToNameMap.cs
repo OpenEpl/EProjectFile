@@ -7,38 +7,37 @@ namespace QIQI.EProjectFile
     public class IdToNameMap
     {
         public static readonly Dictionary<int, string> SystemDataTypeName = new Dictionary<int, string> {
-            {EplSystemId.DataType_Bin, "字节集"},
-            {EplSystemId.DataType_Bool, "逻辑型"},
-            {EplSystemId.DataType_Byte, "字节型"},
-            {EplSystemId.DataType_DateTime, "日期时间型"},
-            {EplSystemId.DataType_Double, "双精度小数型"},
-            {EplSystemId.DataType_Float, "小数型"},
-            {EplSystemId.DataType_Int, "整数型"},
-            {EplSystemId.DataType_Long, "长整数型"},
-            {EplSystemId.DataType_MethodPtr, "子程序指针"},
-            {EplSystemId.DataType_Short, "短整数型"},
-            {EplSystemId.DataType_String, "文本型"},
-            {EplSystemId.DataType_Void, ""}
+            { EplSystemId.DataType_Bin, "字节集" },
+            { EplSystemId.DataType_Bool, "逻辑型" },
+            { EplSystemId.DataType_Byte, "字节型" },
+            { EplSystemId.DataType_DateTime, "日期时间型" },
+            { EplSystemId.DataType_Double, "双精度小数型" },
+            { EplSystemId.DataType_Float, "小数型" },
+            { EplSystemId.DataType_Int, "整数型" },
+            { EplSystemId.DataType_Long, "长整数型" },
+            { EplSystemId.DataType_MethodPtr, "子程序指针" },
+            { EplSystemId.DataType_Short, "短整数型" },
+            { EplSystemId.DataType_String, "文本型" },
+            { EplSystemId.DataType_Void, "" }
         };
         public static readonly IdToNameMap Empty = new IdToNameMap();
-        private readonly Dictionary<int, string> UserDefinedName;
-        private readonly LibInfo.LibInfo[] LibDefinedName;
+        private readonly Dictionary<int, string> userDefinedName;
+        private readonly LibInfo.LibInfo[] libDefinedName;
         /// <summary>
-        /// 不加载名称数据模式（私有）
+        /// 不加载名称数据模式（私有） 
         /// </summary>
-        /// <param name="lib"></param>
         private IdToNameMap()
         {
-            LibDefinedName = new LibInfo.LibInfo[0];
-            UserDefinedName = new Dictionary<int, string>();
+            libDefinedName = new LibInfo.LibInfo[0];
+            userDefinedName = new Dictionary<int, string>();
         }
         /// <summary>
         /// 只加载支持库信息模式
         /// </summary>
-        /// <param name="lib"></param>
+        /// <param name="lib">需要加载信息的支持库列表</param>
         public IdToNameMap(LibraryRefInfo[] lib)
         {
-            LibDefinedName = lib.Select(x =>
+            libDefinedName = lib.Select(x =>
             {
                 try
                 {
@@ -49,15 +48,16 @@ namespace QIQI.EProjectFile
                     return null;
                 }
             }).ToArray();
-            UserDefinedName = new Dictionary<int, string>();
+            userDefinedName = new Dictionary<int, string>();
         }
         /// <summary>
-        /// CodeSectionInfo改变时必须重新创建IDToNameMap以便更新数据（尽管部分数据可能自动更新）
+        /// <paramref name="codeSection"/>或<paramref name="resourceSection"/>改变时必须重新创建IDToNameMap以便更新数据（尽管部分数据可能自动更新）
         /// </summary>
-        /// <param name="codeSection"></param>
+        /// <param name="codeSection">代码段</param>
+        /// <param name="resourceSection">资源段</param>
         public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection)
         {
-            LibDefinedName = codeSection.Libraries.Select(x =>
+            libDefinedName = codeSection.Libraries.Select(x =>
             {
                 try
                 {
@@ -68,45 +68,46 @@ namespace QIQI.EProjectFile
                     return null;
                 }
             }).ToArray();
-            UserDefinedName = new Dictionary<int, string>();
+            userDefinedName = new Dictionary<int, string>();
             foreach (var method in codeSection.Methods)
             {
-                UserDefinedName.Add(method.Id, method.Name);
-                Array.ForEach(method.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
-                Array.ForEach(method.Variables, x => UserDefinedName.Add(x.Id, x.Name));
+                userDefinedName.Add(method.Id, method.Name);
+                Array.ForEach(method.Parameters, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(method.Variables, x => userDefinedName.Add(x.Id, x.Name));
             }
             foreach (var dll in codeSection.DllDeclares)
             {
-                UserDefinedName.Add(dll.Id, dll.Name);
-                Array.ForEach(dll.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
+                userDefinedName.Add(dll.Id, dll.Name);
+                Array.ForEach(dll.Parameters, x => userDefinedName.Add(x.Id, x.Name));
             }
             foreach (var classInfo in codeSection.Classes)
             {
-                UserDefinedName.Add(classInfo.Id, classInfo.Name);
-                Array.ForEach(classInfo.Variables, x => UserDefinedName.Add(x.Id, x.Name));
+                userDefinedName.Add(classInfo.Id, classInfo.Name);
+                Array.ForEach(classInfo.Variables, x => userDefinedName.Add(x.Id, x.Name));
             }
             foreach (var structInfo in codeSection.Structs)
             {
-                UserDefinedName.Add(structInfo.Id, structInfo.Name);
-                Array.ForEach(structInfo.Member, x => UserDefinedName.Add(x.Id, x.Name));
+                userDefinedName.Add(structInfo.Id, structInfo.Name);
+                Array.ForEach(structInfo.Member, x => userDefinedName.Add(x.Id, x.Name));
             }
-            Array.ForEach(codeSection.GlobalVariables, x => UserDefinedName.Add(x.Id, x.Name));
-            Array.ForEach(resourceSection.Constants, x => UserDefinedName.Add(x.Id, x.Name));
+            Array.ForEach(codeSection.GlobalVariables, x => userDefinedName.Add(x.Id, x.Name));
+            Array.ForEach(resourceSection.Constants, x => userDefinedName.Add(x.Id, x.Name));
             foreach (var formInfo in resourceSection.Forms)
             {
-                UserDefinedName.Add(formInfo.Id, formInfo.Name);
-                Array.ForEach(formInfo.Elements, x => UserDefinedName.Add(x.Id, x.Name));
+                userDefinedName.Add(formInfo.Id, formInfo.Name);
+                Array.ForEach(formInfo.Elements, x => userDefinedName.Add(x.Id, x.Name));
             }
 
             var needToRemove = new List<int>();
-            foreach(var item in UserDefinedName) if(string.IsNullOrEmpty(item.Value))
+            foreach (var item in userDefinedName)
+                if (string.IsNullOrEmpty(item.Value)) 
                     needToRemove.Add(item.Key);
-            needToRemove.ForEach(x => UserDefinedName.Remove(x));
+            needToRemove.ForEach(x => userDefinedName.Remove(x));
         }
         public string GetUserDefinedName(int id)
         {
             
-            if (UserDefinedName.TryGetValue(id, out var result))
+            if (userDefinedName.TryGetValue(id, out var result))
                 return result;
             else
                 switch (EplSystemId.GetType(id))
@@ -145,11 +146,11 @@ namespace QIQI.EProjectFile
                         return $"_User_0x{id.ToString("X8")}";
                 }
         }
-        public string GetLibCmdName(int lib,int id)
+        public string GetLibCmdName(int lib, int id)
         {
             try
             {
-                return LibDefinedName[lib].Cmd[id].Name;
+                return libDefinedName[lib].Cmd[id].Name;
             }
             catch (Exception)
             {
@@ -160,7 +161,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[id].Name;
+                return libDefinedName[lib].DataType[id].Name;
             }
             catch (Exception)
             {
@@ -171,7 +172,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].Constant[id].Name;
+                return libDefinedName[lib].Constant[id].Name;
             }
             catch (Exception)
             {
@@ -187,7 +188,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[typeId].Evnet[id].Name;
+                return libDefinedName[lib].DataType[typeId].Evnet[id].Name;
             }
             catch (Exception)
             {
@@ -203,7 +204,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[typeId].Property[id].Name;
+                return libDefinedName[lib].DataType[typeId].Property[id].Name;
             }
             catch (Exception)
             {
@@ -219,7 +220,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[typeId].Member[id].Name;
+                return libDefinedName[lib].DataType[typeId].Member[id].Name;
             }
             catch (Exception)
             {

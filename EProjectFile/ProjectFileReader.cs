@@ -18,7 +18,7 @@ namespace QIQI.EProjectFile
             reader = new BinaryReader(stream, Encoding.GetEncoding("gbk"));
             int magic1 = reader.ReadInt32();
             int magic2 = reader.ReadInt32();
-            if (magic1 == 0x454C5457) //WTLE
+            if (magic1 == 0x454C5457) // WTLE
             {
                 if (magic2 != 0x00020001)
                 {
@@ -32,16 +32,17 @@ namespace QIQI.EProjectFile
                 }
                 var cryptECReadStream = new CryptECReadStream(stream, password, stream.Position);
                 reader = new BinaryReader(cryptECReadStream, Encoding.GetEncoding("gbk"));
-                if(!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash))
+                if (!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash)) 
                 {
                     throw new Exception("密码错误");
+                    
                 }
                 CryptEc = true;
 
                 magic1 = reader.ReadInt32();
                 magic2 = reader.ReadInt32();
             }
-            if (magic1 != 0x54574E43 || magic2 != 0x47525045) //CNWTEPRG
+            if (magic1 != 0x54574E43 || magic2 != 0x47525045) // CNWTEPRG
             {
                 throw new Exception("不是易语言工程文件");
             }
@@ -54,21 +55,21 @@ namespace QIQI.EProjectFile
             {
                 throw new Exception("Magic错误");
             }
-            reader.ReadInt32();//Skip InfoCheckSum
+            reader.ReadInt32(); // Skip InfoCheckSum
             section.Key = reader.ReadBytes(4);
             section.Name = DecodeName(section.Key, reader.ReadBytes(30));
-            reader.ReadInt16();//对齐填充（确认于易语言V5.71）
-            reader.ReadInt32();//Skip Index
+            reader.ReadInt16(); // 对齐填充（确认于易语言V5.71）
+            reader.ReadInt32(); // Skip Index
             section.CanSkip = reader.ReadInt32() != 0;
-            reader.ReadInt32();//Skip DataCheckSum
-            int DataLength = reader.ReadInt32();
+            reader.ReadInt32(); // Skip DataCheckSum
+            int dataLength = reader.ReadInt32();
             if (CryptEc)
             {
-                DataLength ^= 1;
+                dataLength ^= 1;
             }
-            reader.ReadBytes(40);//保留未用（确认于易语言V5.71）
-            section.Data = new byte[DataLength];
-            reader.Read(section.Data, 0, DataLength);
+            reader.ReadBytes(40); // 保留未用（确认于易语言V5.71）
+            section.Data = new byte[dataLength];
+            reader.Read(section.Data, 0, dataLength);
             return section;
         }
         private static string DecodeName(byte[] key, byte[] encodedName)

@@ -9,19 +9,19 @@ namespace QIQI.EProjectFile
     {
         public const string SectionName = "系统信息段";
         [JsonConverter(typeof(VersionConverter))]
-        public Version ESystemVersion;
+        public Version ESystemVersion { get; set; }
         /// <summary>
         /// 1=中文（GBK），2=英语，3=中文（BIG5），4=日文（SJIS）
         /// </summary>
-        public int Language = 1;
+        public int Language { get; set; } = 1;
         [JsonConverter(typeof(VersionConverter))]
-        public Version EProjectFormatVersion;
+        public Version EProjectFormatVersion { get; set; }
         /// <summary>
         /// 1=源码，3=模块
         /// </summary>
-        public int FileType = 1;
+        public int FileType { get; set; } = 1;
 
-        public int ProjectType;
+        public int ProjectType { get; set; }
 
         public static ESystemInfo Parse(byte[] data)
         {
@@ -29,11 +29,11 @@ namespace QIQI.EProjectFile
             using (var reader = new BinaryReader(new MemoryStream(data, false)))
             {
                 systemInfo.ESystemVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
-                reader.ReadInt32();//Skip Unknown
+                reader.ReadInt32(); // Skip Unknown
                 systemInfo.Language = reader.ReadInt32();
                 systemInfo.EProjectFormatVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
                 systemInfo.FileType = reader.ReadInt32();
-                reader.ReadInt32();//Skip Unknown
+                reader.ReadInt32(); // Skip Unknown
                 systemInfo.ProjectType = reader.ReadInt32();
             }
             return systemInfo;

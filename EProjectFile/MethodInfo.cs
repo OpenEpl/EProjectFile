@@ -19,6 +19,17 @@ namespace QIQI.EProjectFile
         public byte[] ConstantReference;
         [JsonConverter(typeof(HexConverter))]
         public byte[] ExpressionData;
+
+        public MethodCodeData(byte[] lineOffest, byte[] blockOffest, byte[] methodReference, byte[] variableReference, byte[] constantReference, byte[] expressionData)
+        {
+            LineOffest = lineOffest;
+            BlockOffest = blockOffest;
+            MethodReference = methodReference;
+            VariableReference = variableReference;
+            ConstantReference = constantReference;
+            ExpressionData = expressionData;
+        }
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
@@ -33,19 +44,19 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
         [JsonIgnore]
-        public int UnknownAfterId;
+        public int UnknownAfterId { get; set; }
         /// <summary>
         /// 所属程序集Id
         /// </summary>
-        public int Class;
-        public int Flags;
+        public int Class { get; set; }
+        public int Flags { get; set; }
         public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
-        public int ReturnDataType;
-        public string Name;
-        public string Comment;
-        public LocalVariableInfo[] Variables;
-        public MethodParameterInfo[] Parameters;
-        public MethodCodeData CodeData;
+        public int ReturnDataType { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
+        public LocalVariableInfo[] Variables { get; set; }
+        public MethodParameterInfo[] Parameters { get; set; }
+        public MethodCodeData CodeData { get; set; }
         public static MethodInfo[] ReadMethods(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();
@@ -66,12 +77,13 @@ namespace QIQI.EProjectFile
                     Variables = AbstractVariableInfo.ReadVariables(reader, x => new LocalVariableInfo(x)),
                     Parameters = AbstractVariableInfo.ReadVariables(reader, x => new MethodParameterInfo(x))
                 };
-                methodInfo.CodeData.LineOffest = reader.ReadBytesWithLengthPrefix();
-                methodInfo.CodeData.BlockOffest = reader.ReadBytesWithLengthPrefix();
-                methodInfo.CodeData.MethodReference = reader.ReadBytesWithLengthPrefix();
-                methodInfo.CodeData.VariableReference = reader.ReadBytesWithLengthPrefix();
-                methodInfo.CodeData.ConstantReference = reader.ReadBytesWithLengthPrefix();
-                methodInfo.CodeData.ExpressionData = reader.ReadBytesWithLengthPrefix();
+                methodInfo.CodeData = new MethodCodeData(
+                    reader.ReadBytesWithLengthPrefix(),
+                    reader.ReadBytesWithLengthPrefix(),
+                    reader.ReadBytesWithLengthPrefix(),
+                    reader.ReadBytesWithLengthPrefix(),
+                    reader.ReadBytesWithLengthPrefix(),
+                    reader.ReadBytesWithLengthPrefix());
                 methods[i] = methodInfo;
             }
 

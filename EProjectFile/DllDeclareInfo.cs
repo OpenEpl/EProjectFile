@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class DllDeclareInfo :IHasId, IToTextCodeAble
+    public class DllDeclareInfo : IHasId, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -15,15 +15,15 @@ namespace QIQI.EProjectFile
         }
 
         [JsonIgnore]
-        public int UnknownAfterId;
-        public int Flags;
+        public int UnknownAfterId { get; set; }
+        public int Flags { get; set; }
         public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
-        public int ReturnDataType;
-        public string Name;
-        public string Comment;
-        public string EntryPoint;
-        public string LibraryName;
-        public DllParameterInfo[] Parameters;
+        public int ReturnDataType { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
+        public string EntryPoint { get; set; }
+        public string LibraryName { get; set; }
+        public DllParameterInfo[] Parameters { get; set; }
         public static DllDeclareInfo[] ReadDllDeclares(BinaryReader reader)
         {
             var headerSize = reader.ReadInt32();

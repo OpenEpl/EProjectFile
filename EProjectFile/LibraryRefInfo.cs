@@ -8,11 +8,11 @@ namespace QIQI.EProjectFile
 {
     public class LibraryRefInfo
     {
-        public string FileName;
-        public string GuidString;//为了保证最大限度的准确还原，直接存储原始格式字符串
+        public string FileName { get; set; }
+        public string GuidString { get; set; } // 为了保证最大限度的准确还原，直接存储原始格式字符串
         [JsonConverter(typeof(VersionConverter))]
-        public Version Version;
-        public string Name;
+        public Version Version { get; set; }
+        public string Name { get; set; }
         public static LibraryRefInfo[] ReadLibraries(BinaryReader reader)
         {
             return reader.ReadStringsWithMfcStyleCountPrefix().Select(x =>

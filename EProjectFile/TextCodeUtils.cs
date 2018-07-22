@@ -27,7 +27,7 @@ namespace QIQI.EProjectFile
                 builder.Append(string.Join(", ", items.Take(count)));
             }
         }
-        private static void WriteJoinCode<T>(IEnumerable<T> items, string separator, StringBuilder builder, Action<T> writeTo) where T:IToTextCodeAble
+        private static void WriteJoinCode<T>(IEnumerable<T> items, string separator, StringBuilder builder, Action<T> writeTo) where T : IToTextCodeAble
         {
             if (items == null) return;
             bool first = true;

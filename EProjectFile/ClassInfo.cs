@@ -15,14 +15,14 @@ namespace QIQI.EProjectFile
         }
 
         [JsonIgnore]
-        public int UnknownAfterId;
+        public int UnknownAfterId { get; set; }
         public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
-        public int Flags;
-        public int BaseClass;
-        public string Name;
-        public string Comment;
-        public int[] Method;
-        public ClassVariableInfo[] Variables;
+        public int Flags { get; set; }
+        public int BaseClass { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
+        public int[] Method { get; set; }
+        public ClassVariableInfo[] Variables { get; set; }
 
         public static ClassInfo[] ReadClasses(BinaryReader reader)
         {
@@ -78,10 +78,11 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// 到文本代码（结尾无换行）
         /// </summary>
-        /// <param name="codeSection">若为null，不写出下属方法</param>
         /// <param name="nameMap">命名映射器</param>
         /// <param name="result">输出目标</param>
         /// <param name="indent">起始缩进</param>
+        /// <param name="codeSection">若为null，不写出下属方法</param>
+        /// <param name="writeCode">是否输出子程序代码</param>
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, CodeSectionInfo codeSection, bool writeCode = true)
         {
             TextCodeUtils.WriteDefinedCode(result, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);

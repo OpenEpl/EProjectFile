@@ -9,21 +9,21 @@ namespace QIQI.EProjectFile
     {
         public const string SectionName = "用户信息段";
 
-        public string Name;
-        public string Description;
-        public string Author;
-        public string ZipCode;
-        public string Address;
-        public string TelephoneNumber;
-        public string FaxNumber;
-        public string Email;
-        public string Homepage;
-        public string Copyright;
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public string ZipCode { get; set; }
+        public string Address { get; set; }
+        public string TelephoneNumber { get; set; }
+        public string FaxNumber { get; set; }
+        public string Email { get; set; }
+        public string Homepage { get; set; }
+        public string Copyright { get; set; }
         [JsonConverter(typeof(VersionConverter))]
-        public Version Version;
-        public bool WriteVersion;
-        public string CompilePlugins;
-        public bool ExportPublicClassMethod;
+        public Version Version { get; set; }
+        public bool WriteVersion { get; set; }
+        public string CompilePlugins { get; set; }
+        public bool ExportPublicClassMethod { get; set; }
         public static ProjectConfigInfo Parse(byte[] data)
         {
             var projectConfig = new ProjectConfigInfo();

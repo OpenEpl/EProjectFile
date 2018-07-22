@@ -7,17 +7,17 @@ namespace QIQI.EProjectFile
     public class ProjectFileWriter : IDisposable
     {
         private BinaryWriter writer;
-        private int Index;
+        private int index;
         public ProjectFileWriter(Stream stream)
         {
             writer = new BinaryWriter(stream, Encoding.GetEncoding("gbk"));
-            writer.Write(0x4752504554574E43L);//CNWTEPRG
+            writer.Write(0x4752504554574E43L); // CNWTEPRG
         }
         public void WriteSection(SectionInfo section)
         {
-            Index++;
+            index++;
 
-            writer.Write(0x15117319);//Magic
+            writer.Write(0x15117319); // Magic
 
             byte[] headerData;
             using (var headerWriter = new BinaryWriter(new MemoryStream()))
@@ -25,7 +25,7 @@ namespace QIQI.EProjectFile
                 headerWriter.Write(section.Key);
                 headerWriter.Write(EncodeName(section.Key, section.Name));
                 headerWriter.Write(new byte[2]);
-                headerWriter.Write(Index);
+                headerWriter.Write(index); // 从1开始
                 headerWriter.Write(section.CanSkip ? 1 : 0);
                 headerWriter.Write(GetCheckSum(section.Data));
                 headerWriter.Write(section.Data.Length);

@@ -6,10 +6,10 @@ namespace QIQI.EProjectFile
     {
         public int Id { get; private set; }
 
-        public int DataType;
-        public string Name;
-        public bool Visible;
-        public bool Disable;
+        public int DataType { get; set; }
+        public string Name { get; set; }
+        public bool Visible { get; set; }
+        public bool Disable { get; set; }
         public static FormElementInfo[] ReadFormElements(BinaryReader r)
         {
             return r.ReadBlocksWithIdAndOffest((reader, id, length) =>
@@ -31,10 +31,12 @@ namespace QIQI.EProjectFile
         }
         public static void WriteFormElements(BinaryWriter w, FormElementInfo[] formElements)
         {
-            w.WriteBlocksWithIdAndOffest(formElements, (writer, elem) =>
-            {
-                elem.WriteWithoutId(writer);
-            });
+            w.WriteBlocksWithIdAndOffest(
+                formElements, 
+                (writer, elem) =>
+                {
+                    elem.WriteWithoutId(writer);
+                });
         }
 
         protected abstract void WriteWithoutId(BinaryWriter writer);

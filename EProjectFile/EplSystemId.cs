@@ -7,6 +7,8 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// Not a Variable
         /// </summary>
+        /// <seealso cref="AccessArrayExpression"/>
+        /// <seealso cref="AccessMemberExpression"/>
         internal const int Id_NaV = 0x0500FFFE;
 
         public const int Type_Method = 0x04000000;
@@ -42,8 +44,8 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// 只用于用户定义Id
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">欲获取类型的Id</param>
+        /// <returns>指定Id所属类型，参考EplSystemId.Type_*</returns>
         public static int GetType(int id) => id & Mask_Type;
         
         /// <summary>

@@ -17,7 +17,7 @@ namespace QIQI.EProjectFile
         /// <param name="reader"></param>
         /// <param name="length">包括终止符（如果有）</param>
         /// <returns></returns>
-        public static string ReadStringWithFixedLength(this BinaryReader reader,int length)
+        public static string ReadStringWithFixedLength(this BinaryReader reader, int length)
         {
             var bytes = reader.ReadBytes(length);
             {
@@ -45,7 +45,7 @@ namespace QIQI.EProjectFile
         }
         public static string ReadCStyleString(this BinaryReader reader)
         {
-            //不依赖reader的编码设置
+            // 不依赖reader的编码设置
 
             var memoryStream = new MemoryStream();
             byte value;
@@ -57,10 +57,10 @@ namespace QIQI.EProjectFile
         }
         public static int ReadMfcStyleCountPrefix(this BinaryReader reader)
         {
-            ushort _16bit = reader.ReadUInt16();
-            if (_16bit != (ushort)0xFFFFU) 
+            ushort count_16bit = reader.ReadUInt16();
+            if (count_16bit != (ushort)0xFFFFU) 
             {
-                return _16bit;
+                return count_16bit;
             }
             return reader.ReadInt32();
         }
@@ -69,13 +69,15 @@ namespace QIQI.EProjectFile
         {
             return new object[ReadMfcStyleCountPrefix(reader)].Select(x => reader.ReadStringWithLengthPrefix()).ToArray();
         }
-        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(this BinaryReader reader,
+        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
+            this BinaryReader reader,
             Func<BinaryReader, int, TElem> readFunction)
         {
             return ReadBlocksWithIdAndOffest(reader, (elemReader, id, length) => readFunction(elemReader, id));
         }
 
-        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(this BinaryReader reader,
+        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
+            this BinaryReader reader,
             Func<BinaryReader, int, int, TElem> readFunction)
         {
             var count = reader.ReadInt32();
@@ -95,10 +97,11 @@ namespace QIQI.EProjectFile
             return result;
         }
 
-        public static void WriteBlocksWithIdAndOffest<TElem> (this BinaryWriter writer,
+        public static void WriteBlocksWithIdAndOffest<TElem>(
+            this BinaryWriter writer,
             TElem[] data,
             Action<BinaryWriter, TElem> writeAction)
-            where TElem:IHasId
+            where TElem : IHasId
         {
             if (data == null)
             {
@@ -210,7 +213,7 @@ namespace QIQI.EProjectFile
         }
         public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, string[] data)
         {
-            if (data == null) data = new string[]{ };
+            if (data == null) data = new string[] { };
             writer.WriteMfcStyleCountPrefix(data.Length);
             Array.ForEach(data, x => writer.WriteStringWithLengthPrefix(x));
         }

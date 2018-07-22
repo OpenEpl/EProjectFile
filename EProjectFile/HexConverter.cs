@@ -8,7 +8,7 @@ namespace QIQI.EProjectFile
 {
     internal class HexConverter : JsonConverter
     {
-        public static byte[] HexToBytes(String src)
+        public static byte[] HexToBytes(string src)
         {
             byte[] result = new byte[src.Length / 2];
             for (int i = 0, c = 0; i < src.Length; i += 2, c++)

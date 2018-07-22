@@ -9,59 +9,59 @@ namespace QIQI.EProjectFile
     {
         public const string SectionName = "程序段";
 
-        private int AllocatedIdNum;
+        private int allocatedIdNum;
         [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_1;
+        public byte[] UnknownBeforeLibrary_1 { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_2;
+        public byte[] UnknownBeforeLibrary_2 { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_3;
-        public LibraryRefInfo[] Libraries;
-        public int Flag;
+        public byte[] UnknownBeforeLibrary_3 { get; set; }
+        public LibraryRefInfo[] Libraries { get; set; }
+        public int Flag { get; set; }
         /// <summary>
         /// 【仅用于不带有编辑信息的EC文件】“_启动子程序”，系统将在 初始模块段 保存的方法被调用完成后调用
         /// </summary>
-        public int MainMethod;
+        public int MainMethod { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeIconData;
-        public byte[] IconData;
-        public string DebugCommandParameters;
-        public ClassInfo[] Classes;
-        public MethodInfo[] Methods;
-        public GlobalVariableInfo[] GlobalVariables;
-        public StructInfo[] Structs;
-        public DllDeclareInfo[] DllDeclares;
+        public byte[] UnknownBeforeIconData { get; set; }
+        public byte[] IconData { get; set; }
+        public string DebugCommandParameters { get; set; }
+        public ClassInfo[] Classes { get; set; }
+        public MethodInfo[] Methods { get; set; }
+        public GlobalVariableInfo[] GlobalVariables { get; set; }
+        public StructInfo[] Structs { get; set; }
+        public DllDeclareInfo[] DllDeclares { get; set; }
 
         public static CodeSectionInfo Parse(byte[] data, bool cryptEc = false)
         {
             var codeSectionInfo = new CodeSectionInfo();
             using (var reader = new BinaryReader(new MemoryStream(data, false)))
             {
-                codeSectionInfo.AllocatedIdNum = reader.ReadInt32();
-                reader.ReadInt32();//确认于易语言V5.71
-                codeSectionInfo.UnknownBeforeLibrary_1 = reader.ReadBytesWithLengthPrefix();//Unknown
+                codeSectionInfo.allocatedIdNum = reader.ReadInt32();
+                reader.ReadInt32(); // 确认于易语言V5.71
+                codeSectionInfo.UnknownBeforeLibrary_1 = reader.ReadBytesWithLengthPrefix(); // Unknown
                 if (cryptEc)
                 {
                     reader.ReadInt32();
                     reader.ReadInt32();
-                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix();//Unknown
+                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                     codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
-                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix();//Unknown
+                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
                 }
                 else
                 {
-                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix();//Unknown
-                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix();//Unknown
+                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
+                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
                     codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                 }
-;
+
                 if ((codeSectionInfo.Flag & 1) != 0)
                 {
-                    codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16);//Unknown
+                    codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
                 }
                 codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
                 codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix();
@@ -89,10 +89,10 @@ namespace QIQI.EProjectFile
         /// 分配一个Id
         /// </summary>
         /// <param name="type">参考EplSystemId.Type_***</param>
-        /// <returns></returns>
+        /// <returns>指定类型的新Id</returns>
         public int AllocId(int type)
         {
-            return ++AllocatedIdNum | type;
+            return ++allocatedIdNum | type;
         }
         public byte[] ToBytes()
         {
@@ -107,8 +107,8 @@ namespace QIQI.EProjectFile
         }
         private void WriteTo(BinaryWriter writer)
         {
-            writer.Write(AllocatedIdNum);
-            writer.Write(51113791);//确认于易语言V5.71
+            writer.Write(allocatedIdNum);
+            writer.Write(51113791); // 确认于易语言V5.71
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_1);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_2);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_3);
@@ -126,7 +126,7 @@ namespace QIQI.EProjectFile
             AbstractVariableInfo.WriteVariables(writer, GlobalVariables);
             StructInfo.WriteStructs(writer, Structs);
             DllDeclareInfo.WriteDllDeclares(writer, DllDeclares);
-            writer.Write(new byte[40]);//Unknown（40个0）
+            writer.Write(new byte[40]); // Unknown（40个0）
         }
 
         public override string ToString()

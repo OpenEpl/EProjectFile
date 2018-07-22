@@ -6,21 +6,24 @@ namespace QIQI.EProjectFile
     public class FormMenuInfo : FormElementInfo
     {
         [JsonIgnore]
-        public byte[] UnknownBeforeName;
-        public int HotKey;
-        public int Level;
-        public bool Selected;
-        public string Text;
-        public int ClickEvent;//仅EC有效
+        public byte[] UnknownBeforeName { get; set; }
+        public int HotKey { get; set; }
+        public int Level { get; set; }
+        public bool Selected { get; set; }
+        public string Text { get; set; }
+        /// <summary>
+        /// 仅EC有效
+        /// </summary>
+        public int ClickEvent { get; set; }
         [JsonIgnore]
-        public byte[] UnknownAfterClickEvent;
+        public byte[] UnknownAfterClickEvent { get; set; }
         internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, int length)
         {
             var startPosition = reader.BaseStream.Position;
             var elem = new FormMenuInfo() { };
             elem.UnknownBeforeName = reader.ReadBytes(20);
             elem.Name = reader.ReadCStyleString();
-            reader.ReadCStyleString();//菜单没有Comment
+            reader.ReadCStyleString(); // 菜单没有Comment
             elem.HotKey = reader.ReadInt32();
             elem.Level = reader.ReadInt32();
             {

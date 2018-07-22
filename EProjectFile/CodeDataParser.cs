@@ -31,7 +31,7 @@ namespace QIQI.EProjectFile
             }
 
         }
-        private static readonly int[] knownTypeId = new int[]
+        private static readonly int[] KnownTypeId = new int[]
         {
             0x50, // 否则
             0x51, // 如果结束
@@ -50,7 +50,7 @@ namespace QIQI.EProjectFile
         };
         static CodeDataParser()
         {
-            Array.Sort(knownTypeId);
+            Array.Sort(KnownTypeId);
         }
         private static StatementBlock ParseStatementBlock(BinaryReader reader, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
         {
@@ -58,15 +58,15 @@ namespace QIQI.EProjectFile
             while (!(reader.BaseStream.Position == reader.BaseStream.Length))
             {
                 var type = reader.ReadByte();
-                while (Array.BinarySearch(knownTypeId, type) < 0)
+                while (Array.BinarySearch(KnownTypeId, type) < 0)
                 {
-                    //尝试跳过未知信息
+                    // 尝试跳过未知信息
                     type = reader.ReadByte();
                 }
-                var startOffest = (int)reader.BaseStream.Position - 1;//typeId到代码数据开头的偏移位置
+                var startOffest = (int)reader.BaseStream.Position - 1; // typeId到代码数据开头的偏移位置
                 if (lineOffestWriter != null)
                 {
-                    if (true //部分数据不需要将位置写入LineOffest（一般为在IDE无显示的数据）
+                    if (true // 部分数据不需要将位置写入LineOffest（一般为在IDE无显示的数据）
                         && type != 0x50 // 否则
                         && type != 0x51 // 如果结束
                         && type != 0x52 // 如果真结束
@@ -74,8 +74,7 @@ namespace QIQI.EProjectFile
                         && type != 0x54 // .判断结束
                         && type != 0x53 // .判断 某Case结束
                         && type != 0x6D // .判断开始（紧接着就是 0x6E）
-                        && type != 0x6F // .默认
-                        )
+                        && type != 0x6F) // .默认)
                     {
                         lineOffestWriter.Write(startOffest);
                     }
@@ -103,34 +102,37 @@ namespace QIQI.EProjectFile
                             if (reader.ReadByte() != 0x6E) // .判断 某Case开始
                             {
                                 throw new Exception();
-                            };
+                            }
                             byte switch_type;
                             do
                             {
                                 lineOffestWriter.Write((int)reader.BaseStream.Position - 1);
                                 var caseInfo = new SwitchStatement.CaseInfo();
-                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, out caseInfo.UnexaminedCode, out caseInfo.Comment, out caseInfo.Mask).ParamList.ElementAtOrDefault(0);
+                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, out var caseInfo_UnexaminedCode, out var caseInfo_Comment, out var caseInfo_Mask).ParamList.ElementAtOrDefault(0);
+                                caseInfo.UnexaminedCode = caseInfo_UnexaminedCode;
+                                caseInfo.Comment = caseInfo_Comment;
+                                caseInfo.Mask = caseInfo_Mask;
                                 caseInfo.Block = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
                                 s.Case.Add(caseInfo);
                                 if (reader.ReadByte() != 0x53)
                                 {
                                     throw new Exception();
-                                };
+                                }
                             } while ((switch_type = reader.ReadByte()) == 0x6E);
                             if (switch_type != 0x6F) // .默认
                             {
                                 throw new Exception();
-                            };
+                            }
                             s.DefaultBlock = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
-                            if (reader.ReadByte() != 0x54) //.判断结束
+                            if (reader.ReadByte() != 0x54) // .判断结束
                             {
                                 throw new Exception();
-                            };
+                            }
                             int endOffest = (int)reader.BaseStream.Position;
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
-                            reader.ReadByte();//0x74
+                            reader.ReadByte(); // 0x74
                             block.Add(s);
                         }
                         continue;
@@ -138,7 +140,7 @@ namespace QIQI.EProjectFile
                 var exp = ParseCallExpressionWithoutType(reader, out string unexaminedCode, out string comment, out bool mask);
                 switch (type)
                 {
-                    case 0x70: //循环开始语句：XX循环首(参数...)
+                    case 0x70: // 循环开始语句：XX循环首(参数...)
                         {
                             blockOffestWriter.Write((byte)3);
                             blockOffestWriter.Write(startOffest);
@@ -220,7 +222,7 @@ namespace QIQI.EProjectFile
                             block.Add(s);
                         }
                         break;
-                    case 0x6C: //如果真
+                    case 0x6C: // 如果真
                         {
                             blockOffestWriter.Write((byte)2);
                             blockOffestWriter.Write(startOffest);
@@ -238,19 +240,19 @@ namespace QIQI.EProjectFile
                             if (reader.ReadByte() != 0x52)
                             {
                                 throw new Exception();
-                            };
+                            }
 
                             var endOffest = (int)reader.BaseStream.Position;
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
 
-                            reader.ReadByte();//0x73
+                            reader.ReadByte(); // 0x73
 
                             block.Add(s);
                         }
                         break;
-                    case 0x6B: //如果
+                    case 0x6B: // 如果
                         {
                             var s = new IfElseStatement()
                             {
@@ -268,19 +270,19 @@ namespace QIQI.EProjectFile
                             if (reader.ReadByte() != 0x50)
                             {
                                 throw new Exception();
-                            };
+                            }
                             s.BlockOnFalse = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
                             if (reader.ReadByte() != 0x51)
                             {
                                 throw new Exception();
-                            };
+                            }
                             var endOffest = (int)reader.BaseStream.Position;
 
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
 
-                            reader.ReadByte();//0x72
+                            reader.ReadByte(); // 0x72
 
                             block.Add(s);
                         }
@@ -355,7 +357,7 @@ namespace QIQI.EProjectFile
                         result = new ConstantExpression((short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1));
                         break;
                     case 0x1D:
-                        //0x1D 0x38 <Int32:VarId>
+                        // 0x1D 0x38 <Int32:VarId>
                         continue;
                     case 0x1E:
                         result = new MethodPtrExpression(reader.ReadInt32());
@@ -375,19 +377,19 @@ namespace QIQI.EProjectFile
                             while (!((exp = ParseExpression(reader)) is ArrayLiteralEnd))
                             {
                                 array.Add(exp);
-                            };
+                            }
                             result = array;
                         }
                         break;
                     case 0x20:
                         result = ArrayLiteralEnd.Instance;
                         break;
-                    case 0x38://ThisCall Or 访问变量
+                    case 0x38: // ThisCall Or 访问变量
                         {
                             int variable = reader.ReadInt32();
                             if (variable == 0x0500FFFE)
                             {
-                                reader.ReadByte(); //0x3A
+                                reader.ReadByte(); // 0x3A
                                 return ParseExpression(reader, true);
                             }
                             else
@@ -416,11 +418,11 @@ namespace QIQI.EProjectFile
                     switch (reader.ReadByte())
                     {
                         case 0x39:
-                            int MemberId = reader.ReadInt32();
-                            if(EplSystemId.GetType(MemberId) == EplSystemId.Type_StructMember)
-                                result = new AccessMemberExpression(result, reader.ReadInt32(), MemberId);
+                            int memberId = reader.ReadInt32();
+                            if (EplSystemId.GetType(memberId) == EplSystemId.Type_StructMember)
+                                result = new AccessMemberExpression(result, reader.ReadInt32(), memberId);
                             else
-                                result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), MemberId);
+                                result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), memberId);
                             break;
                         case 0x3A:
                             result = new AccessArrayExpression(result, ParseExpression(reader, false));
@@ -444,7 +446,7 @@ namespace QIQI.EProjectFile
             while (!((exp = ParseExpression(reader)) is ParamListEnd))
             {
                 param.Add(exp);
-            };
+            }
             return param;
         }
         private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader)
@@ -461,7 +463,7 @@ namespace QIQI.EProjectFile
             unexaminedCode = reader.ReadBStr();
             comment = reader.ReadBStr();
             mask = (flag & 0x20) != 0;
-            //bool expand = (flag & 0x1) != 0;
+            ////bool expand = (flag & 0x1) != 0;
             if (unexaminedCode != null)
             {
                 int nullPos = unexaminedCode.IndexOf('\0');
@@ -482,7 +484,7 @@ namespace QIQI.EProjectFile
                     case 0x36:
                         exp.ParamList = ParseParamList(reader);
                         break;
-                    case 0x38://ThisCall
+                    case 0x38: // ThisCall
                         reader.BaseStream.Position -= 1;
                         exp.Target = ParseExpression(reader);
                         exp.ParamList = ParseParamList(reader);
@@ -512,12 +514,12 @@ namespace QIQI.EProjectFile
         }
         private struct BlockOffestHelper : IDisposable
         {
-            private bool Disposed;
+            private bool disposed;
             private MethodCodeDataWriterArgs a;
             private long posToFillEndOffest;
             public BlockOffestHelper(MethodCodeDataWriterArgs writers, byte type)
             {
-                Disposed = false;
+                disposed = false;
                 a = writers;
                 a.BlockOffest.Write(type);
                 a.BlockOffest.Write(a.Offest);
@@ -526,11 +528,15 @@ namespace QIQI.EProjectFile
             }
             public void Dispose()
             {
-                if (Disposed) return; else Disposed = true;
-                long curPos = a.BlockOffest.BaseStream.Position;
-                a.BlockOffest.BaseStream.Position = posToFillEndOffest;
-                a.BlockOffest.Write(a.Offest);
-                a.BlockOffest.BaseStream.Position = curPos;
+                if (!disposed)
+                {
+                    disposed = true;
+
+                    long curPos = a.BlockOffest.BaseStream.Position;
+                    a.BlockOffest.BaseStream.Position = posToFillEndOffest;
+                    a.BlockOffest.Write(a.Offest);
+                    a.BlockOffest.BaseStream.Position = curPos;
+                }
             }
         }
 
@@ -584,7 +590,7 @@ namespace QIQI.EProjectFile
         internal override void WriteTo(MethodCodeDataWriterArgs a) => a.ExpressionData.Write((byte)0x16);
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
-            //Nothing need doing.
+            // Nothing need doing.
         }
     }
     /// <summary>
@@ -593,7 +599,7 @@ namespace QIQI.EProjectFile
     public abstract class Statement : IToTextCodeAble
     {
         internal abstract void WriteTo(MethodCodeDataWriterArgs a);
-        public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result,int indent = 0);
+        public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0);
         public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
     }
     /// <summary>
@@ -601,13 +607,13 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class ExpressionStatement : Statement
     {
-        public CallExpression Expression;
-        public bool Mask;
+        public CallExpression Expression { get; set; }
+        public bool Mask { get; set; }
 
-        public string Comment;
+        public string Comment { get; set; }
         public ExpressionStatement()
         {
-
+            
         }
 
         public ExpressionStatement(CallExpression expression, bool mask, string comment)
@@ -654,7 +660,7 @@ namespace QIQI.EProjectFile
     public class UnexaminedStatement : Statement
     {
         private string unexaminedCode;
-        public bool Mask;
+        public bool Mask { get; set; }
 
         public string UnexaminedCode { get => unexaminedCode; set => unexaminedCode = value ?? throw new ArgumentNullException(nameof(UnexaminedCode)); }
 
@@ -699,12 +705,15 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class IfElseStatement : Statement
     {
-        public Expression Condition;
-        public string UnexaminedCode;//UnexaminedCode!=null时Condition==null
-        public StatementBlock BlockOnTrue;
-        public StatementBlock BlockOnFalse;
-        public string Comment;
-        public bool Mask;
+        public Expression Condition { get; set; }
+        /// <summary>
+        /// <see cref="UnexaminedCode"/>不为null时，<see cref="Condition"/>应为null
+        /// </summary>
+        public string UnexaminedCode { get; set; }
+        public StatementBlock BlockOnTrue { get; set; }
+        public StatementBlock BlockOnFalse { get; set; }
+        public string Comment { get; set; }
+        public bool Mask { get; set; }
 
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
@@ -761,11 +770,14 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class IfStatement : Statement
     {
-        public Expression Condition;
-        public string UnexaminedCode;//UnexaminedCode!=null时Condition==null
-        public StatementBlock Block;
-        public string Comment;
-        public bool Mask;
+        public Expression Condition { get; set; }
+        /// <summary>
+        /// <see cref="UnexaminedCode"/>不为null时，<see cref="Condition"/>应为null
+        /// </summary>
+        public string UnexaminedCode { get; set; }
+        public StatementBlock Block { get; set; }
+        public string Comment { get; set; }
+        public bool Mask { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
@@ -814,19 +826,22 @@ namespace QIQI.EProjectFile
     /// </summary>
     public abstract class LoopStatement : Statement
     {
-        public StatementBlock Block;
-        public string UnexaminedCode;//UnexaminedCode!=null其他循环参数为null
-        public string CommentOnStart;
-        public string CommentOnEnd;
-        public bool MaskOnStart;
-        public bool MaskOnEnd;
+        public StatementBlock Block { get; set; }
+        /// <summary>
+        /// <see cref="UnexaminedCode"/>不为null时，其他循环参数应为null
+        /// </summary>
+        public string UnexaminedCode { get; set; }
+        public string CommentOnStart { get; set; }
+        public string CommentOnEnd { get; set; }
+        public bool MaskOnStart { get; set; }
+        public bool MaskOnEnd { get; set; }
     }
     /// <summary>
     /// 判断循环 语句块
     /// </summary>
     public class WhileStatement : LoopStatement
     {
-        public Expression Condition;
+        public Expression Condition { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
@@ -882,7 +897,7 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class DoWhileStatement : LoopStatement
     {
-        public Expression Condition;
+        public Expression Condition { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
@@ -938,8 +953,8 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class CounterStatement : LoopStatement
     {
-        public Expression Count;
-        public Expression Var;
+        public Expression Count { get; set; }
+        public Expression Var { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
@@ -998,10 +1013,10 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class ForStatement : LoopStatement
     {
-        public Expression Start;
-        public Expression End;
-        public Expression Step;
-        public Expression Var;
+        public Expression Start { get; set; }
+        public Expression End { get; set; }
+        public Expression Step { get; set; }
+        public Expression Var { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
@@ -1063,18 +1078,16 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class SwitchStatement : Statement
     {
-        public int StartOffest;
-        public int EndOffest;
         public class CaseInfo
         {
-            public Expression Condition;
-            public string UnexaminedCode;
-            public StatementBlock Block;
-            public string Comment;
-            public bool Mask;
+            public Expression Condition { get; set; }
+            public string UnexaminedCode { get; set; }
+            public StatementBlock Block { get; set; }
+            public string Comment { get; set; }
+            public bool Mask { get; set; }
         }
-        public List<CaseInfo> Case = new List<CaseInfo>();
-        public StatementBlock DefaultBlock;
+        public List<CaseInfo> Case { get; } = new List<CaseInfo>();
+        public StatementBlock DefaultBlock { get; set; }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             if (Case.Count == 0)
@@ -1163,13 +1176,13 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class StatementBlock : IList<Statement>, IToTextCodeAble
     {
-        private List<Statement> Statements = new List<Statement>();
+        private List<Statement> statements = new List<Statement>();
 
-        public int Count => ((IList<Statement>)Statements).Count;
+        public int Count => ((IList<Statement>)statements).Count;
 
-        public bool IsReadOnly => ((IList<Statement>)Statements).IsReadOnly;
+        public bool IsReadOnly => ((IList<Statement>)statements).IsReadOnly;
 
-        public Statement this[int index] { get => ((IList<Statement>)Statements)[index]; set => ((IList<Statement>)Statements)[index] = value; }
+        public Statement this[int index] { get => ((IList<Statement>)statements)[index]; set => ((IList<Statement>)statements)[index] = value; }
 
         public StatementBlock()
         {
@@ -1177,7 +1190,7 @@ namespace QIQI.EProjectFile
         }
         internal void WriteTo(MethodCodeDataWriterArgs a)
         {
-            Statements.ForEach(x => x.WriteTo(a));
+            statements.ForEach(x => x.WriteTo(a));
         }
         public MethodCodeData ToCodeData()
         {
@@ -1220,52 +1233,52 @@ namespace QIQI.EProjectFile
 
         public int IndexOf(Statement item)
         {
-            return ((IList<Statement>)Statements).IndexOf(item);
+            return ((IList<Statement>)statements).IndexOf(item);
         }
 
         public void Insert(int index, Statement item)
         {
-            ((IList<Statement>)Statements).Insert(index, item);
+            ((IList<Statement>)statements).Insert(index, item);
         }
 
         public void RemoveAt(int index)
         {
-            ((IList<Statement>)Statements).RemoveAt(index);
+            ((IList<Statement>)statements).RemoveAt(index);
         }
 
         public void Add(Statement item)
         {
-            ((IList<Statement>)Statements).Add(item);
+            ((IList<Statement>)statements).Add(item);
         }
 
         public void Clear()
         {
-            ((IList<Statement>)Statements).Clear();
+            ((IList<Statement>)statements).Clear();
         }
 
         public bool Contains(Statement item)
         {
-            return ((IList<Statement>)Statements).Contains(item);
+            return ((IList<Statement>)statements).Contains(item);
         }
 
         public void CopyTo(Statement[] array, int arrayIndex)
         {
-            ((IList<Statement>)Statements).CopyTo(array, arrayIndex);
+            ((IList<Statement>)statements).CopyTo(array, arrayIndex);
         }
 
         public bool Remove(Statement item)
         {
-            return ((IList<Statement>)Statements).Remove(item);
+            return ((IList<Statement>)statements).Remove(item);
         }
 
         public IEnumerator<Statement> GetEnumerator()
         {
-            return ((IList<Statement>)Statements).GetEnumerator();
+            return ((IList<Statement>)statements).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IList<Statement>)Statements).GetEnumerator();
+            return ((IList<Statement>)statements).GetEnumerator();
         }
     }
     /// <summary>
@@ -1275,20 +1288,18 @@ namespace QIQI.EProjectFile
     {
         public readonly short LibraryId;
         public readonly int ConstantId;
-        public ConstantExpression(short LibraryId, int ConstantId)
+        public ConstantExpression(short libraryId, int constantId)
         {
-            this.LibraryId = LibraryId;
-            this.ConstantId = ConstantId;
+            this.LibraryId = libraryId;
+            this.ConstantId = constantId;
         }
-        public ConstantExpression(int ConstantId)
+        public ConstantExpression(int constantId) : this(-2, constantId)
         {
-            this.LibraryId = -2;
-            this.ConstantId = ConstantId;
         }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
             result.Append("#");
-            result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(ConstantId):nameMap.GetLibConstantName(LibraryId,ConstantId));
+            result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(ConstantId) : nameMap.GetLibConstantName(LibraryId, ConstantId));
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
@@ -1314,11 +1325,11 @@ namespace QIQI.EProjectFile
         public readonly short LibraryId;
         public readonly short StructId;
         public readonly int MemberId;
-        public EmnuConstantExpression(short StructId, short LibraryId, int MemberId)
+        public EmnuConstantExpression(short structId, short libraryId, int memberId)
         {
-            this.StructId = StructId;
-            this.LibraryId = LibraryId;
-            this.MemberId = MemberId;
+            this.StructId = structId;
+            this.LibraryId = libraryId;
+            this.MemberId = memberId;
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
@@ -1369,8 +1380,8 @@ namespace QIQI.EProjectFile
         /// </summary>
         public readonly short LibraryId;
         public readonly int MethodId;
-        public Expression Target;//ThisCall
-        public ParamListExpression ParamList = null;
+        public Expression Target { get; set; } // ThisCall
+        public ParamListExpression ParamList { get; set; } = null;
         public CallExpression(short libraryId, int methodId, ParamListExpression paramList = null)
         {
             LibraryId = libraryId;
@@ -1420,7 +1431,10 @@ namespace QIQI.EProjectFile
                     a.ExpressionData.Write((byte)0x37);
                 }
             }
-            if (ParamList != null) ParamList.WriteTo(a); else ParamListEnd.Instance.WriteTo(a);
+            if (ParamList != null)
+                ParamList.WriteTo(a);
+            else
+                ParamListEnd.Instance.WriteTo(a);
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a) => WriteTo(a, 0x21, false, string.Empty);
     }
@@ -1429,21 +1443,21 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class ParamListExpression : Expression, IList<Expression>
     {
-        private readonly List<Expression> Value = new List<Expression>();
+        private readonly List<Expression> parameters = new List<Expression>();
 
-        public int Count => Value.Count;
+        public int Count => parameters.Count;
 
-        public bool IsReadOnly => ((IList<Expression>)Value).IsReadOnly;
+        public bool IsReadOnly => ((IList<Expression>)parameters).IsReadOnly;
 
-        public Expression this[int index] { get => Value[index]; set => Value[index] = value; }
+        public Expression this[int index] { get => parameters[index]; set => this.parameters[index] = value; }
 
         public void Add(Expression item)
         {
-            Value.Add(item ?? DefaultValueExpression.Instance);
+            parameters.Add(item ?? DefaultValueExpression.Instance);
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
-            Value.ForEach(x => x.WriteTo(a));
+            parameters.ForEach(x => x.WriteTo(a));
             ParamListEnd.Instance.WriteTo(a);
         }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
@@ -1453,42 +1467,42 @@ namespace QIQI.EProjectFile
             result.Append(")");
         }
 
-        public IEnumerator<Expression> GetEnumerator() => ((IEnumerable<Expression>)Value).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Expression>)Value).GetEnumerator();
+        public IEnumerator<Expression> GetEnumerator() => ((IEnumerable<Expression>)parameters).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Expression>)parameters).GetEnumerator();
 
         public int IndexOf(Expression item)
         {
-            return Value.IndexOf(item ?? DefaultValueExpression.Instance);
+            return parameters.IndexOf(item ?? DefaultValueExpression.Instance);
         }
 
         public void Insert(int index, Expression item)
         {
-            Value.Insert(index, item ?? DefaultValueExpression.Instance);
+            parameters.Insert(index, item ?? DefaultValueExpression.Instance);
         }
 
         public void RemoveAt(int index)
         {
-            Value.RemoveAt(index);
+            parameters.RemoveAt(index);
         }
 
         public void Clear()
         {
-            Value.Clear();
+            parameters.Clear();
         }
 
         public bool Contains(Expression item)
         {
-            return Value.Contains(item ?? DefaultValueExpression.Instance);
+            return parameters.Contains(item ?? DefaultValueExpression.Instance);
         }
 
         public void CopyTo(Expression[] array, int arrayIndex)
         {
-            Value.CopyTo(array, arrayIndex);
+            parameters.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(Expression item)
         {
-            return Value.Remove(item ?? DefaultValueExpression.Instance);
+            return parameters.Remove(item ?? DefaultValueExpression.Instance);
         }
     }
     /// <summary>
@@ -1496,57 +1510,57 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class ArrayLiteralExpression : Expression, IList<Expression>
     {
-        private readonly List<Expression> Value = new List<Expression>();
+        private readonly List<Expression> items = new List<Expression>();
 
-        public Expression this[int index] { get => Value[index]; set => Value[index] = value; }
+        public Expression this[int index] { get => items[index]; set => items[index] = value; }
 
-        public int Count => Value.Count;
+        public int Count => items.Count;
 
-        public bool IsReadOnly => ((IList<Expression>)Value).IsReadOnly;
+        public bool IsReadOnly => ((IList<Expression>)items).IsReadOnly;
 
         public void Add(Expression item)
         {
-            Value.Add(item);
+            items.Add(item);
         }
 
         public void Clear()
         {
-            Value.Clear();
+            items.Clear();
         }
 
         public bool Contains(Expression item)
         {
-            return Value.Contains(item);
+            return items.Contains(item);
         }
 
         public void CopyTo(Expression[] array, int arrayIndex)
         {
-            Value.CopyTo(array, arrayIndex);
+            items.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<Expression> GetEnumerator()
         {
-            return ((IList<Expression>)Value).GetEnumerator();
+            return ((IList<Expression>)items).GetEnumerator();
         }
 
         public int IndexOf(Expression item)
         {
-            return Value.IndexOf(item);
+            return items.IndexOf(item);
         }
 
         public void Insert(int index, Expression item)
         {
-            Value.Insert(index, item);
+            items.Insert(index, item);
         }
 
         public bool Remove(Expression item)
         {
-            return Value.Remove(item);
+            return items.Remove(item);
         }
 
         public void RemoveAt(int index)
         {
-            Value.RemoveAt(index);
+            items.RemoveAt(index);
         }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
@@ -1557,13 +1571,13 @@ namespace QIQI.EProjectFile
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
             a.ExpressionData.Write((byte)0x1F);
-            Value.ForEach(x => x.WriteTo(a));
+            items.ForEach(x => x.WriteTo(a));
             ArrayLiteralEnd.Instance.WriteTo(a);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IList<Expression>)Value).GetEnumerator();
+            return ((IList<Expression>)items).GetEnumerator();
         }
     }
     /// <summary>
@@ -1602,8 +1616,8 @@ namespace QIQI.EProjectFile
     /// </summary>
     public class StringLiteral : Expression
     {
-        public readonly String Value;
-        public StringLiteral(String value)
+        public readonly string Value;
+        public StringLiteral(string value)
         {
             this.Value = value;
         }
@@ -1724,10 +1738,10 @@ namespace QIQI.EProjectFile
             }
             a.ExpressionData.Write((byte)0x39);
             a.ExpressionData.Write(MemberId);
-            if(LibraryId==-2)
+            if (LibraryId == -2)
                 a.ExpressionData.Write(StructId);
             else
-                a.ExpressionData.Write((StructId+1) & 0xFFFF | (LibraryId+1) << 16);
+                a.ExpressionData.Write((StructId + 1) & 0xFFFF | (LibraryId + 1) << 16);
             if (need0x1DAnd0x37) a.ExpressionData.Write((byte)0x37);
         }
     }
@@ -1737,9 +1751,9 @@ namespace QIQI.EProjectFile
     public class VariableExpression : In0x38Expression
     {
         public readonly int Id;
-        public VariableExpression(int Id)
+        public VariableExpression(int id)
         {
-            this.Id = Id;
+            this.Id = id;
         }
 
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)

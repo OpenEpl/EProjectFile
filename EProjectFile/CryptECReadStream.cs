@@ -5,9 +5,9 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    class CryptECReadStream : Stream
+    internal class CryptECReadStream : Stream
     {
-        private byte[] KeyTable;
+        private byte[] keyTable;
 
         public byte[] PasswordHash { get; }
 
@@ -22,7 +22,7 @@ namespace QIQI.EProjectFile
             {
                 byte[] passwordMd5 = new MD5CryptoServiceProvider().ComputeHash(passwordBytes);
 
-                //是的！该非标准MD5不是单纯的把标准MD5两两颠倒过来就好！
+                // 是的！该非标准MD5不是单纯的把标准MD5两两颠倒过来就好！
                 byte low4bit_7 = (byte)(passwordMd5[7] & 0x0F);
                 byte high4bit_7 = (byte)(passwordMd5[7] & 0xF0);
                 byte low4bit_8 = (byte)(passwordMd5[8] & 0x0F);
@@ -37,7 +37,7 @@ namespace QIQI.EProjectFile
                 }
                 this.PasswordHash = Encoding.ASCII.GetBytes(stringBuilder.ToString());
             }
-            InitKeyTable(passwordBytes, out this.KeyTable);
+            InitKeyTable(passwordBytes, out this.keyTable);
             this.LengthOfUncryptedBlock = lengthOfUncryptedBlock;
         }
 
@@ -134,7 +134,7 @@ namespace QIQI.EProjectFile
                 Array.Copy(PasswordHash, 0, tempKey, 8, 32);
 
                 byte[] tempKeyTable = new byte[258];
-                Array.Copy(this.KeyTable, tempKeyTable, 258);
+                Array.Copy(this.keyTable, tempKeyTable, 258);
                 SkipDataButUpdateKeyTable(8 * (startPos / 4096), tempKeyTable);
 
                 int keyParamIndex = 0;

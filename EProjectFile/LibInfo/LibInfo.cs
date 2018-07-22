@@ -39,7 +39,7 @@ namespace QIQI.EProjectFile.LibInfo
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed to load library \"{refInfo.FileName}\"",e);
+                throw new Exception($"Failed to load library \"{refInfo.FileName}\"", e);
             }
             if (string.IsNullOrWhiteSpace(result))
             {

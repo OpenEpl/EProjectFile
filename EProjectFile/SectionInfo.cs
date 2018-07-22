@@ -3,7 +3,7 @@
     /// <summary>
     /// 易语言项目文件由多个数据段组成
     /// </summary>
-    public class SectionInfo
+    public struct SectionInfo
     {
         /// <summary>
         /// 数据段的人类辨别名称
@@ -12,7 +12,7 @@
         /// <summary>
         /// 用于决定如何对Name字段编码，同时也是易语言内部识别数据段的唯一标识（易语言内部并不靠Name字段识别数据段）
         /// </summary>
-        public byte[] Key = new byte[] { 25, 115, 0, 7 };
+        public byte[] Key;
         /// <summary>
         /// 数据段中的数据（不含段头）
         /// </summary>
