@@ -138,7 +138,7 @@ namespace QIQI.EProjectFile
                 SkipDataButUpdateKeyTable(8 * (startPos / 4096), tempKeyTable);
 
                 int keyParamIndex = 0;
-                byte[] keyParamBytes = new byte[(lengthOfCrypted / 4096 + 2) * 8];
+                byte[] keyParamBytes = new byte[((lengthOfCrypted / 4096) + 2) * 8];
                 DecodeDataAndUpdateKeyTable(keyParamBytes, 0, keyParamBytes.Length, tempKeyTable);
 
                 const int BlockLength = 4096;

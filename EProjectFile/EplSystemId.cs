@@ -92,7 +92,7 @@ namespace QIQI.EProjectFile
             {
                 lib = (short)(id >> 16);
                 lib--;
-                type = (short)(id);
+                type = (short)id;
                 type--;
             }
         }

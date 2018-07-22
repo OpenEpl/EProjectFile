@@ -136,7 +136,7 @@ namespace QIQI.EProjectFile
                 offsets[i] = offsets[i - 1] + elem[i - 1].Length;
             }
             writer.Write(count);
-            writer.Write(count * 8 + elem.Sum(x => x.Length));
+            writer.Write((count * 8) + elem.Sum(x => x.Length));
             Array.ForEach(data, x => writer.Write(x.Id));
             writer.WriteInt32sWithoutLengthPrefix(offsets);
             Array.ForEach(elem, x => writer.Write(x));

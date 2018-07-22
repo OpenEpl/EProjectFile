@@ -30,6 +30,11 @@ Package Manager `Install-Package QIQI.EProjectFile`
 
 # 例程
 ```cs
+using QIQI.EProjectFile;
+using QIQI.EProjectFile.Expressions;
+using QIQI.EProjectFile.Statements;
+
+
 // 添加Tag子程序（如果不存在），然后在每个子程序的开头加上：Tag(<子程序名>)
 ESystemInfo systemInfo = null;
 CodeSectionInfo codeSectionInfo = null;
@@ -106,17 +111,20 @@ catch (Exception)
 	}
 }
 
-foreach (var method in codeSectionInfo.Methods) if (method.Id != tagMethod)
+foreach (var method in codeSectionInfo.Methods) 
+{
+	if (method.Id != tagMethod)
 	{
 		StatementBlock block = CodeDataParser.ParseStatementBlock(method.CodeData.ExpressionData);
 		{
-			if (block[0] is ExpressionStatement expressionStatement && expressionStatement.Expression is CallExpression callExpression)
-				if (callExpression.LibraryId == -2 && callExpression.MethodId == tagMethod)
+			if (block[0] is ExpressionStatement exprStat && exprStat.Expression is CallExpression callExpr)
+				if (callExpr.LibraryId == -2 && callExpr.MethodId == tagMethod)
 					block.RemoveAt(0);
 		}
 		block.Insert(0, new ExpressionStatement(new CallExpression(-2, tagMethod, new ParamListExpression() { new StringLiteral(method.Name) }), false, "Added from C# Project \"EProjectFile\""));
 		method.CodeData = block.ToCodeData();
 	}
+}
 
 using (var projectFileWriter = new ProjectFileWriter(File.Create(fileName)))
 {

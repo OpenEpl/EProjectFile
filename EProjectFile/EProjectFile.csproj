@@ -27,6 +27,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,8 +77,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,6 +93,37 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassInfo.cs" />
+    <Compile Include="Expressions\AccessArrayExpression.cs" />
+    <Compile Include="Expressions\AccessMemberExpression.cs" />
+    <Compile Include="Expressions\ArrayLiteralEnd.cs" />
+    <Compile Include="Expressions\ArrayLiteralExpression.cs" />
+    <Compile Include="Expressions\BoolLiteral.cs" />
+    <Compile Include="Expressions\CallExpression.cs" />
+    <Compile Include="Expressions\ConstantExpression.cs" />
+    <Compile Include="Expressions\DateTimeLiteral.cs" />
+    <Compile Include="Expressions\DefaultValueExpression.cs" />
+    <Compile Include="Expressions\EmnuConstantExpression.cs" />
+    <Compile Include="Expressions\Expression.cs" />
+    <Compile Include="Expressions\In0x38Expression.cs" />
+    <Compile Include="Expressions\MethodPtrExpression.cs" />
+    <Compile Include="Expressions\NumberLiteral.cs" />
+    <Compile Include="Expressions\ParamListEnd.cs" />
+    <Compile Include="Expressions\ParamListExpression.cs" />
+    <Compile Include="Expressions\StringLiteral.cs" />
+    <Compile Include="Expressions\VariableExpression.cs" />
+    <Compile Include="MethodCodeDataWriterArgs.cs" />
+    <Compile Include="Statements\CounterStatement.cs" />
+    <Compile Include="Statements\DoWhileStatement.cs" />
+    <Compile Include="Statements\ExpressionStatement.cs" />
+    <Compile Include="Statements\ForStatement.cs" />
+    <Compile Include="Statements\IfElseStatement.cs" />
+    <Compile Include="Statements\IfStatement.cs" />
+    <Compile Include="Statements\LoopStatement.cs" />
+    <Compile Include="Statements\Statement.cs" />
+    <Compile Include="Statements\StatementBlock.cs" />
+    <Compile Include="Statements\SwitchStatement.cs" />
+    <Compile Include="Statements\UnexaminedStatement.cs" />
+    <Compile Include="Statements\WhileStatement.cs" />
     <Compile Include="TextCodeUtils.cs" />
     <Compile Include="VariableInfo\ClassVariableInfo.cs" />
     <Compile Include="CodeDataParser.cs" />
@@ -167,4 +200,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets" Condition="Exists('..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets'))" />
+  </Target>
 </Project>
