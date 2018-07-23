@@ -104,47 +104,39 @@ namespace QIQI.EProjectFile
                     needToRemove.Add(item.Key);
             needToRemove.ForEach(x => userDefinedName.Remove(x));
         }
+
+        private static readonly Dictionary<int, string> IdTypeName = new Dictionary<int, string> {
+            { EplSystemId.Type_Method, "Sub" },
+            { EplSystemId.Type_Global, "Global" },
+            { EplSystemId.Type_StaticClass, "Mod" },
+            { EplSystemId.Type_Dll, "Dll" },
+            { EplSystemId.Type_ClassMember, "Mem" },
+            { EplSystemId.Type_Control, "Control" },
+            { EplSystemId.Type_Constant, "Const" },
+            { EplSystemId.Type_FormClass, "FormCls" },
+            { EplSystemId.Type_Local, "Local" },
+            { EplSystemId.Type_ImageResource, "Img" },
+            { EplSystemId.Type_SoundResource, "Sound" },
+            { EplSystemId.Type_StructMember, "StructMem" },
+            { EplSystemId.Type_Struct, "Struct" },
+            { EplSystemId.Type_DllParameter, "DllParam" },
+            { EplSystemId.Type_Class, "Cls" }
+        };
+
         public string GetUserDefinedName(int id)
         {
-            
             if (userDefinedName.TryGetValue(id, out var result))
+            {
                 return result;
+            }
+            else if (IdTypeName.TryGetValue(EplSystemId.GetType(id), out result))
+            {
+                return $"_{result}_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
+            }
             else
-                switch (EplSystemId.GetType(id))
-                {
-                    case EplSystemId.Type_Method:
-                        return $"_Sub_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Global:
-                        return $"_Global_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_StaticClass:
-                        return $"_Mod_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Dll:
-                        return $"_Dll_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_ClassMember:
-                        return $"_Mem_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Control:
-                        return $"_Control_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Constant:
-                        return $"_Const_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_FormClass:
-                        return $"_FormCls_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Local:
-                        return $"_Local_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_ImageResource:
-                        return $"_Img_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_SoundResource:
-                        return $"_Sound_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_StructMember:
-                        return $"_StructMem_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Struct:
-                        return $"_Struct_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_DllParameter:
-                        return $"_DllParam_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    case EplSystemId.Type_Class:
-                        return $"_Cls_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
-                    default:
-                        return $"_User_0x{id.ToString("X8")}";
-                }
+            {
+                return $"_User_0x{id.ToString("X8")}";
+            }
         }
         public string GetLibCmdName(int lib, int id)
         {
