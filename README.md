@@ -33,8 +33,20 @@ Package Manager `Install-Package QIQI.EProjectFile`
 using QIQI.EProjectFile;
 using QIQI.EProjectFile.Expressions;
 using QIQI.EProjectFile.Statements;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
 
 
+private static T[] AddArrayElement<T>(T[] array, T element)
+{
+	var newArray = new T[array.Length + 1];
+	Array.Copy(array, newArray, array.Length);
+	newArray[array.Length] = element;
+	return newArray;
+}
+		
 // 添加Tag子程序（如果不存在），然后在每个子程序的开头加上：Tag(<子程序名>)
 ESystemInfo systemInfo = null;
 CodeSectionInfo codeSectionInfo = null;
@@ -80,44 +92,37 @@ catch (Exception)
 {
 	int tagStaticClass = codeSectionInfo.AllocId(EplSystemId.Type_StaticClass);
 	tagMethod = codeSectionInfo.AllocId(EplSystemId.Type_Method);
-	codeSectionInfo.Classes = new List<ClassInfo>(codeSectionInfo.Classes)
+	codeSectionInfo.Classes = AddArrayElement(codeSectionInfo.Classes, new ClassInfo(tagStaticClass)
 	{
-		new ClassInfo(tagStaticClass)
-		{
-			Name = "TagMoudle",
-			Method = new int[]{ tagMethod }
-		}
-	}.ToArray();
-	codeSectionInfo.Methods = new List<MethodInfo>(codeSectionInfo.Methods)
+		Name = "TagMoudle",
+		Method = new int[] { tagMethod }
+	});
+	codeSectionInfo.Methods = AddArrayElement(codeSectionInfo.Methods, new MethodInfo(tagMethod)
 	{
-		new MethodInfo(tagMethod)
+		Name = "Tag",
+		Class = tagStaticClass,
+		CodeData = new StatementBlock() { new ExpressionStatement() }.ToCodeData(),
+		Parameters = new MethodParameterInfo[]
 		{
-			Name = "Tag",
-			Class = tagStaticClass,
-			CodeData = new StatementBlock(){ new ExpressionStatement() }.ToCodeData(),
-			Parameters = new MethodParameterInfo[]
+			new MethodParameterInfo(codeSectionInfo.AllocId(EplSystemId.Type_Local))
 			{
-				new MethodParameterInfo(codeSectionInfo.AllocId(EplSystemId.Type_Local))
-				{
-					Name = "Name",
-					DataType = EplSystemId.DataType_String
-				}
+				Name = "Name",
+				DataType = EplSystemId.DataType_String
 			}
 		}
-	}.ToArray();
+	});
 	if (ePackageInfo != null)
 	{
-		ePackageInfo.FileNames = new List<string>(ePackageInfo.FileNames) { null }.ToArray();
+		ePackageInfo.FileNames = AddArrayElement(ePackageInfo.FileNames, null);
 	}
 }
-
-foreach (var method in codeSectionInfo.Methods) 
+foreach (var method in codeSectionInfo.Methods)
 {
 	if (method.Id != tagMethod)
 	{
 		StatementBlock block = CodeDataParser.ParseStatementBlock(method.CodeData.ExpressionData);
 		{
-			if (block[0] is ExpressionStatement exprStat && exprStat.Expression is CallExpression callExpr)
+			if (block[0] is ExpressionStatement exprStat && exprStat != null && exprStat.Expression is CallExpression callExpr && callExpr != null) 
 				if (callExpr.LibraryId == -2 && callExpr.MethodId == tagMethod)
 					block.RemoveAt(0);
 		}
@@ -125,11 +130,11 @@ foreach (var method in codeSectionInfo.Methods)
 		method.CodeData = block.ToCodeData();
 	}
 }
-
 using (var projectFileWriter = new ProjectFileWriter(File.Create(fileName)))
 {
-	foreach (var section in sections)
+	for (int i = 0; i < sections.Count; i++)
 	{
+		SectionInfo section = sections[i];
 		switch (section.Name)
 		{
 			case ESystemInfo.SectionName:
