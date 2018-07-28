@@ -8,7 +8,7 @@ namespace QIQI.EProjectFile
     public class ProjectConfigInfo
     {
         public const string SectionName = "用户信息段";
-
+        public const int SectionKey = 0x01007319;
         public string Name { get; set; }
         public string Description { get; set; }
         public string Author { get; set; }

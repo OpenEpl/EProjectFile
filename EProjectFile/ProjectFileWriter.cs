@@ -38,22 +38,19 @@ namespace QIQI.EProjectFile
             writer.Write(section.Data);
         }
 
-        private static byte[] EncodeName(byte[] key, string name)
+        private static byte[] EncodeName(int key, string name)
         {
             var r = new byte[30];
             if (name != null) 
             {
                 Encoding.GetEncoding("gbk").GetBytes(name, 0, name.Length, r, 0);
             }
-            if (key.Length != 4)
+            if (key != 0x07007319)
             {
-                throw new Exception($"{nameof(key)}应为4字节");
-            }
-            if (!(key[0] == 25 && key[1] == 115 && key[2] == 0 && key[3] == 7))
-            {
+                var keyBytes = unchecked(new byte[] { (byte)key, (byte)(key >> 8), (byte)(key >> 16), (byte)(key >> 24) });
                 for (int i = 0; i < r.Length; i++)
                 {
-                    r[i] ^= key[(i + 1) & 0x3];
+                    r[i] ^= keyBytes[(i + 1) % 4];
                 }
             }
             return r;

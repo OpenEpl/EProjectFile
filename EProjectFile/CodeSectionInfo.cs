@@ -8,7 +8,7 @@ namespace QIQI.EProjectFile
     public class CodeSectionInfo : IToTextCodeAble
     {
         public const string SectionName = "程序段";
-
+        public const int SectionKey = 0x03007319;
         private int allocatedIdNum;
         [JsonIgnore]
         public byte[] UnknownBeforeLibrary_1 { get; set; }

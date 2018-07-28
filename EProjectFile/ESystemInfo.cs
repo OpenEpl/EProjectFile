@@ -8,6 +8,7 @@ namespace QIQI.EProjectFile
     public class ESystemInfo
     {
         public const string SectionName = "系统信息段";
+        public const int SectionKey = 0x02007319;
         [JsonConverter(typeof(VersionConverter))]
         public Version ESystemVersion { get; set; }
         /// <summary>

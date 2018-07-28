@@ -8,7 +8,7 @@ namespace QIQI.EProjectFile
     public class ProjectFileReader : IDisposable
     {
         public delegate string OnInputPassword(string tip);
-        public bool IsFinish => reader.BaseStream.Position == reader.BaseStream.Length;
+        public bool IsFinish { get; private set; } = false;
 
         private BinaryReader reader;
         public bool CryptEc { get; } = false;
@@ -50,13 +50,17 @@ namespace QIQI.EProjectFile
 
         public SectionInfo ReadSection()
         {
+            if (IsFinish) 
+            {
+                throw new EndOfStreamException();
+            }
             SectionInfo section = new SectionInfo();
             if (!(reader.ReadInt32() == 0x15117319))
             {
                 throw new Exception("Magic错误");
             }
             reader.ReadInt32(); // Skip InfoCheckSum
-            section.Key = reader.ReadBytes(4);
+            section.Key = reader.ReadInt32();
             section.Name = DecodeName(section.Key, reader.ReadBytes(30));
             reader.ReadInt16(); // 对齐填充（确认于易语言V5.71）
             reader.ReadInt32(); // Skip Index
@@ -70,24 +74,27 @@ namespace QIQI.EProjectFile
             reader.ReadBytes(40); // 保留未用（确认于易语言V5.71）
             section.Data = new byte[dataLength];
             reader.Read(section.Data, 0, dataLength);
+            if (section.Key == 0x07007319) 
+            {
+                IsFinish = true;
+            }
             return section;
         }
-        private static string DecodeName(byte[] key, byte[] encodedName)
+
+
+        private static string DecodeName(int key, byte[] encodedName)
         {
-            if (encodedName == null || key == null)
+            if (encodedName == null)
             {
                 return string.Empty;
             }
             byte[] r = (byte[])encodedName.Clone();
-            if (key.Length != 4)
+            if (key != 0x07007319)
             {
-                throw new Exception($"{nameof(key)}应为4字节");
-            }
-            if (!(key[0] == 25 && key[1] == 115 && key[2] == 0 && key[3] == 7))
-            {
+                var keyBytes = unchecked(new byte[] { (byte)key, (byte)(key >> 8), (byte)(key >> 16), (byte)(key >> 24) });
                 for (int i = 0; i < r.Length; i++)
                 {
-                    r[i] ^= key[(i + 1) & 0x3];
+                    r[i] ^= keyBytes[(i + 1) % 4];
                 }
             }
 

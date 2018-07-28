@@ -8,6 +8,7 @@ namespace QIQI.EProjectFile
     public class EPackageInfo
     {
         public const string SectionName = "易包信息段1";
+        public const int SectionKey = 0x0D007319;
         /// <summary>
         /// 与每个子程序一一对应，null表示对应子程序非调用易包的子程序
         /// </summary>
