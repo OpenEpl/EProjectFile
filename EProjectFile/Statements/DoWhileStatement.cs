@@ -48,14 +48,14 @@ namespace QIQI.EProjectFile.Statements
         {
             using (a.NewBlock(3))
             {
-                new ExpressionStatement(new CallExpression(0, 6, new ParamListExpression() { }), MaskOnStart, CommentOnStart).WriteTo(a, 0x70);
+                new ExpressionStatement(new CallExpression(0, 5, new ParamListExpression() { }), MaskOnStart, CommentOnStart).WriteTo(a, 0x70);
                 Block.WriteTo(a);
                 a.ExpressionData.Write((byte)0x55);
             }
             if (UnexaminedCode != null)
                 new UnexaminedStatement(UnexaminedCode, MaskOnEnd).WriteTo(a, 0x71);
             else
-                new ExpressionStatement(new CallExpression(0, 5, new ParamListExpression() { Condition }), MaskOnEnd, CommentOnEnd).WriteTo(a, 0x71);
+                new ExpressionStatement(new CallExpression(0, 6, new ParamListExpression() { Condition }), MaskOnEnd, CommentOnEnd).WriteTo(a, 0x71);
         }
     }
 }
