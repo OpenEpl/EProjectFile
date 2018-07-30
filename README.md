@@ -2,13 +2,13 @@
 
 # EProjectFile
 一个用于编辑易语言项目文件的第三方库（C#）  
-[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile) [![CodeFactor](https://www.codefactor.io/repository/github/1354092549/eprojectfile/badge)](https://www.codefactor.io/repository/github/1354092549/eprojectfile)
+[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile) [![CodeFactor](https://www.codefactor.io/repository/github/1354092549/eprojectfile/badge)](https://www.codefactor.io/repository/github/1354092549/eprojectfile)  
 命名空间：`QIQI.EProjectFile`  
 
 # 安装
 Package Manager `Install-Package QIQI.EProjectFile`  
 .NET CLI `dotnet add package QIQI.EProjectFile`  
-或使用VS的NuGet包管理器（GUI）搜索“QIQI.EProjectFile”  
+使用VS的NuGet包管理器（GUI）搜索 `QIQI.EProjectFile`  
 
 # 声明
 1. 仅供学习与交流使用
@@ -59,21 +59,21 @@ using (var projectFileReader = new ProjectFileReader(File.OpenRead(fileName)))
 	while (!projectFileReader.IsFinish)
 	{
 		var section = projectFileReader.ReadSection();
-		switch (section.Name)
+		switch (section.Key)
 		{
-			case ESystemInfo.SectionName:
+			case ESystemInfo.SectionKey:
 				systemInfo = ESystemInfo.Parse(section.Data);
 				break;
-			case CodeSectionInfo.SectionName:
+			case CodeSectionInfo.SectionKey:
 				codeSectionInfo = CodeSectionInfo.Parse(section.Data, projectFileReader.CryptEc);
 				break;
-			case ResourceSectionInfo.SectionName:
+			case ResourceSectionInfo.SectionKey:
 				resourceSectionInfo = ResourceSectionInfo.Parse(section.Data);
 				break;
-			case InitEcSectionInfo.SectionName:
+			case InitEcSectionInfo.SectionKey:
 				initEcSectionInfo = InitEcSectionInfo.Parse(section.Data);
 				break;
-			case EPackageInfo.SectionName:
+			case EPackageInfo.SectionKey:
 				ePackageInfo = EPackageInfo.Parse(section.Data);
 				break;
 			default:
@@ -135,21 +135,21 @@ using (var projectFileWriter = new ProjectFileWriter(File.Create(fileName)))
 	for (int i = 0; i < sections.Count; i++)
 	{
 		SectionInfo section = sections[i];
-		switch (section.Name)
+		switch (section.Key)
 		{
-			case ESystemInfo.SectionName:
+			case ESystemInfo.SectionKey:
 				section.Data = systemInfo.ToBytes();
 				break;
-			case CodeSectionInfo.SectionName:
+			case CodeSectionInfo.SectionKey:
 				section.Data = codeSectionInfo.ToBytes();
 				break;
-			case ResourceSectionInfo.SectionName:
+			case ResourceSectionInfo.SectionKey:
 				section.Data = resourceSectionInfo.ToBytes();
 				break;
-			case InitEcSectionInfo.SectionName:
+			case InitEcSectionInfo.SectionKey:
 				section.Data = initEcSectionInfo.ToBytes();
 				break;
-			case EPackageInfo.SectionName:
+			case EPackageInfo.SectionKey:
 				section.Data = ePackageInfo.ToBytes();
 				break;
 			default:
