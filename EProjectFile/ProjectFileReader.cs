@@ -24,18 +24,20 @@ namespace QIQI.EProjectFile
                 {
                     throw new Exception("不支持此类加密文件");
                 }
-                string tip = reader.ReadStringWithLengthPrefix();
+                int tip_bytes = reader.ReadInt32();
+                string tip = reader.ReadStringWithFixedLength(tip_bytes);
                 string password = inputPassword?.Invoke(tip);
                 if (string.IsNullOrEmpty(password))
                 {
                     throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
                 }
-                var cryptECReadStream = new CryptECReadStream(stream, password, stream.Position);
+                int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
+                var cryptECReadStream = new CryptECReadStream(stream, password, lengthOfRead, lengthOfRead);
                 reader = new BinaryReader(cryptECReadStream, Encoding.GetEncoding("gbk"));
+
                 if (!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash)) 
                 {
-                    throw new Exception("密码错误");
-                    
+                    throw new Exception("密码错误"); 
                 }
                 CryptEc = true;
 
