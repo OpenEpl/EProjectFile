@@ -15,9 +15,10 @@ namespace QIQI.EProjectFile
         /// 读取固定长度的文本
         /// </summary>
         /// <param name="reader"></param>
+        /// <param name="encoding"></param>
         /// <param name="length">包括终止符（如果有）</param>
         /// <returns></returns>
-        public static string ReadStringWithFixedLength(this BinaryReader reader, int length)
+        public static string ReadStringWithFixedLength(this BinaryReader reader, Encoding encoding, int length)
         {
             var bytes = reader.ReadBytes(length);
             {
@@ -29,21 +30,21 @@ namespace QIQI.EProjectFile
                     bytes = t;
                 }
             }
-            return Encoding.GetEncoding("gbk").GetString(bytes);
+            return encoding.GetString(bytes);
         }
-        public static string ReadBStr(this BinaryReader reader)
+        public static string ReadBStr(this BinaryReader reader, Encoding encoding)
         {
             int length = reader.ReadInt32();
             if (length == 0) return null;
-            var str = Encoding.GetEncoding("gbk").GetString(reader.ReadBytes(length - 1));
+            var str = encoding.GetString(reader.ReadBytes(length - 1));
             reader.ReadByte();
             return str;
         }
-        public static string ReadStringWithLengthPrefix(this BinaryReader reader)
+        public static string ReadStringWithLengthPrefix(this BinaryReader reader, Encoding encoding)
         {
-            return reader.ReadStringWithFixedLength(reader.ReadInt32());
+            return reader.ReadStringWithFixedLength(encoding, reader.ReadInt32());
         }
-        public static string ReadCStyleString(this BinaryReader reader)
+        public static string ReadCStyleString(this BinaryReader reader, Encoding encoding)
         {
             // 不依赖reader的编码设置
 
@@ -53,7 +54,7 @@ namespace QIQI.EProjectFile
             {
                 memoryStream.WriteByte(value);
             }
-            return Encoding.GetEncoding("gbk").GetString(memoryStream.ToArray());
+            return encoding.GetString(memoryStream.ToArray());
         }
         public static int ReadMfcStyleCountPrefix(this BinaryReader reader)
         {
@@ -65,9 +66,9 @@ namespace QIQI.EProjectFile
             return reader.ReadInt32();
         }
 
-        public static string[] ReadStringsWithMfcStyleCountPrefix(this BinaryReader reader)
+        public static string[] ReadStringsWithMfcStyleCountPrefix(this BinaryReader reader, Encoding encoding)
         {
-            return new object[ReadMfcStyleCountPrefix(reader)].Select(x => reader.ReadStringWithLengthPrefix()).ToArray();
+            return new object[ReadMfcStyleCountPrefix(reader)].Select(x => reader.ReadStringWithLengthPrefix(encoding)).ToArray();
         }
         public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
             this BinaryReader reader,
@@ -99,6 +100,7 @@ namespace QIQI.EProjectFile
 
         public static void WriteBlocksWithIdAndOffest<TElem>(
             this BinaryWriter writer,
+            Encoding encoding,
             TElem[] data,
             Action<BinaryWriter, TElem> writeAction)
             where TElem : IHasId
@@ -113,12 +115,12 @@ namespace QIQI.EProjectFile
             var elem = new byte[count][];
             for (int i = 0; i < count; i++)
             {
-                using (var elemWriter = new BinaryWriter(new MemoryStream()))
+                using (var elemWriter = new BinaryWriter(new MemoryStream(), encoding))
                 {
                     writeAction(elemWriter, data[i]);
                     elem[i] = ((MemoryStream)elemWriter.BaseStream).ToArray();
                 }
-                using (var elemWriter = new BinaryWriter(new MemoryStream()))
+                using (var elemWriter = new BinaryWriter(new MemoryStream(), encoding))
                 {
                     elemWriter.Write(elem[i].Length);
                     elemWriter.Write(elem[i]);
@@ -168,34 +170,34 @@ namespace QIQI.EProjectFile
             writer.Write(data.Length);
             writer.WriteInt32sWithoutLengthPrefix(data);
         }
-        public static void WriteStringWithFixedLength(this BinaryWriter writer, string data, int length)
+        public static void WriteStringWithFixedLength(this BinaryWriter writer, Encoding encoding, string data, int length)
         {
-            var bytes = Encoding.GetEncoding("gbk").GetBytes(data);
+            var bytes = encoding.GetBytes(data);
             if (bytes.Length > length)
                 throw new ArgumentException("字符串过长");
             writer.Write(bytes);
             writer.Write(new byte[length - bytes.Length]);
         }
-        public static void WriteBStr(this BinaryWriter writer, string data)
+        public static void WriteBStr(this BinaryWriter writer, Encoding encoding, string data)
         {
             if (data == null)
             {
                 writer.Write(0);
                 return;
             }
-            var bytes = Encoding.GetEncoding("gbk").GetBytes(data);
+            var bytes = encoding.GetBytes(data);
             writer.Write(bytes.Length + 1);
             writer.Write(bytes);
             writer.Write((byte)0);
         }
-        public static void WriteStringWithLengthPrefix(this BinaryWriter writer, string data)
+        public static void WriteStringWithLengthPrefix(this BinaryWriter writer, Encoding encoding, string data)
         {
             if (data == null)
             {
                 writer.Write(0);
                 return;
             }
-            var bytes = Encoding.GetEncoding("gbk").GetBytes(data);
+            var bytes = encoding.GetBytes(data);
             writer.Write(bytes.Length);
             writer.Write(bytes);
         }
@@ -211,16 +213,16 @@ namespace QIQI.EProjectFile
                 writer.Write(data);
             }
         }
-        public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, string[] data)
+        public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, Encoding encoding, string[] data)
         {
             if (data == null) data = new string[] { };
             writer.WriteMfcStyleCountPrefix(data.Length);
-            Array.ForEach(data, x => writer.WriteStringWithLengthPrefix(x));
+            Array.ForEach(data, x => writer.WriteStringWithLengthPrefix(encoding, x));
         }
-        public static void WriteCStyleString(this BinaryWriter writer, string data)
+        public static void WriteCStyleString(this BinaryWriter writer, Encoding encoding, string data)
         {
             if (data == null) data = string.Empty;
-            writer.Write(Encoding.GetEncoding("gbk").GetBytes(data));
+            writer.Write(encoding.GetBytes(data));
             writer.Write((byte)0);
         }
         public static string ToHexString(this byte[] bytes)

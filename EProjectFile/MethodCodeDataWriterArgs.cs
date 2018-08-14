@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+
 namespace QIQI.EProjectFile
 {
     internal struct MethodCodeDataWriterArgs
     {
+        public Encoding Encoding;
         public BinaryWriter LineOffest;
         public BinaryWriter BlockOffest;
         public BinaryWriter MethodReference;

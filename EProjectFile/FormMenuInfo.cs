@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
@@ -17,13 +18,13 @@ namespace QIQI.EProjectFile
         public int ClickEvent { get; set; }
         [JsonIgnore]
         public byte[] UnknownAfterClickEvent { get; set; }
-        internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, int length)
+        internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int length)
         {
             var startPosition = reader.BaseStream.Position;
             var elem = new FormMenuInfo() { };
             elem.UnknownBeforeName = reader.ReadBytes(20);
-            elem.Name = reader.ReadCStyleString();
-            reader.ReadCStyleString(); // 菜单没有Comment
+            elem.Name = reader.ReadCStyleString(encoding);
+            reader.ReadCStyleString(encoding); // 菜单没有Comment
             elem.HotKey = reader.ReadInt32();
             elem.Level = reader.ReadInt32();
             {
@@ -32,21 +33,21 @@ namespace QIQI.EProjectFile
                 elem.Disable = (showStatus & 0x2) != 0;
                 elem.Selected = (showStatus & 0x4) != 0;
             }
-            elem.Text = reader.ReadCStyleString();
+            elem.Text = reader.ReadCStyleString(encoding);
             elem.ClickEvent = reader.ReadInt32();
             elem.UnknownAfterClickEvent = reader.ReadBytes(length - (int)(reader.BaseStream.Position - startPosition));
             return elem;
         }
-        protected override void WriteWithoutId(BinaryWriter writer)
+        protected override void WriteWithoutId(BinaryWriter writer, Encoding encoding)
         {
             writer.Write(DataType);
             writer.Write(UnknownBeforeName);
-            writer.WriteCStyleString(Name);
-            writer.WriteCStyleString("");
+            writer.WriteCStyleString(encoding, Name);
+            writer.WriteCStyleString(encoding, "");
             writer.Write(HotKey);
             writer.Write(Level);
             writer.Write((Visible ? 0 : 0x1) | (Disable ? 0x2 : 0) | (Selected ? 0x4 : 0));
-            writer.WriteCStyleString(Text);
+            writer.WriteCStyleString(encoding, Text);
             writer.Write(ClickEvent);
             writer.Write(UnknownAfterClickEvent);
         }

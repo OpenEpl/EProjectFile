@@ -18,7 +18,7 @@ namespace QIQI.EProjectFile
         public int Flags { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        internal static TElem[] ReadVariables<TElem>(BinaryReader r, Func<int, TElem> newFunction) where TElem : AbstractVariableInfo
+        internal static TElem[] ReadVariables<TElem>(BinaryReader r, Encoding encoding, Func<int, TElem> newFunction) where TElem : AbstractVariableInfo
         {
             return r.ReadBlocksWithIdAndOffest((reader, id) =>
             {
@@ -26,14 +26,15 @@ namespace QIQI.EProjectFile
                 x.DataType = reader.ReadInt32();
                 x.Flags = reader.ReadInt16();
                 x.UBound = reader.ReadInt32sWithFixedLength(reader.ReadByte());
-                x.Name = reader.ReadCStyleString();
-                x.Comment = reader.ReadCStyleString();
+                x.Name = reader.ReadCStyleString(encoding);
+                x.Comment = reader.ReadCStyleString(encoding);
                 return x;
             });
         }
-        internal static void WriteVariables(BinaryWriter w, AbstractVariableInfo[] variables)
+        internal static void WriteVariables(BinaryWriter w, Encoding encoding, AbstractVariableInfo[] variables)
         {
             w.WriteBlocksWithIdAndOffest(
+                encoding,
                 variables,
                 (writer, elem) =>
                 {
@@ -48,8 +49,8 @@ namespace QIQI.EProjectFile
                         writer.Write((byte)elem.UBound.Length);
                         writer.WriteInt32sWithoutLengthPrefix(elem.UBound);
                     }
-                    writer.WriteCStyleString(elem.Name);
-                    writer.WriteCStyleString(elem.Comment);
+                    writer.WriteCStyleString(encoding, elem.Name);
+                    writer.WriteCStyleString(encoding, elem.Comment);
                 });
         }
 

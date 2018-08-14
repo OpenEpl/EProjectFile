@@ -21,7 +21,7 @@ namespace QIQI.EProjectFile.Expressions
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
             a.ExpressionData.Write((byte)0x1A);
-            a.ExpressionData.WriteBStr(Value ?? "");
+            a.ExpressionData.WriteBStr(a.Encoding, Value ?? "");
         }
     }
 }

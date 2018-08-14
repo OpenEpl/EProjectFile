@@ -10,11 +10,32 @@ namespace QIQI.EProjectFile
 {
     public static class CodeDataParser
     {
+        [Obsolete]
         public static StatementBlock ParseStatementBlock(byte[] expressionData)
         {
-            return ParseStatementBlock(expressionData, out var lineOffest, out var blockOffest);
+            return ParseStatementBlock(expressionData, Encoding.GetEncoding("gbk"));
         }
+        public static StatementBlock ParseStatementBlock(byte[] expressionData, Encoding encoding)
+        {
+#pragma warning disable CS0612
+            return ParseStatementBlock(expressionData, encoding, out var lineOffest, out var blockOffest);
+#pragma warning restore CS0612
+        }
+        [Obsolete]
         public static StatementBlock ParseStatementBlock(byte[] expressionData, out byte[] lineOffest, out byte[] blockOffest)
+        {
+            return ParseStatementBlock(expressionData, Encoding.GetEncoding("gbk"), out lineOffest, out blockOffest);
+        }
+        /// <summary>
+        /// 低版本的LineOffest/BlockOffest修复引擎将随时删除
+        /// </summary>
+        /// <param name="expressionData">代码表达式数据</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="lineOffest">修复LineOffest的结果</param>
+        /// <param name="blockOffest">修复BlockOffest的结果</param>
+        /// <returns></returns>
+        [Obsolete]
+        public static StatementBlock ParseStatementBlock(byte[] expressionData, Encoding encoding, out byte[] lineOffest, out byte[] blockOffest)
         {
             if (expressionData == null)
             {
@@ -25,7 +46,7 @@ namespace QIQI.EProjectFile
             byte[] getBytes(BinaryWriter x) => ((MemoryStream)x.BaseStream).ToArray();
             using (BinaryWriter lineOffestWriter = newWriter(), blockOffestWriter = newWriter())
             {
-                var result = ParseStatementBlock(new BinaryReader(new MemoryStream(expressionData, false)), lineOffestWriter, blockOffestWriter);
+                var result = ParseStatementBlock(new BinaryReader(new MemoryStream(expressionData, false), encoding), encoding, lineOffestWriter, blockOffestWriter);
                 lineOffest = getBytes(lineOffestWriter);
                 blockOffest = getBytes(blockOffestWriter);
                 return result;
@@ -53,7 +74,7 @@ namespace QIQI.EProjectFile
         {
             Array.Sort(KnownTypeId);
         }
-        private static StatementBlock ParseStatementBlock(BinaryReader reader, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
+        private static StatementBlock ParseStatementBlock(BinaryReader reader, Encoding encoding, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
         {
             var block = new StatementBlock();
             while (!(reader.BaseStream.Position == reader.BaseStream.Length))
@@ -109,11 +130,11 @@ namespace QIQI.EProjectFile
                             {
                                 lineOffestWriter.Write((int)reader.BaseStream.Position - 1);
                                 var caseInfo = new SwitchStatement.CaseInfo();
-                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, out var caseInfo_UnexaminedCode, out var caseInfo_Comment, out var caseInfo_Mask).ParamList.ElementAtOrDefault(0);
+                                caseInfo.Condition = ParseCallExpressionWithoutType(reader, encoding, out var caseInfo_UnexaminedCode, out var caseInfo_Comment, out var caseInfo_Mask).ParamList.ElementAtOrDefault(0);
                                 caseInfo.UnexaminedCode = caseInfo_UnexaminedCode;
                                 caseInfo.Comment = caseInfo_Comment;
                                 caseInfo.Mask = caseInfo_Mask;
-                                caseInfo.Block = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
+                                caseInfo.Block = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                                 s.Case.Add(caseInfo);
                                 if (reader.ReadByte() != 0x53)
                                 {
@@ -124,7 +145,7 @@ namespace QIQI.EProjectFile
                             {
                                 throw new Exception();
                             }
-                            s.DefaultBlock = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
+                            s.DefaultBlock = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                             if (reader.ReadByte() != 0x54) // .判断结束
                             {
                                 throw new Exception();
@@ -138,7 +159,7 @@ namespace QIQI.EProjectFile
                         }
                         continue;
                 }
-                var exp = ParseCallExpressionWithoutType(reader, out string unexaminedCode, out string comment, out bool mask);
+                var exp = ParseCallExpressionWithoutType(reader, encoding, out string unexaminedCode, out string comment, out bool mask);
                 switch (type)
                 {
                     case 0x70: // 循环开始语句：XX循环首(参数...)
@@ -148,7 +169,7 @@ namespace QIQI.EProjectFile
                             long posToFillEndOffest = blockOffestWriter.BaseStream.Position;
                             blockOffestWriter.Write(0);
 
-                            var loopblock = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
+                            var loopblock = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                             CallExpression endexp = null;
 
                             var endOffest = (int)reader.BaseStream.Position;
@@ -162,7 +183,7 @@ namespace QIQI.EProjectFile
                             switch (reader.ReadByte())
                             {
                                 case 0x71:
-                                    endexp = ParseCallExpressionWithoutType(reader, out endexp_unexaminedCode, out endexp_comment, out endexp_mask);
+                                    endexp = ParseCallExpressionWithoutType(reader, encoding, out endexp_unexaminedCode, out endexp_comment, out endexp_mask);
                                     break;
                                 default:
                                     throw new Exception();
@@ -234,7 +255,7 @@ namespace QIQI.EProjectFile
                             {
                                 Condition = exp.ParamList.ElementAtOrDefault(0),
                                 UnexaminedCode = unexaminedCode,
-                                Block = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter),
+                                Block = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter),
                                 Comment = comment,
                                 Mask = mask
                             };
@@ -267,12 +288,12 @@ namespace QIQI.EProjectFile
                             long posToFillEndOffest = blockOffestWriter.BaseStream.Position;
                             blockOffestWriter.Write(0);
 
-                            s.BlockOnTrue = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
+                            s.BlockOnTrue = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                             if (reader.ReadByte() != 0x50)
                             {
                                 throw new Exception();
                             }
-                            s.BlockOnFalse = ParseStatementBlock(reader, lineOffestWriter, blockOffestWriter);
+                            s.BlockOnFalse = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                             if (reader.ReadByte() != 0x51)
                             {
                                 throw new Exception();
@@ -324,7 +345,7 @@ namespace QIQI.EProjectFile
             }
             return block;
         }
-        private static Expression ParseExpression(BinaryReader reader, bool parseMember = true)
+        private static Expression ParseExpression(BinaryReader reader, Encoding encoding, bool parseMember = true)
         {
             Expression result = null;
             byte type;
@@ -349,7 +370,7 @@ namespace QIQI.EProjectFile
                         result = new DateTimeLiteral(DateTime.FromOADate(reader.ReadDouble()));
                         break;
                     case 0x1A:
-                        result = new StringLiteral(reader.ReadBStr());
+                        result = new StringLiteral(reader.ReadBStr(encoding));
                         break;
                     case 0x1B:
                         result = new ConstantExpression(reader.ReadInt32());
@@ -364,7 +385,7 @@ namespace QIQI.EProjectFile
                         result = new MethodPtrExpression(reader.ReadInt32());
                         break;
                     case 0x21:
-                        result = ParseCallExpressionWithoutType(reader);
+                        result = ParseCallExpressionWithoutType(reader, encoding);
                         break;
                     case 0x23:
                         result = new EmnuConstantExpression((short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), reader.ReadInt32());
@@ -375,7 +396,7 @@ namespace QIQI.EProjectFile
                         {
                             var array = new ArrayLiteralExpression();
                             Expression exp;
-                            while (!((exp = ParseExpression(reader)) is ArrayLiteralEnd))
+                            while (!((exp = ParseExpression(reader, encoding)) is ArrayLiteralEnd))
                             {
                                 array.Add(exp);
                             }
@@ -391,7 +412,7 @@ namespace QIQI.EProjectFile
                             if (variable == 0x0500FFFE)
                             {
                                 reader.ReadByte(); // 0x3A
-                                return ParseExpression(reader, true);
+                                return ParseExpression(reader, encoding, true);
                             }
                             else
                             {
@@ -426,7 +447,7 @@ namespace QIQI.EProjectFile
                                 result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), memberId);
                             break;
                         case 0x3A:
-                            result = new AccessArrayExpression(result, ParseExpression(reader, false));
+                            result = new AccessArrayExpression(result, ParseExpression(reader, encoding, false));
                             break;
                         case 0x37:
                             goto parse_member_finish;
@@ -440,29 +461,29 @@ namespace QIQI.EProjectFile
             return result;
         }
 
-        private static ParamListExpression ParseParamList(BinaryReader reader)
+        private static ParamListExpression ParseParamList(BinaryReader reader, Encoding encoding)
         {
             var param = new ParamListExpression();
             Expression exp;
-            while (!((exp = ParseExpression(reader)) is ParamListEnd))
+            while (!((exp = ParseExpression(reader, encoding)) is ParamListEnd))
             {
                 param.Add(exp);
             }
             return param;
         }
-        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader)
+        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader, Encoding encoding)
         {
-            var exp = ParseCallExpressionWithoutType(reader, out string unexaminedCode, out string comment, out bool mask);
+            var exp = ParseCallExpressionWithoutType(reader, encoding, out string unexaminedCode, out string comment, out bool mask);
             return exp;
         }
 
-        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader, out string unexaminedCode, out string comment, out bool mask)
+        private static CallExpression ParseCallExpressionWithoutType(BinaryReader reader, Encoding encoding, out string unexaminedCode, out string comment, out bool mask)
         {
             var methodId = reader.ReadInt32();
             var libraryId = reader.ReadInt16();
             var flag = reader.ReadInt16();
-            unexaminedCode = reader.ReadBStr();
-            comment = reader.ReadBStr();
+            unexaminedCode = reader.ReadBStr(encoding);
+            comment = reader.ReadBStr(encoding);
             mask = (flag & 0x20) != 0;
             ////bool expand = (flag & 0x1) != 0;
             if (unexaminedCode != null)
@@ -483,12 +504,12 @@ namespace QIQI.EProjectFile
                 switch (reader.ReadByte())
                 {
                     case 0x36:
-                        exp.ParamList = ParseParamList(reader);
+                        exp.ParamList = ParseParamList(reader, encoding);
                         break;
                     case 0x38: // ThisCall
                         reader.BaseStream.Position -= 1;
-                        exp.Target = ParseExpression(reader);
-                        exp.ParamList = ParseParamList(reader);
+                        exp.Target = ParseExpression(reader, encoding);
+                        exp.ParamList = ParseParamList(reader, encoding);
                         break;
                     default:
                         reader.BaseStream.Position -= 1;

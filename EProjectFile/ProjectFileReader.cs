@@ -25,7 +25,7 @@ namespace QIQI.EProjectFile
                     throw new Exception("不支持此类加密文件");
                 }
                 int tip_bytes = reader.ReadInt32();
-                string tip = reader.ReadStringWithFixedLength(tip_bytes);
+                string tip = reader.ReadStringWithFixedLength(Encoding.GetEncoding("gbk"), tip_bytes);
                 string password = inputPassword?.Invoke(tip);
                 if (string.IsNullOrEmpty(password))
                 {
@@ -33,7 +33,7 @@ namespace QIQI.EProjectFile
                 }
                 int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
                 var cryptECReadStream = new CryptECReadStream(stream, password, lengthOfRead, lengthOfRead);
-                reader = new BinaryReader(cryptECReadStream, Encoding.GetEncoding("gbk"));
+                reader = new BinaryReader(cryptECReadStream);
 
                 if (!reader.ReadBytes(32).SequenceEqual(cryptECReadStream.PasswordHash)) 
                 {

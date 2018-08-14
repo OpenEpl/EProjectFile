@@ -3,6 +3,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
@@ -13,9 +14,9 @@ namespace QIQI.EProjectFile
         [JsonConverter(typeof(VersionConverter))]
         public Version Version { get; set; }
         public string Name { get; set; }
-        public static LibraryRefInfo[] ReadLibraries(BinaryReader reader)
+        public static LibraryRefInfo[] ReadLibraries(BinaryReader reader, Encoding encoding)
         {
-            return reader.ReadStringsWithMfcStyleCountPrefix().Select(x =>
+            return reader.ReadStringsWithMfcStyleCountPrefix(encoding).Select(x =>
             {
                 var array = x.Split('\r');
                 return new LibraryRefInfo()
@@ -27,9 +28,9 @@ namespace QIQI.EProjectFile
                 };
             }).ToArray();
         }
-        public static void WriteLibraries(BinaryWriter writer, LibraryRefInfo[] methods)
+        public static void WriteLibraries(BinaryWriter writer, Encoding encoding, LibraryRefInfo[] methods)
         {
-            writer.WriteStringsWithMfcStyleCountPrefix(methods.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
+            writer.WriteStringsWithMfcStyleCountPrefix(encoding, methods.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
         }
         public override string ToString()
         {

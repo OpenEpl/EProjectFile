@@ -40,8 +40,8 @@ namespace QIQI.EProjectFile.Expressions
             a.ExpressionData.Write(MethodId);
             a.ExpressionData.Write(LibraryId);
             a.ExpressionData.Write((short)(mask ? 0x20 : 0));
-            a.ExpressionData.WriteBStr(null);
-            a.ExpressionData.WriteBStr("".Equals(comment) ? null : comment);
+            a.ExpressionData.WriteBStr(a.Encoding, null);
+            a.ExpressionData.WriteBStr(a.Encoding, "".Equals(comment) ? null : comment);
             if (Target == null)
             {
                 a.ExpressionData.Write((byte)0x36);

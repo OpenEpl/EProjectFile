@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace QIQI.EProjectFile
@@ -16,7 +17,7 @@ namespace QIQI.EProjectFile
         public string Name { get; set; }
         public string Comment { get; set; }
         public FormElementInfo[] Elements { get; set; }
-        public static FormInfo[] ReadForms(BinaryReader reader)
+        public static FormInfo[] ReadForms(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
@@ -31,16 +32,16 @@ namespace QIQI.EProjectFile
                     UnknownAfterId = unknownsAfterIds[i],
                     UnknownBeforeClass = reader.ReadInt32(),
                     Class = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(),
-                    Comment = reader.ReadStringWithLengthPrefix(),
-                    Elements = FormElementInfo.ReadFormElements(reader)
+                    Name = reader.ReadStringWithLengthPrefix(encoding),
+                    Comment = reader.ReadStringWithLengthPrefix(encoding),
+                    Elements = FormElementInfo.ReadFormElements(reader, encoding)
                 };
                 forms[i] = form;
             }
             return forms;
         }
 
-        public static void WriteForms(BinaryWriter writer, FormInfo[] forms)
+        public static void WriteForms(BinaryWriter writer, Encoding encoding, FormInfo[] forms)
         {
             writer.Write(forms.Length * 8);
             Array.ForEach(forms, x => writer.Write(x.Id));
@@ -49,9 +50,9 @@ namespace QIQI.EProjectFile
             {
                 writer.Write(form.UnknownBeforeClass);
                 writer.Write(form.Class);
-                writer.WriteStringWithLengthPrefix(form.Name);
-                writer.WriteStringWithLengthPrefix(form.Comment);
-                FormElementInfo.WriteFormElements(writer, form.Elements);
+                writer.WriteStringWithLengthPrefix(encoding, form.Name);
+                writer.WriteStringWithLengthPrefix(encoding, form.Comment);
+                FormElementInfo.WriteFormElements(writer, encoding, form.Elements);
             }
         }
 

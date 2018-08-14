@@ -31,11 +31,12 @@ namespace QIQI.EProjectFile
         public GlobalVariableInfo[] GlobalVariables { get; set; }
         public StructInfo[] Structs { get; set; }
         public DllDeclareInfo[] DllDeclares { get; set; }
-
-        public static CodeSectionInfo Parse(byte[] data, bool cryptEc = false)
+        [Obsolete]
+        public static CodeSectionInfo Parse(byte[] data, bool cryptEc = false) => Parse(data, Encoding.GetEncoding("gbk"), cryptEc);
+        public static CodeSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEc = false)
         {
             var codeSectionInfo = new CodeSectionInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false)))
+            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
             {
                 codeSectionInfo.allocatedIdNum = reader.ReadInt32();
                 reader.ReadInt32(); // 确认于易语言V5.71
@@ -47,14 +48,14 @@ namespace QIQI.EProjectFile
                     codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
-                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
+                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
                     codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
                 }
                 else
                 {
                     codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
                     codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
-                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader);
+                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                 }
@@ -64,23 +65,23 @@ namespace QIQI.EProjectFile
                     codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
                 }
                 codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
-                codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix();
+                codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix(encoding);
                 if (cryptEc)
                 {
                     reader.ReadBytes(12);
-                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader);
-                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader);
-                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, x => new GlobalVariableInfo(x));
-                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader);
-                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader);
+                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
+                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
+                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
+                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
+                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
                 }
                 else
                 {
-                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader);
-                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader);
-                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, x => new GlobalVariableInfo(x));
-                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader);
-                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader);
+                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
+                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
+                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
+                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
+                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
                 }
             }
             return codeSectionInfo;
@@ -94,25 +95,27 @@ namespace QIQI.EProjectFile
         {
             return ++allocatedIdNum | type;
         }
-        public byte[] ToBytes()
+        [Obsolete]
+        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
+        public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream()))
+            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
             {
-                WriteTo(writer);
+                WriteTo(writer, encoding);
                 writer.Flush();
                 data = ((MemoryStream)writer.BaseStream).ToArray();
             }
             return data;
         }
-        private void WriteTo(BinaryWriter writer)
+        private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
             writer.Write(allocatedIdNum);
             writer.Write(51113791); // 确认于易语言V5.71
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_1);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_2);
             writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_3);
-            LibraryRefInfo.WriteLibraries(writer, Libraries);
+            LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
             writer.Write(Flag);
             writer.Write(MainMethod);
             if (UnknownBeforeIconData != null)
@@ -120,12 +123,12 @@ namespace QIQI.EProjectFile
                 writer.WriteBytesWithLengthPrefix(UnknownBeforeIconData);
             }
             writer.WriteBytesWithLengthPrefix(IconData);
-            writer.WriteStringWithLengthPrefix(DebugCommandParameters);
-            ClassInfo.WriteClasses(writer, Classes);
-            MethodInfo.WriteMethods(writer, Methods);
-            AbstractVariableInfo.WriteVariables(writer, GlobalVariables);
-            StructInfo.WriteStructs(writer, Structs);
-            DllDeclareInfo.WriteDllDeclares(writer, DllDeclares);
+            writer.WriteStringWithLengthPrefix(encoding, DebugCommandParameters);
+            ClassInfo.WriteClasses(writer, encoding, Classes);
+            MethodInfo.WriteMethods(writer, encoding, Methods);
+            AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
+            StructInfo.WriteStructs(writer, encoding, Structs);
+            DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
             writer.Write(new byte[40]); // Unknown（40个0）
         }
 

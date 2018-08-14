@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
@@ -10,7 +11,7 @@ namespace QIQI.EProjectFile
         public string Name { get; set; }
         public bool Visible { get; set; }
         public bool Disable { get; set; }
-        public static FormElementInfo[] ReadFormElements(BinaryReader r)
+        public static FormElementInfo[] ReadFormElements(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndOffest((reader, id, length) =>
             {
@@ -18,27 +19,28 @@ namespace QIQI.EProjectFile
                 FormElementInfo elem;
                 if (dataType == 65539)
                 {
-                    elem = FormMenuInfo.ReadWithoutDataType(r, length - 4);
+                    elem = FormMenuInfo.ReadWithoutDataType(r, encoding, length - 4);
                 }
                 else
                 {
-                    elem = FormControlInfo.ReadWithoutDataType(r, length - 4);
+                    elem = FormControlInfo.ReadWithoutDataType(r, encoding, length - 4);
                 }
                 elem.Id = id;
                 elem.DataType = dataType;
                 return elem;
             });
         }
-        public static void WriteFormElements(BinaryWriter w, FormElementInfo[] formElements)
+        public static void WriteFormElements(BinaryWriter w, Encoding encoding, FormElementInfo[] formElements)
         {
             w.WriteBlocksWithIdAndOffest(
+                encoding,
                 formElements, 
                 (writer, elem) =>
                 {
-                    elem.WriteWithoutId(writer);
+                    elem.WriteWithoutId(writer, encoding);
                 });
         }
 
-        protected abstract void WriteWithoutId(BinaryWriter writer);
+        protected abstract void WriteWithoutId(BinaryWriter writer, Encoding encoding);
     }
 }

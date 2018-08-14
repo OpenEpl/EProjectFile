@@ -19,8 +19,14 @@ namespace QIQI.EProjectFile
         public byte[] ConstantReference;
         [JsonConverter(typeof(HexConverter))]
         public byte[] ExpressionData;
-
+        public Encoding Encoding;
+        [Obsolete]
         public MethodCodeData(byte[] lineOffest, byte[] blockOffest, byte[] methodReference, byte[] variableReference, byte[] constantReference, byte[] expressionData)
+            : this(lineOffest, blockOffest, methodReference, variableReference, constantReference, expressionData, Encoding.GetEncoding("gbk"))
+        {
+            // Nothing need doing.
+        }
+        public MethodCodeData(byte[] lineOffest, byte[] blockOffest, byte[] methodReference, byte[] variableReference, byte[] constantReference, byte[] expressionData, Encoding encoding)
         {
             LineOffest = lineOffest;
             BlockOffest = blockOffest;
@@ -28,6 +34,7 @@ namespace QIQI.EProjectFile
             VariableReference = variableReference;
             ConstantReference = constantReference;
             ExpressionData = expressionData;
+            Encoding = encoding;
         }
 
         public override string ToString()
@@ -57,7 +64,7 @@ namespace QIQI.EProjectFile
         public LocalVariableInfo[] Variables { get; set; }
         public MethodParameterInfo[] Parameters { get; set; }
         public MethodCodeData CodeData { get; set; }
-        public static MethodInfo[] ReadMethods(BinaryReader reader)
+        public static MethodInfo[] ReadMethods(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
@@ -72,10 +79,10 @@ namespace QIQI.EProjectFile
                     Class = reader.ReadInt32(),
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(),
-                    Comment = reader.ReadStringWithLengthPrefix(),
-                    Variables = AbstractVariableInfo.ReadVariables(reader, x => new LocalVariableInfo(x)),
-                    Parameters = AbstractVariableInfo.ReadVariables(reader, x => new MethodParameterInfo(x))
+                    Name = reader.ReadStringWithLengthPrefix(encoding),
+                    Comment = reader.ReadStringWithLengthPrefix(encoding),
+                    Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new LocalVariableInfo(x)),
+                    Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new MethodParameterInfo(x))
                 };
                 methodInfo.CodeData = new MethodCodeData(
                     reader.ReadBytesWithLengthPrefix(),
@@ -83,13 +90,14 @@ namespace QIQI.EProjectFile
                     reader.ReadBytesWithLengthPrefix(),
                     reader.ReadBytesWithLengthPrefix(),
                     reader.ReadBytesWithLengthPrefix(),
-                    reader.ReadBytesWithLengthPrefix());
+                    reader.ReadBytesWithLengthPrefix(),
+                    encoding);
                 methods[i] = methodInfo;
             }
 
             return methods;
         }
-        public static void WriteMethods(BinaryWriter writer, MethodInfo[] methods)
+        public static void WriteMethods(BinaryWriter writer, Encoding encoding, MethodInfo[] methods)
         {
             writer.Write(methods.Length * 8);
             Array.ForEach(methods, x => writer.Write(x.Id));
@@ -99,10 +107,10 @@ namespace QIQI.EProjectFile
                 writer.Write(method.Class);
                 writer.Write(method.Flags);
                 writer.Write(method.ReturnDataType);
-                writer.WriteStringWithLengthPrefix(method.Name);
-                writer.WriteStringWithLengthPrefix(method.Comment);
-                AbstractVariableInfo.WriteVariables(writer, method.Variables);
-                AbstractVariableInfo.WriteVariables(writer, method.Parameters);
+                writer.WriteStringWithLengthPrefix(encoding, method.Name);
+                writer.WriteStringWithLengthPrefix(encoding, method.Comment);
+                AbstractVariableInfo.WriteVariables(writer, encoding, method.Variables);
+                AbstractVariableInfo.WriteVariables(writer, encoding, method.Parameters);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.LineOffest);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.BlockOffest);
                 writer.WriteBytesWithLengthPrefix(method.CodeData.MethodReference);
@@ -131,7 +139,7 @@ namespace QIQI.EProjectFile
             }
             result.AppendLine();
             result.AppendLine();
-            CodeDataParser.ParseStatementBlock(CodeData.ExpressionData).ToTextCode(nameMap, result, indent);
+            CodeDataParser.ParseStatementBlock(CodeData.ExpressionData, CodeData.Encoding).ToTextCode(nameMap, result, indent);
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {

@@ -10,7 +10,7 @@ namespace QIQI.EProjectFile
         private int index;
         public ProjectFileWriter(Stream stream)
         {
-            writer = new BinaryWriter(stream, Encoding.GetEncoding("gbk"));
+            writer = new BinaryWriter(stream);
             writer.Write(0x4752504554574E43L); // CNWTEPRG
         }
         public void WriteSection(SectionInfo section)

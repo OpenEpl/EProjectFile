@@ -7,7 +7,7 @@ namespace QIQI.EProjectFile
 {
     internal class CryptECReadStream : Stream
     {
-        private static readonly byte[] initialStatus = new byte[] {
+        private static readonly byte[] InitialStatus = new byte[] {
             0xF0, 0x5E, 0x99, 0xA1, 0x88, 0xE3, 0x1E, 0xEE, 0x11, 0x9E, 0xC9, 0x97, 0x1B, 0x90, 0x4F, 0x7C,
             0x52, 0xCB, 0x82, 0xFA, 0x27, 0xDE, 0xF6, 0xA8, 0xDA, 0xD3, 0xB0, 0xCF, 0x56, 0xD6, 0x85, 0x42,
             0x1A, 0x9C, 0xB5, 0x0E, 0xB8, 0xED, 0x10, 0x1C, 0x24, 0x6A, 0x69, 0xCE, 0x87, 0x55, 0x1F, 0x96,
@@ -64,7 +64,7 @@ namespace QIQI.EProjectFile
                 }
                 this.PasswordHash = Encoding.ASCII.GetBytes(stringBuilder.ToString());
             }
-            keyTable = new RC4Crypto(passwordBytes, initialStatus);
+            keyTable = new RC4Crypto(passwordBytes, InitialStatus);
             this.LengthOfUncryptedBlock = lengthOfUncryptedBlock;
             this.position = initialPosition;
         }
@@ -111,7 +111,7 @@ namespace QIQI.EProjectFile
                     {
                         Array.Copy(keyParamBytes, keyParamIndex, tempKey, 0, 8);
                         keyParamIndex += 8;
-                        tempKeyTable = new RC4Crypto(tempKey, initialStatus);
+                        tempKeyTable = new RC4Crypto(tempKey, InitialStatus);
 
                         tempKeyTable.Skip(lengthOfDataSkipInThisBlock);
 
@@ -127,7 +127,7 @@ namespace QIQI.EProjectFile
                     {
                         Array.Copy(keyParamBytes, keyParamIndex, tempKey, 0, 8);
                         keyParamIndex += 8;
-                        tempKeyTable = new RC4Crypto(tempKey, initialStatus);
+                        tempKeyTable = new RC4Crypto(tempKey, InitialStatus);
                         if (lengthOfCrypted <= BlockLength)
                         {
                             break;

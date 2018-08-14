@@ -103,7 +103,7 @@ namespace QIQI.EProjectFile
         [JsonConverter(typeof(ConstantValueConverter))]
         public object Value { get; set; } // 对于未验证代码，此值为string
 
-        public static ConstantInfo[] ReadConstants(BinaryReader r)
+        public static ConstantInfo[] ReadConstants(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndOffest(
                 (reader, id) =>
@@ -111,8 +111,8 @@ namespace QIQI.EProjectFile
                     var constant = new ConstantInfo(id)
                     {
                         Flags = reader.ReadInt16(),
-                        Name = reader.ReadCStyleString(),
-                        Comment = reader.ReadCStyleString()
+                        Name = reader.ReadCStyleString(encoding),
+                        Comment = reader.ReadCStyleString(encoding)
                     };
                     switch (unchecked((uint)id) >> 28)
                     {
@@ -133,7 +133,7 @@ namespace QIQI.EProjectFile
                                     constant.Value = DateTime.FromOADate(reader.ReadDouble());
                                     break;
                                 case 26:
-                                    constant.Value = reader.ReadBStr();
+                                    constant.Value = reader.ReadBStr(encoding);
                                     break;
                                 default:
                                     throw new Exception();
@@ -149,15 +149,16 @@ namespace QIQI.EProjectFile
                     return constant;
                 });
         }
-        public static void WriteConstants(BinaryWriter w, ConstantInfo[] constants)
+        public static void WriteConstants(BinaryWriter w, Encoding encoding, ConstantInfo[] constants)
         {
             w.WriteBlocksWithIdAndOffest(
+                encoding,
                 constants,
                 (writer, elem) =>
                 {
                     writer.Write((short)elem.Flags);
-                    writer.WriteCStyleString(elem.Name);
-                    writer.WriteCStyleString(elem.Comment);
+                    writer.WriteCStyleString(encoding, elem.Name);
+                    writer.WriteCStyleString(encoding, elem.Comment);
                     switch (elem.Value)
                     {
                         case null:
@@ -180,7 +181,7 @@ namespace QIQI.EProjectFile
                             break;
                         case string v:
                             writer.Write((byte)26);
-                            writer.WriteBStr(v);
+                            writer.WriteBStr(encoding, v);
                             break;
                         default:
                             throw new Exception();

@@ -24,7 +24,7 @@ namespace QIQI.EProjectFile
         public int[] Method { get; set; }
         public ClassVariableInfo[] Variables { get; set; }
 
-        public static ClassInfo[] ReadClasses(BinaryReader reader)
+        public static ClassInfo[] ReadClasses(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
@@ -38,17 +38,17 @@ namespace QIQI.EProjectFile
                     UnknownAfterId = unknownsAfterIds[i],
                     Flags = reader.ReadInt32(),
                     BaseClass = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(),
-                    Comment = reader.ReadStringWithLengthPrefix(),
+                    Name = reader.ReadStringWithLengthPrefix(encoding),
+                    Comment = reader.ReadStringWithLengthPrefix(encoding),
                     Method = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4),
-                    Variables = AbstractVariableInfo.ReadVariables(reader, x => new ClassVariableInfo(x))
+                    Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new ClassVariableInfo(x))
                 };
                 classes[i] = classInfo;
             }
 
             return classes;
         }
-        public static void WriteClasses(BinaryWriter writer, ClassInfo[] classes)
+        public static void WriteClasses(BinaryWriter writer, Encoding encoding, ClassInfo[] classes)
         {
             writer.Write(classes.Length * 8);
             Array.ForEach(classes, x => writer.Write(x.Id));
@@ -57,8 +57,8 @@ namespace QIQI.EProjectFile
             {
                 writer.Write(classInfo.Flags);
                 writer.Write(classInfo.BaseClass);
-                writer.WriteStringWithLengthPrefix(classInfo.Name);
-                writer.WriteStringWithLengthPrefix(classInfo.Comment);
+                writer.WriteStringWithLengthPrefix(encoding, classInfo.Name);
+                writer.WriteStringWithLengthPrefix(encoding, classInfo.Comment);
                 if (classInfo.Method == null)
                 {
                     writer.Write(0);
@@ -68,7 +68,7 @@ namespace QIQI.EProjectFile
                     writer.Write(classInfo.Method.Length * 4);
                     writer.WriteInt32sWithoutLengthPrefix(classInfo.Method);
                 }
-                AbstractVariableInfo.WriteVariables(writer, classInfo.Variables);
+                AbstractVariableInfo.WriteVariables(writer, encoding, classInfo.Variables);
             }
         }
         public override string ToString()

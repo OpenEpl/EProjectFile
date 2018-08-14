@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -15,6 +16,25 @@ namespace QIQI.EProjectFile
         /// 1=中文（GBK），2=英语，3=中文（BIG5），4=日文（SJIS）
         /// </summary>
         public int Language { get; set; } = 1;
+
+        [JsonIgnore]
+        public Encoding Encoding
+        {
+            get {
+                switch (Language)
+                {
+                    case 2:
+                        return Encoding.ASCII;
+                    case 3:
+                        return Encoding.GetEncoding("big5");
+                    case 4:
+                        return Encoding.GetEncoding("sjis");
+                    default:
+                        return Encoding.GetEncoding("gbk");
+                }
+            }
+        }
+
         [JsonConverter(typeof(VersionConverter))]
         public Version EProjectFormatVersion { get; set; }
         /// <summary>

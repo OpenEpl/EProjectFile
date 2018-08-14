@@ -37,8 +37,8 @@ namespace QIQI.EProjectFile.Statements
             a.ExpressionData.Write(0);
             a.ExpressionData.Write((short)-1);
             a.ExpressionData.Write(Mask);
-            a.ExpressionData.WriteBStr(UnexaminedCode);
-            a.ExpressionData.WriteBStr(null);
+            a.ExpressionData.WriteBStr(a.Encoding, UnexaminedCode);
+            a.ExpressionData.WriteBStr(a.Encoding, null);
             a.ExpressionData.Write((byte)0x36);
             ParamListEnd.Instance.WriteTo(a);
 

@@ -20,7 +20,7 @@ namespace QIQI.EProjectFile
         public string Name { get; set; }
         public string Comment { get; set; }
         public StructMemberInfo[] Member { get; set; }
-        public static StructInfo[] ReadStructs(BinaryReader reader)
+        public static StructInfo[] ReadStructs(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
@@ -33,16 +33,16 @@ namespace QIQI.EProjectFile
                 {
                     UnknownAfterId = unknownsAfterIds[i],
                     Flags = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(),
-                    Comment = reader.ReadStringWithLengthPrefix(),
-                    Member = AbstractVariableInfo.ReadVariables(reader, x => new StructMemberInfo(x))
+                    Name = reader.ReadStringWithLengthPrefix(encoding),
+                    Comment = reader.ReadStringWithLengthPrefix(encoding),
+                    Member = AbstractVariableInfo.ReadVariables(reader, encoding, x => new StructMemberInfo(x))
                 };
                 structs[i] = structInfo;
             }
 
             return structs;
         }
-        public static void WriteStructs(BinaryWriter writer, StructInfo[] structs)
+        public static void WriteStructs(BinaryWriter writer, Encoding encoding, StructInfo[] structs)
         {
             writer.Write(structs.Length * 8);
             Array.ForEach(structs, x => writer.Write(x.Id));
@@ -50,9 +50,9 @@ namespace QIQI.EProjectFile
             foreach (var structInfo in structs)
             {
                 writer.Write(structInfo.Flags);
-                writer.WriteStringWithLengthPrefix(structInfo.Name);
-                writer.WriteStringWithLengthPrefix(structInfo.Comment);
-                AbstractVariableInfo.WriteVariables(writer, structInfo.Member);
+                writer.WriteStringWithLengthPrefix(encoding, structInfo.Name);
+                writer.WriteStringWithLengthPrefix(encoding, structInfo.Comment);
+                AbstractVariableInfo.WriteVariables(writer, encoding, structInfo.Member);
             }
         }
         public override string ToString()

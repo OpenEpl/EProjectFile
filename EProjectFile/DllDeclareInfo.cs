@@ -24,7 +24,7 @@ namespace QIQI.EProjectFile
         public string EntryPoint { get; set; }
         public string LibraryName { get; set; }
         public DllParameterInfo[] Parameters { get; set; }
-        public static DllDeclareInfo[] ReadDllDeclares(BinaryReader reader)
+        public static DllDeclareInfo[] ReadDllDeclares(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
@@ -38,18 +38,18 @@ namespace QIQI.EProjectFile
                     UnknownAfterId = unknownsAfterIds[i],
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(),
-                    Comment = reader.ReadStringWithLengthPrefix(),
-                    LibraryName = reader.ReadStringWithLengthPrefix(),
-                    EntryPoint = reader.ReadStringWithLengthPrefix(),
-                    Parameters = AbstractVariableInfo.ReadVariables(reader, x => new DllParameterInfo(x))
+                    Name = reader.ReadStringWithLengthPrefix(encoding),
+                    Comment = reader.ReadStringWithLengthPrefix(encoding),
+                    LibraryName = reader.ReadStringWithLengthPrefix(encoding),
+                    EntryPoint = reader.ReadStringWithLengthPrefix(encoding),
+                    Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new DllParameterInfo(x))
                 };
                 dllDeclares[i] = dllDeclareInfo;
             }
 
             return dllDeclares;
         }
-        public static void WriteDllDeclares(BinaryWriter writer, DllDeclareInfo[] dllDeclares)
+        public static void WriteDllDeclares(BinaryWriter writer, Encoding encoding, DllDeclareInfo[] dllDeclares)
         {
             writer.Write(dllDeclares.Length * 8);
             Array.ForEach(dllDeclares, x => writer.Write(x.Id));
@@ -58,11 +58,11 @@ namespace QIQI.EProjectFile
             {
                 writer.Write(dllDeclare.Flags);
                 writer.Write(dllDeclare.ReturnDataType);
-                writer.WriteStringWithLengthPrefix(dllDeclare.Name);
-                writer.WriteStringWithLengthPrefix(dllDeclare.Comment);
-                writer.WriteStringWithLengthPrefix(dllDeclare.LibraryName);
-                writer.WriteStringWithLengthPrefix(dllDeclare.EntryPoint);
-                AbstractVariableInfo.WriteVariables(writer, dllDeclare.Parameters);
+                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.Name);
+                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.Comment);
+                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.LibraryName);
+                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.EntryPoint);
+                AbstractVariableInfo.WriteVariables(writer, encoding, dllDeclare.Parameters);
             }
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)

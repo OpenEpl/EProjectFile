@@ -26,9 +26,11 @@ namespace QIQI.EProjectFile.Statements
         {
             statements.ForEach(x => x.WriteTo(a));
         }
-        public MethodCodeData ToCodeData()
+        [Obsolete]
+        public MethodCodeData ToCodeData() => ToCodeData(Encoding.GetEncoding("gbk"));
+        public MethodCodeData ToCodeData(Encoding encoding)
         {
-            BinaryWriter newWriter() => new BinaryWriter(new MemoryStream());
+            BinaryWriter newWriter() => new BinaryWriter(new MemoryStream(), encoding);
             byte[] getBytes(BinaryWriter x) => ((MemoryStream)x.BaseStream).ToArray();
             using (BinaryWriter
                 lineOffest = newWriter(),
@@ -45,18 +47,18 @@ namespace QIQI.EProjectFile.Statements
                     MethodReference = methodReference,
                     VariableReference = variableReference,
                     ConstantReference = constantReference,
-                    ExpressionData = expressionData
+                    ExpressionData = expressionData,
+                    Encoding = encoding
                 };
                 WriteTo(a);
-                return new MethodCodeData
-                {
-                    LineOffest = getBytes(lineOffest),
-                    BlockOffest = getBytes(blockOffest),
-                    MethodReference = getBytes(methodReference),
-                    VariableReference = getBytes(variableReference),
-                    ConstantReference = getBytes(constantReference),
-                    ExpressionData = getBytes(expressionData)
-                };
+                return new MethodCodeData(
+                    getBytes(lineOffest), 
+                    getBytes(blockOffest), 
+                    getBytes(methodReference), 
+                    getBytes(variableReference), 
+                    getBytes(constantReference), 
+                    getBytes(expressionData), 
+                    encoding);
             }
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)

@@ -92,6 +92,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EProjectFile.cs" />
     <Compile Include="RC4Crypto.cs" />
     <Compile Include="ClassInfo.cs" />
     <Compile Include="Expressions\AccessArrayExpression.cs" />

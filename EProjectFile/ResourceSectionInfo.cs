@@ -11,34 +11,38 @@ namespace QIQI.EProjectFile
         public const int SectionKey = 0x04007319;
         public FormInfo[] Forms { get; set; }
         public ConstantInfo[] Constants { get; set; }
-        public static ResourceSectionInfo Parse(byte[] data)
+        [Obsolete]
+        public static ResourceSectionInfo Parse(byte[] data) => Parse(data, Encoding.GetEncoding("gbk"));
+        public static ResourceSectionInfo Parse(byte[] data, Encoding encoding)
         {
             ResourceSectionInfo resourceSectionInfo;
-            using (var reader = new BinaryReader(new MemoryStream(data, false)))
+            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
             {
                 resourceSectionInfo = new ResourceSectionInfo()
                 {
-                    Forms = FormInfo.ReadForms(reader),
-                    Constants = ConstantInfo.ReadConstants(reader)
+                    Forms = FormInfo.ReadForms(reader, encoding),
+                    Constants = ConstantInfo.ReadConstants(reader, encoding)
                 };
             }
             return resourceSectionInfo;
         }
-        public byte[] ToBytes()
+        [Obsolete]
+        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
+        public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream()))
+            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
             {
-                WriteTo(writer);
+                WriteTo(writer, encoding);
                 writer.Flush();
                 data = ((MemoryStream)writer.BaseStream).ToArray();
             }
             return data;
         }
-        private void WriteTo(BinaryWriter writer)
+        private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
-            FormInfo.WriteForms(writer, Forms);
-            ConstantInfo.WriteConstants(writer, Constants);
+            FormInfo.WriteForms(writer, encoding, Forms);
+            ConstantInfo.WriteConstants(writer, encoding, Constants);
             writer.Write(0);
         }
         public override string ToString()

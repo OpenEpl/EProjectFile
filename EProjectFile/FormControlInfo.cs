@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace QIQI.EProjectFile
 {
@@ -39,13 +40,13 @@ namespace QIQI.EProjectFile
         /// </summary>
         [JsonConverter(typeof(HexConverter))]
         public byte[] ExtensionData { get; set; }
-        internal static FormControlInfo ReadWithoutDataType(BinaryReader reader, int length)
+        internal static FormControlInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int length)
         {
             var startPosition = reader.BaseStream.Position;
             var elem = new FormControlInfo() { };
             elem.UnknownBeforeName = reader.ReadBytes(20);
-            elem.Name = reader.ReadCStyleString();
-            elem.Comment = reader.ReadCStyleString();
+            elem.Name = reader.ReadCStyleString(encoding);
+            elem.Comment = reader.ReadCStyleString(encoding);
             elem.UnknownBeforeLeft = reader.ReadInt32();
             elem.Left = reader.ReadInt32();
             elem.Top = reader.ReadInt32();
@@ -55,7 +56,7 @@ namespace QIQI.EProjectFile
             elem.Parent = reader.ReadInt32();
             elem.Children = reader.ReadInt32sWithLengthPrefix();
             elem.Cursor = reader.ReadBytesWithLengthPrefix();
-            elem.Tag = reader.ReadCStyleString();
+            elem.Tag = reader.ReadCStyleString(encoding);
             elem.UnknownBeforeVisible = reader.ReadInt32();
             {
                 int showStatus = reader.ReadInt32();
@@ -68,12 +69,12 @@ namespace QIQI.EProjectFile
             elem.ExtensionData = reader.ReadBytes(length - (int)(reader.BaseStream.Position - startPosition));
             return elem;
         }
-        protected override void WriteWithoutId(BinaryWriter writer)
+        protected override void WriteWithoutId(BinaryWriter writer, Encoding encoding)
         {
             writer.Write(DataType);
             writer.Write(UnknownBeforeName);
-            writer.WriteCStyleString(Name);
-            writer.WriteCStyleString(Comment);
+            writer.WriteCStyleString(encoding, Name);
+            writer.WriteCStyleString(encoding, Comment);
             writer.Write(UnknownBeforeLeft);
             writer.Write(Left);
             writer.Write(Top);
@@ -83,7 +84,7 @@ namespace QIQI.EProjectFile
             writer.Write(Parent);
             writer.WriteInt32sWithLengthPrefix(Children);
             writer.WriteBytesWithLengthPrefix(Cursor);
-            writer.WriteCStyleString(Tag);
+            writer.WriteCStyleString(encoding, Tag);
             writer.Write(UnknownBeforeVisible);
             writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0));
             writer.Write(UnknownBeforeEvents);
