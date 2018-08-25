@@ -1,214 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{702755B9-2203-4D4A-A208-4AA1A6AD328B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>QIQI.EProjectFile</RootNamespace>
-    <AssemblyName>EProjectFile</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <Title>Epl Project Editor</Title>
+    <Description>Epl Project Editor</Description>
+    <Company>QIQI</Company>
+    <Copyright>BTC Address:1NaMvWjj4dFnK7av7rBSUu3Bsm2ESrU7Cf</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>QIQI.EProjectFile</PackageId>
+    <PackageVersion>1.1.0</PackageVersion>
+    <Tags>EPL</Tags>
+    <Authors>QIQI</Authors>
+    <PackageProjectUrl>https://github.com/1354092549/EProjectFile</PackageProjectUrl>
+
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <RegisterForComInterop>false</RegisterForComInterop>
-    <DocumentationFile>
-    </DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>
-    </DocumentationFile>
-    <RegisterForComInterop>false</RegisterForComInterop>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignManifests>false</SignManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0">
+      <PrivateAssets>All</PrivateAssets>
+      <ExcludeAssets>Runtime</ExcludeAssets>
+     </PackageReference>
+
+    <Content Include="bin/Release/LibNameInfoToJson.exe;QIQI.EProjectFile.targets">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="EProjectFile.cs" />
-    <Compile Include="LosableSectionInfo.cs" />
-    <Compile Include="RC4Crypto.cs" />
-    <Compile Include="ClassInfo.cs" />
-    <Compile Include="Expressions\AccessArrayExpression.cs" />
-    <Compile Include="Expressions\AccessMemberExpression.cs" />
-    <Compile Include="Expressions\ArrayLiteralEnd.cs" />
-    <Compile Include="Expressions\ArrayLiteralExpression.cs" />
-    <Compile Include="Expressions\BoolLiteral.cs" />
-    <Compile Include="Expressions\CallExpression.cs" />
-    <Compile Include="Expressions\ConstantExpression.cs" />
-    <Compile Include="Expressions\DateTimeLiteral.cs" />
-    <Compile Include="Expressions\DefaultValueExpression.cs" />
-    <Compile Include="Expressions\EmnuConstantExpression.cs" />
-    <Compile Include="Expressions\Expression.cs" />
-    <Compile Include="Expressions\In0x38Expression.cs" />
-    <Compile Include="Expressions\MethodPtrExpression.cs" />
-    <Compile Include="Expressions\NumberLiteral.cs" />
-    <Compile Include="Expressions\ParamListEnd.cs" />
-    <Compile Include="Expressions\ParamListExpression.cs" />
-    <Compile Include="Expressions\StringLiteral.cs" />
-    <Compile Include="Expressions\VariableExpression.cs" />
-    <Compile Include="MethodCodeDataWriterArgs.cs" />
-    <Compile Include="RemovedDefinedItemInfo.cs" />
-    <Compile Include="Statements\CounterStatement.cs" />
-    <Compile Include="Statements\DoWhileStatement.cs" />
-    <Compile Include="Statements\ExpressionStatement.cs" />
-    <Compile Include="Statements\ForStatement.cs" />
-    <Compile Include="Statements\IfElseStatement.cs" />
-    <Compile Include="Statements\IfStatement.cs" />
-    <Compile Include="Statements\LoopStatement.cs" />
-    <Compile Include="Statements\Statement.cs" />
-    <Compile Include="Statements\StatementBlock.cs" />
-    <Compile Include="Statements\SwitchStatement.cs" />
-    <Compile Include="Statements\UnexaminedStatement.cs" />
-    <Compile Include="Statements\WhileStatement.cs" />
-    <Compile Include="TextCodeUtils.cs" />
-    <Compile Include="VariableInfo\ClassVariableInfo.cs" />
-    <Compile Include="CodeDataParser.cs" />
-    <Compile Include="CodeSectionInfo.cs" />
-    <Compile Include="ConstantInfo.cs" />
-    <Compile Include="CryptECReadStream.cs" />
-    <Compile Include="DllDeclareInfo.cs" />
-    <Compile Include="EPackageInfo.cs" />
-    <Compile Include="ESystemInfo.cs" />
-    <Compile Include="FormElementInfo.cs" />
-    <Compile Include="FormInfo.cs" />
-    <Compile Include="FormControlInfo.cs" />
-    <Compile Include="FormMenuInfo.cs" />
-    <Compile Include="VariableInfo\DllParameterInfo.cs" />
-    <Compile Include="VariableInfo\GlobalVariableInfo.cs" />
-    <Compile Include="HexConverter.cs" />
-    <Compile Include="IdToNameMap.cs" />
-    <Compile Include="IHasId.cs" />
-    <Compile Include="InitEcSectionInfo.cs" />
-    <Compile Include="IToTextCodeAble.cs" />
-    <Compile Include="LibInfo\LibCmdInfo.cs" />
-    <Compile Include="LibInfo\LibConstantInfo.cs" />
-    <Compile Include="LibInfo\LibDataTypeInfo.cs" />
-    <Compile Include="LibInfo\LibEvnetInfo.cs" />
-    <Compile Include="LibInfo\LibInfo.cs" />
-    <Compile Include="LibInfo\LibPropertyInfo.cs" />
-    <Compile Include="LibInfo\LibMemberInfo.cs" />
-    <Compile Include="LibraryRefInfo.cs" />
-    <Compile Include="VariableInfo\LocalVariableInfo.cs" />
-    <Compile Include="MethodInfo.cs" />
-    <Compile Include="VariableInfo\MethodParameterInfo.cs" />
-    <Compile Include="ProjectConfigInfo.cs" />
-    <Compile Include="ProjectFileReader.cs" />
-    <Compile Include="ProjectFileWriter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExtensionMethod.cs" />
-    <Compile Include="ResourceSectionInfo.cs" />
-    <Compile Include="SectionInfo.cs" />
-    <Compile Include="StructInfo.cs" />
-    <Compile Include="EplSystemId.cs">
-      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Include="VariableInfo\StructMemberInfo.cs" />
-    <Compile Include="VariableInfo\AbstractVariableInfo.cs" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets" Condition="Exists('..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCop.MSBuild.5.0.0\build\StyleCop.MSBuild.targets'))" />
-  </Target>
 </Project>
