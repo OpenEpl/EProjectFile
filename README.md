@@ -9,6 +9,7 @@
 Package Manager `Install-Package QIQI.EProjectFile`  
 .NET CLI `dotnet add package QIQI.EProjectFile`  
 使用VS的NuGet包管理器（GUI）搜索 `QIQI.EProjectFile`  
+支持：.NET Framework 4.0或更高/.NET Core 2.0或更高
 
 # 声明
 1. 仅供学习与交流使用
@@ -26,7 +27,7 @@ Package Manager `Install-Package QIQI.EProjectFile`
 
 # 编译
 使用NuGet安装缺失包，然后一般编译即可  
-注意：**必须VS2017或更高版本，使用了最新语言特性** *（不过运行环境只需.NET 4.0即可）*  
+注意：**必须VS2017或更高版本，使用了最新语言特性** *（不过运行环境.NET Framework 4.0即可，支持XP）*  
 
 # 例程
 ```cs
@@ -48,114 +49,54 @@ private static T[] AddArrayElement<T>(T[] array, T element)
 }
 		
 // 添加Tag子程序（如果不存在），然后在每个子程序的开头加上：Tag(<子程序名>)
-ESystemInfo systemInfo = null;
-CodeSectionInfo codeSectionInfo = null;
-ResourceSectionInfo resourceSectionInfo = null;
-InitEcSectionInfo initEcSectionInfo = null;
-EPackageInfo ePackageInfo = null;
-var sections = new List<SectionInfo>();
-using (var projectFileReader = new ProjectFileReader(File.OpenRead(fileName)))
-{
-	while (!projectFileReader.IsFinish)
-	{
-		var section = projectFileReader.ReadSection();
-		switch (section.Key)
-		{
-			case ESystemInfo.SectionKey:
-				systemInfo = ESystemInfo.Parse(section.Data);
-				break;
-			case CodeSectionInfo.SectionKey:
-				codeSectionInfo = CodeSectionInfo.Parse(section.Data, projectFileReader.CryptEc);
-				break;
-			case ResourceSectionInfo.SectionKey:
-				resourceSectionInfo = ResourceSectionInfo.Parse(section.Data);
-				break;
-			case InitEcSectionInfo.SectionKey:
-				initEcSectionInfo = InitEcSectionInfo.Parse(section.Data);
-				break;
-			case EPackageInfo.SectionKey:
-				ePackageInfo = EPackageInfo.Parse(section.Data);
-				break;
-			default:
-				break;
-		}
-		sections.Add(section);
-	}
-}
-
+var projectFile = new EProjectFile();
+projectFile.Load(File.OpenRead(fileName));
 int tagMethod = 0;
 try
 {
-	tagMethod = Array.Find(codeSectionInfo.Methods, x => (EplSystemId.GetType(x.Class) == EplSystemId.Type_StaticClass || EplSystemId.GetType(x.Class) == EplSystemId.Type_FormClass) && x.Name.ToLower() == "Tag".ToLower()).Id;
+	tagMethod = Array.Find(projectFile.Code.Methods, x => x.IsStatic && string.Compare(x.Name, "Tag") == 0).Id;
 }
 catch (Exception)
 {
-	int tagStaticClass = codeSectionInfo.AllocId(EplSystemId.Type_StaticClass);
-	tagMethod = codeSectionInfo.AllocId(EplSystemId.Type_Method);
-	codeSectionInfo.Classes = AddArrayElement(codeSectionInfo.Classes, new ClassInfo(tagStaticClass)
+	int tagStaticClass = projectFile.Code.AllocId(EplSystemId.Type_StaticClass);
+	tagMethod = projectFile.Code.AllocId(EplSystemId.Type_Method);
+	projectFile.Code.Classes = AddArrayElement(projectFile.Code.Classes, new ClassInfo(tagStaticClass)
 	{
 		Name = "TagMoudle",
 		Method = new int[] { tagMethod }
 	});
-	codeSectionInfo.Methods = AddArrayElement(codeSectionInfo.Methods, new MethodInfo(tagMethod)
+	projectFile.Code.Methods = AddArrayElement(projectFile.Code.Methods, new MethodInfo(tagMethod)
 	{
 		Name = "Tag",
 		Class = tagStaticClass,
-		CodeData = new StatementBlock() { new ExpressionStatement() }.ToCodeData(),
+		CodeData = new StatementBlock() { new ExpressionStatement() }.ToCodeData(projectFile.Encoding),
 		Parameters = new MethodParameterInfo[]
 		{
-			new MethodParameterInfo(codeSectionInfo.AllocId(EplSystemId.Type_Local))
+			new MethodParameterInfo(projectFile.Code.AllocId(EplSystemId.Type_Local))
 			{
 				Name = "Name",
 				DataType = EplSystemId.DataType_String
 			}
 		}
 	});
-	if (ePackageInfo != null)
+	if (projectFile.EPackageInfo != null)
 	{
-		ePackageInfo.FileNames = AddArrayElement(ePackageInfo.FileNames, null);
+		projectFile.EPackageInfo.FileNames = AddArrayElement(projectFile.EPackageInfo.FileNames, null);
 	}
 }
-foreach (var method in codeSectionInfo.Methods)
+foreach (var method in projectFile.Code.Methods)
 {
 	if (method.Id != tagMethod)
 	{
-		StatementBlock block = CodeDataParser.ParseStatementBlock(method.CodeData.ExpressionData);
+		StatementBlock block = CodeDataParser.ParseStatementBlock(method.CodeData.ExpressionData, method.CodeData.Encoding);
 		{
-			if (block[0] is ExpressionStatement exprStat && exprStat != null && exprStat.Expression is CallExpression callExpr && callExpr != null) 
+			if (block[0] is ExpressionStatement exprStat && exprStat.Expression is CallExpression callExpr) 
 				if (callExpr.LibraryId == -2 && callExpr.MethodId == tagMethod)
 					block.RemoveAt(0);
 		}
 		block.Insert(0, new ExpressionStatement(new CallExpression(-2, tagMethod, new ParamListExpression() { new StringLiteral(method.Name) }), false, "Added from C# Project \"EProjectFile\""));
-		method.CodeData = block.ToCodeData();
+		method.CodeData = block.ToCodeData(projectFile.Encoding);
 	}
 }
-using (var projectFileWriter = new ProjectFileWriter(File.Create(fileName)))
-{
-	for (int i = 0; i < sections.Count; i++)
-	{
-		SectionInfo section = sections[i];
-		switch (section.Key)
-		{
-			case ESystemInfo.SectionKey:
-				section.Data = systemInfo.ToBytes();
-				break;
-			case CodeSectionInfo.SectionKey:
-				section.Data = codeSectionInfo.ToBytes();
-				break;
-			case ResourceSectionInfo.SectionKey:
-				section.Data = resourceSectionInfo.ToBytes();
-				break;
-			case InitEcSectionInfo.SectionKey:
-				section.Data = initEcSectionInfo.ToBytes();
-				break;
-			case EPackageInfo.SectionKey:
-				section.Data = ePackageInfo.ToBytes();
-				break;
-			default:
-				break;
-		}
-		projectFileWriter.WriteSection(section);
-	}
-}
+projectFile.Save(File.Create(fileName));
 ```
