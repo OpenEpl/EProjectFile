@@ -65,6 +65,7 @@ namespace QIQI.EProjectFile
         public LocalVariableInfo[] Variables { get; set; }
         public MethodParameterInfo[] Parameters { get; set; }
         public MethodCodeData CodeData { get; set; }
+        public bool IsStatic => EplSystemId.GetType(Class) == EplSystemId.Type_StaticClass || EplSystemId.GetType(Class) == EplSystemId.Type_FormClass;
         public static MethodInfo[] ReadMethods(BinaryReader reader, Encoding encoding)
         {
             var headerSize = reader.ReadInt32();
