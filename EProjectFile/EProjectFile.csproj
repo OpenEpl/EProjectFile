@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EProjectFile.cs" />
+    <Compile Include="LosableSectionInfo.cs" />
     <Compile Include="RC4Crypto.cs" />
     <Compile Include="ClassInfo.cs" />
     <Compile Include="Expressions\AccessArrayExpression.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Expressions\StringLiteral.cs" />
     <Compile Include="Expressions\VariableExpression.cs" />
     <Compile Include="MethodCodeDataWriterArgs.cs" />
+    <Compile Include="RemovedDefinedItemInfo.cs" />
     <Compile Include="Statements\CounterStatement.cs" />
     <Compile Include="Statements\DoWhileStatement.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />

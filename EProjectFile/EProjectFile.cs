@@ -18,7 +18,7 @@ namespace QIQI.EProjectFile
         public byte[] EcSection { get; set; }
         public byte[] EcSection2 { get; set; }
         public byte[] AuxiliarySection2 { get; set; }
-        public byte[] LosableSection { get; set; }
+        public LosableSectionInfo LosableSection { get; set; }
         public byte[] AuxiliarySection3 { get; set; }
         public byte[] EditInfoSection2 { get; set; }
         public byte[] AuxiliarySection1 { get; set; }
@@ -32,7 +32,8 @@ namespace QIQI.EProjectFile
             Code = null;
             EPackageInfo = null;
             InitEcSectionInfo = null;
-            EcSection = EcSection2 = AuxiliarySection2 = LosableSection = AuxiliarySection3 = EditInfoSection2 = AuxiliarySection1 = FolderSection = null;
+            LosableSection = null;
+            EcSection = EcSection2 = AuxiliarySection2 = AuxiliarySection3 = EditInfoSection2 = AuxiliarySection1 = FolderSection = null;
             OtherSections = new List<SectionInfo>();
             using (var reader = new ProjectFileReader(stream, inputPassword))
             {
@@ -47,7 +48,7 @@ namespace QIQI.EProjectFile
                     { 0x0C007319, x => EcSection = x.Data },
                     { 0x0F007319, x => EcSection2 = x.Data },
                     { 0x0B007319, x => AuxiliarySection2 = x.Data },
-                    { 0x05007319, x => LosableSection = x.Data },
+                    { LosableSectionInfo.SectionKey, x => LosableSection = LosableSectionInfo.Parse(x.Data, Encoding) },
                     { 0x10007319, x => AuxiliarySection3 = x.Data },
                     { 0x09007319, x => EditInfoSection2 = x.Data },
                     { 0x0A007319, x => AuxiliarySection1 = x.Data },
@@ -82,7 +83,7 @@ namespace QIQI.EProjectFile
                 if (EcSection != null) writer.WriteSection(new SectionInfo(0x0C007319, "易模块记录段", false, EcSection));
                 if (EcSection2 != null) writer.WriteSection(new SectionInfo(0x0F007319, "易模块记录段2", true, EcSection2));
                 if (AuxiliarySection2 != null) writer.WriteSection(new SectionInfo(0x0B007319, "辅助信息段2", true, AuxiliarySection2));
-                if (LosableSection != null) writer.WriteSection(new SectionInfo(0x05007319, "可丢失程序段", true, LosableSection));
+                if (LosableSection != null) writer.WriteSection(new SectionInfo(LosableSectionInfo.SectionKey, LosableSectionInfo.SectionName, true, LosableSection.ToBytes(Encoding)));
                 if (AuxiliarySection3 != null) writer.WriteSection(new SectionInfo(0x10007319, "辅助信息段3", true, AuxiliarySection3));
                 if (EditInfoSection2 != null) writer.WriteSection(new SectionInfo(0x09007319, "编辑信息段2", true, EditInfoSection2));
                 if (AuxiliarySection1 != null) writer.WriteSection(new SectionInfo(0x0A007319, "辅助信息段1", true, AuxiliarySection1));

@@ -50,12 +50,24 @@ namespace QIQI.EProjectFile
             }).ToArray();
             userDefinedName = new Dictionary<int, string>();
         }
+
         /// <summary>
         /// <paramref name="codeSection"/>或<paramref name="resourceSection"/>改变时必须重新创建IDToNameMap以便更新数据（尽管部分数据可能自动更新）
         /// </summary>
-        /// <param name="codeSection">代码段</param>
+        /// <param name="codeSection">程序段</param>
         /// <param name="resourceSection">资源段</param>
-        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection)
+        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection) : this(codeSection, resourceSection, null)
+        {
+
+        }
+
+        /// <summary>
+        /// <paramref name="codeSection"/>或<paramref name="resourceSection"/>或<paramref name="losableSection"/>改变时必须重新创建IDToNameMap以便更新数据（尽管部分数据可能自动更新）
+        /// </summary>
+        /// <param name="codeSection">程序段</param>
+        /// <param name="resourceSection">资源段</param>
+        /// <param name="losableSection">可丢失程序段</param>
+        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection, LosableSectionInfo losableSection)
         {
             libDefinedName = codeSection.Libraries.Select(x =>
             {
@@ -69,33 +81,43 @@ namespace QIQI.EProjectFile
                 }
             }).ToArray();
             userDefinedName = new Dictionary<int, string>();
-            foreach (var method in codeSection.Methods)
+            if (codeSection != null)
             {
-                userDefinedName.Add(method.Id, method.Name);
-                Array.ForEach(method.Parameters, x => userDefinedName.Add(x.Id, x.Name));
-                Array.ForEach(method.Variables, x => userDefinedName.Add(x.Id, x.Name));
+                foreach (var method in codeSection.Methods)
+                {
+                    userDefinedName.Add(method.Id, method.Name);
+                    Array.ForEach(method.Parameters, x => userDefinedName.Add(x.Id, x.Name));
+                    Array.ForEach(method.Variables, x => userDefinedName.Add(x.Id, x.Name));
+                }
+                foreach (var dll in codeSection.DllDeclares)
+                {
+                    userDefinedName.Add(dll.Id, dll.Name);
+                    Array.ForEach(dll.Parameters, x => userDefinedName.Add(x.Id, x.Name));
+                }
+                foreach (var classInfo in codeSection.Classes)
+                {
+                    userDefinedName.Add(classInfo.Id, classInfo.Name);
+                    Array.ForEach(classInfo.Variables, x => userDefinedName.Add(x.Id, x.Name));
+                }
+                foreach (var structInfo in codeSection.Structs)
+                {
+                    userDefinedName.Add(structInfo.Id, structInfo.Name);
+                    Array.ForEach(structInfo.Member, x => userDefinedName.Add(x.Id, x.Name));
+                }
+                Array.ForEach(codeSection.GlobalVariables, x => userDefinedName.Add(x.Id, x.Name));
             }
-            foreach (var dll in codeSection.DllDeclares)
+            if (resourceSection != null)
             {
-                userDefinedName.Add(dll.Id, dll.Name);
-                Array.ForEach(dll.Parameters, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(resourceSection.Constants, x => userDefinedName.Add(x.Id, x.Name));
+                foreach (var formInfo in resourceSection.Forms)
+                {
+                    userDefinedName.Add(formInfo.Id, formInfo.Name);
+                    Array.ForEach(formInfo.Elements, x => userDefinedName.Add(x.Id, x.Name));
+                }
             }
-            foreach (var classInfo in codeSection.Classes)
+            if (losableSection != null)
             {
-                userDefinedName.Add(classInfo.Id, classInfo.Name);
-                Array.ForEach(classInfo.Variables, x => userDefinedName.Add(x.Id, x.Name));
-            }
-            foreach (var structInfo in codeSection.Structs)
-            {
-                userDefinedName.Add(structInfo.Id, structInfo.Name);
-                Array.ForEach(structInfo.Member, x => userDefinedName.Add(x.Id, x.Name));
-            }
-            Array.ForEach(codeSection.GlobalVariables, x => userDefinedName.Add(x.Id, x.Name));
-            Array.ForEach(resourceSection.Constants, x => userDefinedName.Add(x.Id, x.Name));
-            foreach (var formInfo in resourceSection.Forms)
-            {
-                userDefinedName.Add(formInfo.Id, formInfo.Name);
-                Array.ForEach(formInfo.Elements, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(losableSection.RemovedDefinedItem, x => userDefinedName.Add(x.Id, x.Name));
             }
 
             var needToRemove = new List<int>();

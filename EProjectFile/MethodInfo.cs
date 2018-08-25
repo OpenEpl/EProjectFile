@@ -19,6 +19,7 @@ namespace QIQI.EProjectFile
         public byte[] ConstantReference;
         [JsonConverter(typeof(HexConverter))]
         public byte[] ExpressionData;
+        [JsonIgnore]
         public Encoding Encoding;
         [Obsolete]
         public MethodCodeData(byte[] lineOffest, byte[] blockOffest, byte[] methodReference, byte[] variableReference, byte[] constantReference, byte[] expressionData)
