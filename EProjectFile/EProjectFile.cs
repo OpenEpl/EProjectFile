@@ -22,7 +22,7 @@ namespace QIQI.EProjectFile
         public byte[] AuxiliarySection3 { get; set; }
         public byte[] EditInfoSection2 { get; set; }
         public byte[] AuxiliarySection1 { get; set; }
-        public byte[] FolderSection { get; set; }
+        public FolderSectionInfo FolderSection { get; set; }
         public List<SectionInfo> OtherSections { get; set; }
         public void Load(Stream stream, ProjectFileReader.OnInputPassword inputPassword = null)
         {
@@ -33,7 +33,8 @@ namespace QIQI.EProjectFile
             EPackageInfo = null;
             InitEcSectionInfo = null;
             LosableSection = null;
-            EcSection = EcSection2 = AuxiliarySection2 = AuxiliarySection3 = EditInfoSection2 = AuxiliarySection1 = FolderSection = null;
+            FolderSection = null;
+            EcSection = EcSection2 = AuxiliarySection2 = AuxiliarySection3 = EditInfoSection2 = AuxiliarySection1 = null;
             OtherSections = new List<SectionInfo>();
             using (var reader = new ProjectFileReader(stream, inputPassword))
             {
@@ -52,7 +53,7 @@ namespace QIQI.EProjectFile
                     { 0x10007319, x => AuxiliarySection3 = x.Data },
                     { 0x09007319, x => EditInfoSection2 = x.Data },
                     { 0x0A007319, x => AuxiliarySection1 = x.Data },
-                    { 0x0E007319, x => FolderSection = x.Data }
+                    { FolderSectionInfo.SectionKey, x => FolderSection = FolderSectionInfo.Parse(x.Data, Encoding) }
                 };
                 
                 while (!reader.IsFinish)
@@ -87,7 +88,7 @@ namespace QIQI.EProjectFile
                 if (AuxiliarySection3 != null) writer.WriteSection(new SectionInfo(0x10007319, "辅助信息段3", true, AuxiliarySection3));
                 if (EditInfoSection2 != null) writer.WriteSection(new SectionInfo(0x09007319, "编辑信息段2", true, EditInfoSection2));
                 if (AuxiliarySection1 != null) writer.WriteSection(new SectionInfo(0x0A007319, "辅助信息段1", true, AuxiliarySection1));
-                if (FolderSection != null) writer.WriteSection(new SectionInfo(0x0E007319, "编辑过滤器信息段", true, FolderSection));
+                if (FolderSection != null) writer.WriteSection(new SectionInfo(FolderSectionInfo.SectionKey, FolderSectionInfo.SectionName, true, FolderSection.ToBytes(Encoding)));
                 OtherSections?.ForEach(x => writer.WriteSection(x));
             }
         }
