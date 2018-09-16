@@ -52,11 +52,16 @@ namespace QIQI.EProjectFile.Expressions
                 Target.WriteTo(a);
             }
             a.ExpressionData.Write((byte)0x39);
-            a.ExpressionData.Write(MemberId);
             if (LibraryId == -2)
+            {
+                a.ExpressionData.Write(MemberId);
                 a.ExpressionData.Write(StructId);
+            }
             else
+            {
+                a.ExpressionData.Write(MemberId + 1);
                 a.ExpressionData.Write((StructId + 1) & 0xFFFF | (LibraryId + 1) << 16);
+            }
             if (need0x1DAnd0x37) a.ExpressionData.Write((byte)0x37);
         }
     }

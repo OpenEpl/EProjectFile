@@ -209,22 +209,6 @@ namespace QIQI.EProjectFile
                 return $"_Lib{lib}Type{typeId}Event{id}";
             }
         }
-        public string GetLibTypePropertyName(int typeId, int id)
-        {
-            EplSystemId.DecomposeLibDataTypeId(typeId, out var lib, out var type);
-            return GetLibTypePropertyName(lib, type, id);
-        }
-        public string GetLibTypePropertyName(int lib, int typeId, int id)
-        {
-            try
-            {
-                return libDefinedName[lib].DataType[typeId].Property[id].Name;
-            }
-            catch (Exception)
-            {
-                return $"_Lib{lib}Type{typeId}Prop{id}";
-            }
-        }
         public string GetLibTypeMemberName(int typeId, int id)
         {
             EplSystemId.DecomposeLibDataTypeId(typeId, out var lib, out var type);

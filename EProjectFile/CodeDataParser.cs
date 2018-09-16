@@ -388,7 +388,7 @@ namespace QIQI.EProjectFile
                         result = ParseCallExpressionWithoutType(reader, encoding);
                         break;
                     case 0x23:
-                        result = new EmnuConstantExpression((short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), reader.ReadInt32());
+                        result = new EmnuConstantExpression((short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), reader.ReadInt32() - 1);
                         break;
                     case 0x37:
                         continue;
@@ -444,7 +444,7 @@ namespace QIQI.EProjectFile
                             if (EplSystemId.GetType(memberId) == EplSystemId.Type_StructMember)
                                 result = new AccessMemberExpression(result, reader.ReadInt32(), memberId);
                             else
-                                result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), memberId);
+                                result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), memberId - 1);
                             break;
                         case 0x3A:
                             result = new AccessArrayExpression(result, ParseExpression(reader, encoding, false));

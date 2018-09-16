@@ -7,7 +7,6 @@ namespace QIQI.EProjectFile.LibInfo
         public string Name { get; set; }
         public string EnglshName { get; set; }
         public LibEvnetInfo[] Evnet { get; set; }
-        public LibPropertyInfo[] Property { get; set; }
         public LibMemberInfo[] Member { get; set; }
         public int[] Method { get; set; }
 

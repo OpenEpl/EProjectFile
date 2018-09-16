@@ -21,7 +21,7 @@ namespace QIQI.EProjectFile.Expressions
             a.ExpressionData.Write((byte)0x23);
             a.ExpressionData.Write((short)(StructId + 1));
             a.ExpressionData.Write((short)(LibraryId + 1));
-            a.ExpressionData.Write(MemberId);
+            a.ExpressionData.Write(MemberId + 1);
         }
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
