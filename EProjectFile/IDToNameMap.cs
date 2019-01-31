@@ -2,10 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+
 namespace QIQI.EProjectFile
 {
     public class IdToNameMap
     {
+        private static Regex debugCommentMatchRegex = new Regex(@"^_-@[MS]<([_A-Za-z\u0080-\uFFFF][_0-9A-Za-z\u0080-\uFFFF]*)>$", RegexOptions.Compiled);
+        public static string ParseDebugComment(string comment)
+        {
+            var matchItem = debugCommentMatchRegex.Match(comment);
+            if (matchItem == null || !matchItem.Success)
+            {
+                return null;
+            }
+            return matchItem.Groups[1].Value;
+        }
+
         public static readonly Dictionary<int, string> SystemDataTypeName = new Dictionary<int, string> {
             { EplSystemId.DataType_Bin, "字节集" },
             { EplSystemId.DataType_Bool, "逻辑型" },
@@ -85,7 +98,18 @@ namespace QIQI.EProjectFile
             {
                 foreach (var method in codeSection.Methods)
                 {
-                    userDefinedName.Add(method.Id, method.Name);
+                    if (string.IsNullOrEmpty(method.Name))
+                    {
+                        var symbol = ParseDebugComment(method.Comment);
+                        if (symbol != null)
+                        {
+                            userDefinedName.Add(method.Id, symbol);
+                        }
+                    }
+                    else
+                    {
+                        userDefinedName.Add(method.Id, method.Name);
+                    }
                     Array.ForEach(method.Parameters, x => userDefinedName.Add(x.Id, x.Name));
                     Array.ForEach(method.Variables, x => userDefinedName.Add(x.Id, x.Name));
                 }
@@ -119,12 +143,26 @@ namespace QIQI.EProjectFile
             {
                 Array.ForEach(losableSection.RemovedDefinedItem, x => userDefinedName.Add(x.Id, x.Name));
             }
+            if (codeSection.MainMethod != 0) 
+            {
+                userDefinedName[codeSection.MainMethod] = "_启动子程序";
+            }
 
+            // 处理无名对象
             var needToRemove = new List<int>();
             foreach (var item in userDefinedName)
                 if (string.IsNullOrEmpty(item.Value)) 
                     needToRemove.Add(item.Key);
             needToRemove.ForEach(x => userDefinedName.Remove(x));
+        }
+
+        /// <summary>
+        /// 首选构造方法
+        /// </summary>
+        /// <param name="source">源码文件</param>
+        public IdToNameMap(EProjectFile source) : this(source.Code, source.Resource, source.LosableSection)
+        {
+
         }
 
         private static readonly Dictionary<int, string> IdTypeName = new Dictionary<int, string> {
