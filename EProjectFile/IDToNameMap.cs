@@ -34,15 +34,15 @@ namespace QIQI.EProjectFile
             { EplSystemId.DataType_Void, "" }
         };
         public static readonly IdToNameMap Empty = new IdToNameMap();
-        private readonly Dictionary<int, string> userDefinedName;
-        private readonly LibInfo.LibInfo[] libDefinedName;
+        public Dictionary<int, string> UserDefinedName { get; }
+        public LibInfo.LibInfo[] LibDefinedName { get; }
         /// <summary>
         /// 不加载名称数据模式（私有） 
         /// </summary>
         private IdToNameMap()
         {
-            libDefinedName = new LibInfo.LibInfo[0];
-            userDefinedName = new Dictionary<int, string>();
+            LibDefinedName = new LibInfo.LibInfo[0];
+            UserDefinedName = new Dictionary<int, string>();
         }
         /// <summary>
         /// 只加载支持库信息模式
@@ -50,7 +50,7 @@ namespace QIQI.EProjectFile
         /// <param name="lib">需要加载信息的支持库列表</param>
         public IdToNameMap(LibraryRefInfo[] lib)
         {
-            libDefinedName = lib.Select(x =>
+            LibDefinedName = lib.Select(x =>
             {
                 try
                 {
@@ -61,7 +61,7 @@ namespace QIQI.EProjectFile
                     return null;
                 }
             }).ToArray();
-            userDefinedName = new Dictionary<int, string>();
+            UserDefinedName = new Dictionary<int, string>();
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace QIQI.EProjectFile
         /// <param name="losableSection">可丢失程序段</param>
         public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection, LosableSectionInfo losableSection)
         {
-            libDefinedName = codeSection.Libraries.Select(x =>
+            LibDefinedName = codeSection.Libraries.Select(x =>
             {
                 try
                 {
@@ -93,7 +93,7 @@ namespace QIQI.EProjectFile
                     return null;
                 }
             }).ToArray();
-            userDefinedName = new Dictionary<int, string>();
+            UserDefinedName = new Dictionary<int, string>();
             if (codeSection != null)
             {
                 foreach (var method in codeSection.Methods)
@@ -103,57 +103,68 @@ namespace QIQI.EProjectFile
                         var symbol = ParseDebugComment(method.Comment);
                         if (symbol != null)
                         {
-                            userDefinedName.Add(method.Id, symbol);
+                            UserDefinedName.Add(method.Id, symbol);
                         }
                     }
                     else
                     {
-                        userDefinedName.Add(method.Id, method.Name);
+                        UserDefinedName.Add(method.Id, method.Name);
                     }
-                    Array.ForEach(method.Parameters, x => userDefinedName.Add(x.Id, x.Name));
-                    Array.ForEach(method.Variables, x => userDefinedName.Add(x.Id, x.Name));
+                    Array.ForEach(method.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
+                    Array.ForEach(method.Variables, x => UserDefinedName.Add(x.Id, x.Name));
                 }
                 foreach (var dll in codeSection.DllDeclares)
                 {
-                    userDefinedName.Add(dll.Id, dll.Name);
-                    Array.ForEach(dll.Parameters, x => userDefinedName.Add(x.Id, x.Name));
+                    UserDefinedName.Add(dll.Id, dll.Name);
+                    Array.ForEach(dll.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
                 }
                 foreach (var classInfo in codeSection.Classes)
                 {
-                    userDefinedName.Add(classInfo.Id, classInfo.Name);
-                    Array.ForEach(classInfo.Variables, x => userDefinedName.Add(x.Id, x.Name));
+                    if (string.IsNullOrEmpty(classInfo.Name))
+                    {
+                        var symbol = ParseDebugComment(classInfo.Comment);
+                        if (symbol != null)
+                        {
+                            UserDefinedName.Add(classInfo.Id, symbol);
+                        }
+                    }
+                    else
+                    {
+                        UserDefinedName.Add(classInfo.Id, classInfo.Name);
+                    }
+                    Array.ForEach(classInfo.Variables, x => UserDefinedName.Add(x.Id, x.Name));
                 }
                 foreach (var structInfo in codeSection.Structs)
                 {
-                    userDefinedName.Add(structInfo.Id, structInfo.Name);
-                    Array.ForEach(structInfo.Member, x => userDefinedName.Add(x.Id, x.Name));
+                    UserDefinedName.Add(structInfo.Id, structInfo.Name);
+                    Array.ForEach(structInfo.Member, x => UserDefinedName.Add(x.Id, x.Name));
                 }
-                Array.ForEach(codeSection.GlobalVariables, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(codeSection.GlobalVariables, x => UserDefinedName.Add(x.Id, x.Name));
             }
             if (resourceSection != null)
             {
-                Array.ForEach(resourceSection.Constants, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(resourceSection.Constants, x => UserDefinedName.Add(x.Id, x.Name));
                 foreach (var formInfo in resourceSection.Forms)
                 {
-                    userDefinedName.Add(formInfo.Id, formInfo.Name);
-                    Array.ForEach(formInfo.Elements, x => userDefinedName.Add(x.Id, x.Name));
+                    UserDefinedName.Add(formInfo.Id, formInfo.Name);
+                    Array.ForEach(formInfo.Elements, x => UserDefinedName.Add(x.Id, x.Name));
                 }
             }
             if (losableSection != null)
             {
-                Array.ForEach(losableSection.RemovedDefinedItem, x => userDefinedName.Add(x.Id, x.Name));
+                Array.ForEach(losableSection.RemovedDefinedItem, x => UserDefinedName.Add(x.Id, x.Name));
             }
             if (codeSection.MainMethod != 0) 
             {
-                userDefinedName[codeSection.MainMethod] = "_启动子程序";
+                UserDefinedName[codeSection.MainMethod] = "_启动子程序";
             }
 
             // 处理无名对象
             var needToRemove = new List<int>();
-            foreach (var item in userDefinedName)
+            foreach (var item in UserDefinedName)
                 if (string.IsNullOrEmpty(item.Value)) 
                     needToRemove.Add(item.Key);
-            needToRemove.ForEach(x => userDefinedName.Remove(x));
+            needToRemove.ForEach(x => UserDefinedName.Remove(x));
         }
 
         /// <summary>
@@ -185,7 +196,7 @@ namespace QIQI.EProjectFile
 
         public string GetUserDefinedName(int id)
         {
-            if (userDefinedName.TryGetValue(id, out var result))
+            if (UserDefinedName.TryGetValue(id, out var result))
             {
                 return result;
             }
@@ -202,7 +213,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return libDefinedName[lib].Cmd[id].Name;
+                return LibDefinedName[lib].Cmd[id].Name;
             }
             catch (Exception)
             {
@@ -213,7 +224,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return libDefinedName[lib].DataType[id].Name;
+                return LibDefinedName[lib].DataType[id].Name;
             }
             catch (Exception)
             {
@@ -224,7 +235,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return libDefinedName[lib].Constant[id].Name;
+                return LibDefinedName[lib].Constant[id].Name;
             }
             catch (Exception)
             {
@@ -240,7 +251,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return libDefinedName[lib].DataType[typeId].Evnet[id].Name;
+                return LibDefinedName[lib].DataType[typeId].Evnet[id].Name;
             }
             catch (Exception)
             {
@@ -256,7 +267,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return libDefinedName[lib].DataType[typeId].Member[id].Name;
+                return LibDefinedName[lib].DataType[typeId].Member[id].Name;
             }
             catch (Exception)
             {
