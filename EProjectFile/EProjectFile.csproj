@@ -14,11 +14,12 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>QIQI.EProjectFile</PackageId>
-    <PackageVersion>1.1.0</PackageVersion>
     <Tags>EPL</Tags>
     <Authors>QIQI</Authors>
     <PackageProjectUrl>https://github.com/1354092549/EProjectFile</PackageProjectUrl>
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
+    <PackageVersion>1.3.0</PackageVersion>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
