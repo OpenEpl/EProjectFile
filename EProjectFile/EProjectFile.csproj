@@ -3,6 +3,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Title>Epl Project Editor</Title>
     <Description>Epl Project Editor</Description>
     <Company>QIQI</Company>
@@ -15,17 +19,15 @@
     <Authors>QIQI</Authors>
     <PackageProjectUrl>https://github.com/1354092549/EProjectFile</PackageProjectUrl>
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
-
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="StyleCop.MSBuild" Version="6.0.0">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
       <PrivateAssets>all</PrivateAssets>
-      <ExcludeAssets>Runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-     </PackageReference>
-
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    
     <Content Include="bin/Release/LibNameInfoToJson.exe;QIQI.EProjectFile.targets">
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>
