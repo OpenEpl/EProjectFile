@@ -19,10 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0">
-      <PrivateAssets>All</PrivateAssets>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="StyleCop.MSBuild" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>Runtime</ExcludeAssets>
+      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
      </PackageReference>
 
     <Content Include="bin/Release/LibNameInfoToJson.exe;QIQI.EProjectFile.targets">
