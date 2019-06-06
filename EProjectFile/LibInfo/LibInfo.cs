@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -10,6 +11,19 @@ namespace QIQI.EProjectFile.LibInfo
 {
     public class LibInfo
     {
+        public static string LibNameInfoToJsonExecFile = null;
+        static LibInfo()
+        {
+            LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(typeof(LibInfo).Assembly.Location), "LibNameInfoToJson.exe");
+            if (!File.Exists(LibNameInfoToJsonExecFile))
+            {
+                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "LibNameInfoToJson.exe");
+            }
+            if (!File.Exists(LibNameInfoToJsonExecFile))
+            {
+                LibNameInfoToJsonExecFile = null;
+            }
+        }
         public Guid Guid { get; set; }
         public string Name { get; set; }
         [JsonConverter(typeof(VersionConverter))]
@@ -20,12 +34,14 @@ namespace QIQI.EProjectFile.LibInfo
         public LibConstantInfo[] Constant { get; set; }
         public static LibInfo Load(LibraryRefInfo refInfo)
         {
+            if (!File.Exists(LibNameInfoToJsonExecFile))
+                throw new Exception("找不到LibNameInfoToJson.exe文件");
             string result = null;
             try
             {
                 using (Process process = new Process())
                 {
-                    process.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(typeof(LibInfo).Assembly.Location), "LibNameInfoToJson.exe");
+                    process.StartInfo.FileName = LibNameInfoToJsonExecFile;
                     process.StartInfo.Arguments = $"\"{refInfo.FileName}\"";
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.CreateNoWindow = true;
