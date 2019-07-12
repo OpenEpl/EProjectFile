@@ -40,21 +40,20 @@ namespace QIQI.EProjectFile.LibInfo
         {
             if (!File.Exists(LibNameInfoToJsonExecFile))
                 throw new Exception("找不到LibNameInfoToJson.exe文件");
+            string tempFile = Path.GetTempFileName();
             string result = null;
             try
             {
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = LibNameInfoToJsonExecFile;
-                    process.StartInfo.Arguments = $"\"{refInfo.FileName}\"";
+                    process.StartInfo.Arguments = $"\"{refInfo.FileName}\" \"{tempFile}\"";
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.RedirectStandardOutput = true;
                     process.Start();
-                    result = process.StandardOutput.ReadToEnd().Trim();
                     process.WaitForExit();
-                    if (process.ExitCode != 0)
-                        result = null;
+                    if (process.ExitCode == 0)
+                        result = File.ReadAllText(tempFile, Encoding.Unicode);
                 }
             }
             catch (Exception e)
