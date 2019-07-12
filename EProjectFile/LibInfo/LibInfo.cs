@@ -17,11 +17,11 @@ namespace QIQI.EProjectFile.LibInfo
             LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(typeof(LibInfo).Assembly.Location), "LibNameInfoToJson.exe");
             if (!File.Exists(LibNameInfoToJsonExecFile))
             {
-                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "LibNameInfoToJson.exe");
+                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(typeof(LibInfo).Assembly.Location), "..", "..", "build", "LibNameInfoToJson.exe");
             }
             if (!File.Exists(LibNameInfoToJsonExecFile))
             {
-                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "..", "..", "build", "LibNameInfoToJson.exe");
+                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "LibNameInfoToJson.exe");
             }
             if (!File.Exists(LibNameInfoToJsonExecFile))
             {
