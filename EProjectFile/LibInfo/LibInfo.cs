@@ -21,6 +21,10 @@ namespace QIQI.EProjectFile.LibInfo
             }
             if (!File.Exists(LibNameInfoToJsonExecFile))
             {
+                LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "..", "..", "build", "LibNameInfoToJson.exe");
+            }
+            if (!File.Exists(LibNameInfoToJsonExecFile))
+            {
                 LibNameInfoToJsonExecFile = null;
             }
         }
