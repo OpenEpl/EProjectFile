@@ -40,10 +40,11 @@ namespace QIQI.EProjectFile.LibInfo
         {
             if (!File.Exists(LibNameInfoToJsonExecFile))
                 throw new Exception("找不到LibNameInfoToJson.exe文件");
-            string tempFile = Path.GetTempFileName();
+            string tempFile = null;
             string result = null;
             try
             {
+                tempFile = Path.GetTempFileName();
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = LibNameInfoToJsonExecFile;
@@ -59,6 +60,17 @@ namespace QIQI.EProjectFile.LibInfo
             catch (Exception e)
             {
                 throw new Exception($"Failed to load library \"{refInfo.FileName}\"", e);
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(tempFile);
+                }
+                catch (Exception)
+                {
+                    //Nothing to do
+                }
             }
             if (string.IsNullOrWhiteSpace(result))
             {
