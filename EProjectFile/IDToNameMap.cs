@@ -35,6 +35,7 @@ namespace QIQI.EProjectFile
         };
         public static readonly IdToNameMap Empty = new IdToNameMap();
         public Dictionary<int, string> UserDefinedName { get; }
+        public Dictionary<int, int> MethodIdToClassId { get; }
         public LibInfo.LibInfo[] LibDefinedName { get; }
         /// <summary>
         /// 不加载名称数据模式（私有） 
@@ -43,6 +44,7 @@ namespace QIQI.EProjectFile
         {
             LibDefinedName = new LibInfo.LibInfo[0];
             UserDefinedName = new Dictionary<int, string>();
+            MethodIdToClassId = new Dictionary<int, int>();
         }
         /// <summary>
         /// 只加载支持库信息模式
@@ -62,6 +64,7 @@ namespace QIQI.EProjectFile
                 }
             }).ToArray();
             UserDefinedName = new Dictionary<int, string>();
+            MethodIdToClassId = new Dictionary<int, int>();
         }
 
         /// <summary>
@@ -80,20 +83,8 @@ namespace QIQI.EProjectFile
         /// <param name="codeSection">程序段</param>
         /// <param name="resourceSection">资源段</param>
         /// <param name="losableSection">可丢失程序段</param>
-        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection, LosableSectionInfo losableSection)
+        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection, LosableSectionInfo losableSection) : this(codeSection?.Libraries)
         {
-            LibDefinedName = codeSection.Libraries.Select(x =>
-            {
-                try
-                {
-                    return LibInfo.LibInfo.Load(x);
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }).ToArray();
-            UserDefinedName = new Dictionary<int, string>();
             if (codeSection != null)
             {
                 foreach (var method in codeSection.Methods)
@@ -120,6 +111,10 @@ namespace QIQI.EProjectFile
                 }
                 foreach (var classInfo in codeSection.Classes)
                 {
+                    foreach (var item in classInfo.Method)
+                    {
+                        MethodIdToClassId[item] = classInfo.Id;
+                    }
                     if (string.IsNullOrEmpty(classInfo.Name))
                     {
                         var symbol = ParseDebugComment(classInfo.Comment);

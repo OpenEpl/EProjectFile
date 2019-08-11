@@ -12,6 +12,10 @@ namespace QIQI.EProjectFile.Expressions
         /// </summary>
         public readonly short LibraryId;
         public readonly int MethodId;
+        /// <summary>
+        /// 忽略虚函数表，调用父类特定方法时使用
+        /// </summary>
+        public bool InvokeSpecial { get; set; } = false;
         public Expression Target { get; set; } // ThisCall
         public ParamListExpression ParamList { get; set; } = null;
         public CallExpression(short libraryId, int methodId, ParamListExpression paramList = null)
@@ -28,6 +32,14 @@ namespace QIQI.EProjectFile.Expressions
                 Target.ToTextCode(nameMap, result, indent);
                 result.Append(".");
             }
+            if (InvokeSpecial && LibraryId == -2)
+            {
+                if (nameMap.MethodIdToClassId.TryGetValue(MethodId, out var classId) && EplSystemId.GetType(classId) == EplSystemId.Type_Class)
+                {
+                    result.Append(nameMap.GetUserDefinedName(classId));
+                    result.Append(".");
+                }
+            }
             result.Append(LibraryId == -2 || LibraryId == -3 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
             result.Append(" ");
             ParamList.ToTextCode(nameMap, result, indent);
@@ -39,7 +51,7 @@ namespace QIQI.EProjectFile.Expressions
             a.ExpressionData.Write(type);
             a.ExpressionData.Write(MethodId);
             a.ExpressionData.Write(LibraryId);
-            a.ExpressionData.Write((short)(mask ? 0x20 : 0));
+            a.ExpressionData.Write((short)((mask ? 0x20 : 0) | (InvokeSpecial ? 0x10 : 0)));
             a.ExpressionData.WriteBStr(a.Encoding, null);
             a.ExpressionData.WriteBStr(a.Encoding, "".Equals(comment) ? null : comment);
             if (Target == null)

@@ -485,6 +485,7 @@ namespace QIQI.EProjectFile
             unexaminedCode = reader.ReadBStr(encoding);
             comment = reader.ReadBStr(encoding);
             mask = (flag & 0x20) != 0;
+            bool invokeSpecial = (flag & 0x10) != 0;
             ////bool expand = (flag & 0x1) != 0;
             if (unexaminedCode != null)
             {
@@ -499,6 +500,7 @@ namespace QIQI.EProjectFile
                 if ("".Equals(comment)) comment = null;
             }
             var exp = new CallExpression(libraryId, methodId);
+            exp.InvokeSpecial = invokeSpecial;
             if (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 switch (reader.ReadByte())
