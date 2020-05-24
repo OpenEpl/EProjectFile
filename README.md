@@ -2,7 +2,7 @@
 
 # EProjectFile
 一个用于编辑易语言项目文件的第三方库（C#）  
-[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile) [![CodeFactor](https://www.codefactor.io/repository/github/1354092549/eprojectfile/badge)](https://www.codefactor.io/repository/github/1354092549/eprojectfile)  
+[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile) [![CodeFactor](https://www.codefactor.io/repository/github/openepl/eprojectfile/badge)](https://www.codefactor.io/repository/github/openepl/eprojectfile)  
 命名空间：`QIQI.EProjectFile`  
 
 # 安装
@@ -27,7 +27,7 @@ Package Manager `Install-Package QIQI.EProjectFile`
 
 # 编译
 使用NuGet安装缺失包，然后一般编译即可  
-注意：**必须VS2017或更高版本，使用了最新语言特性** *（不过运行环境.NET Framework 4.0即可，支持XP）*  
+注意：**必须VS2017或更高版本，使用了最新语言特性** *（不过运行环境最低只需 .NET Framework 4.0 即可，支持XP）*  
 
 # 例程
 ```cs
@@ -100,3 +100,12 @@ foreach (var method in projectFile.Code.Methods)
 }
 projectFile.Save(File.Create(fileName));
 ```
+
+# 感谢
+本项目的发展得益于开源社区中许多贡献者的支持，这里仅列举部分人员用于表示感谢，*请注意该列表并非全部贡献者*
+| 用户 | 成就 |
+| ---- | ---- |
+| 东灿 | [最早开源的项目文件结构分析代码](https://bbs.125.la/forum.php?mod=viewthread&tid=13751690) |
+| 曙光 | 最早开源的代码数据解析软件 |
+| 为你芯冻 | [e.net](https://github.com/wnxd/e.net)（包含一定的项目解析代码） |
+| JimStone（谢栋） | 支持库兼容性信息分析 OpenEpl/EProjectFile@80348c3e42d775c1b2f2c45af699356c46b3503d |
