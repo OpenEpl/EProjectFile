@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EProjectFile": {
+      "commandName": "Executable",
+      "executablePath": "$(ProjectDir)$(OutDir)\\InjectedEComRepair.exe"
+    }
+  }
+}

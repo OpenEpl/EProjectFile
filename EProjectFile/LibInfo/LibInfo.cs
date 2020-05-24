@@ -11,7 +11,7 @@ namespace QIQI.EProjectFile.LibInfo
 {
     public class LibInfo
     {
-        public static string LibNameInfoToJsonExecFile = null;
+        public static string LibNameInfoToJsonExecFile { get; set; }
         static LibInfo()
         {
             LibNameInfoToJsonExecFile = Path.Combine(Path.GetDirectoryName(typeof(LibInfo).Assembly.Location), "LibNameInfoToJson.exe");
@@ -69,7 +69,7 @@ namespace QIQI.EProjectFile.LibInfo
                 }
                 catch (Exception)
                 {
-                    //Nothing to do
+                    // Nothing to do
                 }
             }
             if (string.IsNullOrWhiteSpace(result))

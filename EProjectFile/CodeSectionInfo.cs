@@ -10,12 +10,6 @@ namespace QIQI.EProjectFile
         public const string SectionName = "程序段";
         public const int SectionKey = 0x03007319;
         private int allocatedIdNum;
-        [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_1 { get; set; }
-        [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_2 { get; set; }
-        [JsonIgnore]
-        public byte[] UnknownBeforeLibrary_3 { get; set; }
         public LibraryRefInfo[] Libraries { get; set; }
         public int Flag { get; set; }
         /// <summary>
@@ -36,30 +30,33 @@ namespace QIQI.EProjectFile
         public static CodeSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEc = false)
         {
             var codeSectionInfo = new CodeSectionInfo();
+            int[] minRequiredCmds;
+            short[] minRequiredDataTypes;
+            short[] minRequiredConstants;
             using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
             {
                 codeSectionInfo.allocatedIdNum = reader.ReadInt32();
                 reader.ReadInt32(); // 确认于易语言V5.71
-                codeSectionInfo.UnknownBeforeLibrary_1 = reader.ReadBytesWithLengthPrefix(); // Unknown
+                minRequiredCmds = reader.ReadInt32sWithByteSizePrefix();
                 if (cryptEc)
                 {
                     reader.ReadInt32();
                     reader.ReadInt32();
-                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
+                    minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                     codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
-                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
+                    minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
                 }
                 else
                 {
-                    codeSectionInfo.UnknownBeforeLibrary_2 = reader.ReadBytesWithLengthPrefix(); // Unknown
-                    codeSectionInfo.UnknownBeforeLibrary_3 = reader.ReadBytesWithLengthPrefix(); // Unknown
+                    minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
+                    minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
                     codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
                     codeSectionInfo.Flag = reader.ReadInt32();
                     codeSectionInfo.MainMethod = reader.ReadInt32();
                 }
-
+                LibraryRefInfo.ApplyCompatibilityInfo(codeSectionInfo.Libraries, minRequiredCmds, minRequiredDataTypes, minRequiredConstants);
                 if ((codeSectionInfo.Flag & 1) != 0)
                 {
                     codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
@@ -112,9 +109,6 @@ namespace QIQI.EProjectFile
         {
             writer.Write(allocatedIdNum);
             writer.Write(51113791); // 确认于易语言V5.71
-            writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_1);
-            writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_2);
-            writer.WriteBytesWithLengthPrefix(UnknownBeforeLibrary_3);
             LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
             writer.Write(Flag);
             writer.Write(MainMethod);

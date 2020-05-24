@@ -14,6 +14,18 @@ namespace QIQI.EProjectFile
         [JsonConverter(typeof(VersionConverter))]
         public Version Version { get; set; }
         public string Name { get; set; }
+        /// <summary>
+        /// 用于支持库版本检查，当支持库文件所包含的 命令 数量少于此值时，IDE将发出 支持库版本不兼容 的警告
+        /// </summary>
+        public int MinRequiredCmd { get; set; }
+        /// <summary>
+        /// 用于支持库版本检查，当支持库文件所包含的 数据类型 数量少于此值时，IDE将发出 支持库版本不兼容 的警告
+        /// </summary>
+        public short MinRequiredDataType { get; set; }
+        /// <summary>
+        /// 用于支持库版本检查，当支持库文件所包含的 常量 数量少于此值时，IDE将发出 支持库版本不兼容 的警告
+        /// </summary>
+        public short MinRequiredConstant { get; set; }
         public static LibraryRefInfo[] ReadLibraries(BinaryReader reader, Encoding encoding)
         {
             return reader.ReadStringsWithMfcStyleCountPrefix(encoding).Select(x =>
@@ -28,9 +40,24 @@ namespace QIQI.EProjectFile
                 };
             }).ToArray();
         }
-        public static void WriteLibraries(BinaryWriter writer, Encoding encoding, LibraryRefInfo[] methods)
+        public static void ApplyCompatibilityInfo(LibraryRefInfo[] infos, int[] minRequiredCmds, short[] minRequiredDataTypes, short[] minRequiredConstants)
         {
-            writer.WriteStringsWithMfcStyleCountPrefix(encoding, methods.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
+            for (int i = 0; i < infos.Length; i++)
+            {
+                infos[i].MinRequiredCmd = minRequiredCmds != null && i < minRequiredCmds.Length
+                    ? minRequiredCmds[i] : 0;
+                infos[i].MinRequiredDataType = minRequiredDataTypes != null && i < minRequiredDataTypes.Length
+                    ? minRequiredDataTypes[i] : (short)0;
+                infos[i].MinRequiredConstant = minRequiredConstants != null && i < minRequiredConstants.Length
+                    ? minRequiredConstants[i] : (short)0;
+            }
+        }
+        public static void WriteLibraries(BinaryWriter writer, Encoding encoding, LibraryRefInfo[] libraryRef)
+        {
+            writer.WriteInt32sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredCmd).ToArray());
+            writer.WriteInt16sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredDataType).ToArray());
+            writer.WriteInt16sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredConstant).ToArray());
+            writer.WriteStringsWithMfcStyleCountPrefix(encoding, libraryRef.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
         }
         public override string ToString()
         {

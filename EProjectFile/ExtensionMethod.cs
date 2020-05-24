@@ -68,7 +68,12 @@ namespace QIQI.EProjectFile
 
         public static string[] ReadStringsWithMfcStyleCountPrefix(this BinaryReader reader, Encoding encoding)
         {
-            return new object[ReadMfcStyleCountPrefix(reader)].Select(x => reader.ReadStringWithLengthPrefix(encoding)).ToArray();
+            var result = new string[ReadMfcStyleCountPrefix(reader)];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = reader.ReadStringWithLengthPrefix(encoding);
+            }
+            return result;
         }
         public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
             this BinaryReader reader,
@@ -146,16 +151,47 @@ namespace QIQI.EProjectFile
 
         public static int[] ReadInt32sWithFixedLength(this BinaryReader reader, int count)
         {
-            return new object[count].Select(x => reader.ReadInt32()).ToArray();
+            var result = new int[count];
+            for (int i = 0; i < count; i++)
+            {
+                result[i] = reader.ReadInt32();
+            }
+            return result;
         }
         public static int[] ReadInt32sWithLengthPrefix(this BinaryReader reader)
         {
             return reader.ReadInt32sWithFixedLength(reader.ReadInt32());
         }
+        public static int[] ReadInt32sWithByteSizePrefix(this BinaryReader reader)
+        {
+            return reader.ReadInt32sWithFixedLength(reader.ReadInt32() / sizeof(int));
+        }
+
+        public static short[] ReadInt16sWithFixedLength(this BinaryReader reader, int count)
+        {
+            var result = new short[count];
+            for (int i = 0; i < count; i++)
+            {
+                result[i] = reader.ReadInt16();
+            }
+            return result;
+        }
+        public static short[] ReadInt16sWithLengthPrefix(this BinaryReader reader)
+        {
+            return reader.ReadInt16sWithFixedLength(reader.ReadInt32());
+        }
+        public static short[] ReadInt16sWithByteSizePrefix(this BinaryReader reader)
+        {
+            return reader.ReadInt16sWithFixedLength(reader.ReadInt32() / sizeof(short));
+        }
 
         public static void WriteBytesWithLengthPrefix(this BinaryWriter writer, byte[] data)
         {
-            if (data == null) data = new byte[] { };
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
             writer.Write(data.Length);
             writer.Write(data);
         }
@@ -166,9 +202,48 @@ namespace QIQI.EProjectFile
         }
         public static void WriteInt32sWithLengthPrefix(this BinaryWriter writer, int[] data)
         {
-            if (data == null) data = new int[] { };
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
             writer.Write(data.Length);
             writer.WriteInt32sWithoutLengthPrefix(data);
+        }
+        public static void WriteInt32sWithByteSizePrefix(this BinaryWriter writer, int[] data)
+        {
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
+            writer.Write(data.Length * sizeof(int));
+            writer.WriteInt32sWithoutLengthPrefix(data);
+        }
+        public static void WriteInt16sWithoutLengthPrefix(this BinaryWriter writer, short[] data)
+        {
+            if (data == null) return;
+            Array.ForEach(data, x => writer.Write(x));
+        }
+        public static void WriteInt16sWithLengthPrefix(this BinaryWriter writer, short[] data)
+        {
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
+            writer.Write(data.Length);
+            writer.WriteInt16sWithoutLengthPrefix(data);
+        }
+        public static void WriteInt16sWithByteSizePrefix(this BinaryWriter writer, short[] data)
+        {
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
+            writer.Write(data.Length * sizeof(short));
+            writer.WriteInt16sWithoutLengthPrefix(data);
         }
         public static void WriteStringWithFixedLength(this BinaryWriter writer, Encoding encoding, string data, int length)
         {
@@ -215,7 +290,11 @@ namespace QIQI.EProjectFile
         }
         public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, Encoding encoding, string[] data)
         {
-            if (data == null) data = new string[] { };
+            if (data == null)
+            {
+                writer.WriteMfcStyleCountPrefix(0);
+                return;
+            }
             writer.WriteMfcStyleCountPrefix(data.Length);
             Array.ForEach(data, x => writer.WriteStringWithLengthPrefix(encoding, x));
         }
