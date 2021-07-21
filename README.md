@@ -108,4 +108,4 @@ projectFile.Save(File.Create(fileName));
 | 东灿 | [最早开源的项目文件结构分析代码](https://bbs.125.la/forum.php?mod=viewthread&tid=13751690) |
 | 曙光 | 最早开源的代码数据解析软件 |
 | 为你芯冻 | [e.net](https://github.com/wnxd/e.net)（包含一定的项目解析代码） |
-| JimStone（谢栋） | 支持库兼容性信息分析 OpenEpl/EProjectFile@80348c3e42d775c1b2f2c45af699356c46b3503d |
+| JimStone（谢栋） | 支持库兼容性信息分析 [`80348c3`](https://github.com/OpenEpl/EProjectFile/commit/80348c3e42d775c1b2f2c45af699356c46b3503d) |
