@@ -2,7 +2,7 @@
 
 # EProjectFile
 一个用于编辑易语言项目文件的第三方库（C#）  
-[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile) [![CodeFactor](https://www.codefactor.io/repository/github/openepl/eprojectfile/badge)](https://www.codefactor.io/repository/github/openepl/eprojectfile)  
+[![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile)  
 命名空间：`QIQI.EProjectFile`  
 
 # 安装
