@@ -208,11 +208,11 @@ namespace QIQI.EProjectFile
             }
             else if (IdTypeName.TryGetValue(EplSystemId.GetType(id), out result))
             {
-                return $"_{result}_0x{(id & EplSystemId.Mask_Num).ToString("X6")}";
+                return $"_{result}_0x{id & EplSystemId.Mask_Num:X6}";
             }
             else
             {
-                return $"_User_0x{id.ToString("X8")}";
+                return $"_User_0x{id:X8}";
             }
         }
         public string GetLibCmdName(int lib, int id)

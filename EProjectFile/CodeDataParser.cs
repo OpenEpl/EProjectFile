@@ -425,7 +425,7 @@ namespace QIQI.EProjectFile
                         result = new NumberLiteral(reader.ReadInt32());
                         break;
                     default:
-                        throw new Exception($"Unknown Type: {type.ToString("X2")}");
+                        throw new Exception($"Unknown Type: {type:X2}");
                 }
                 break;
             }
