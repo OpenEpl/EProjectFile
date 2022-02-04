@@ -220,7 +220,7 @@ namespace QIQI.EProjectFile
                     valueCode = $"\"{Value}\"";
                     break;
             }
-            result.AppendFormat(".常量 {0}, {1}, {2}, {3}", Name, valueCode, Public ? "公开" : "", Comment);
+            result.AppendFormat(".常量 {0}, {1}, {2}, {3}", nameMap.GetUserDefinedName(Id), valueCode, Public ? "公开" : "", Comment);
         }
         public override string ToString()
         {
