@@ -163,14 +163,15 @@ namespace QIQI.EProjectFile
             if (codeSection.MainMethod != 0) 
             {
                 UserDefinedName[codeSection.MainMethod] = "_启动子程序";
-            }
 
-            // 处理无名对象
-            var needToRemove = new List<int>();
-            foreach (var item in UserDefinedName)
-                if (string.IsNullOrEmpty(item.Value)) 
-                    needToRemove.Add(item.Key);
-            needToRemove.ForEach(x => UserDefinedName.Remove(x));
+                // 处理无名对象
+                // 只针对模块
+                var needToRemove = new List<int>();
+                foreach (var item in UserDefinedName)
+                    if (string.IsNullOrEmpty(item.Value))
+                        needToRemove.Add(item.Key);
+                needToRemove.ForEach(x => UserDefinedName.Remove(x));
+            }
         }
 
         /// <summary>
