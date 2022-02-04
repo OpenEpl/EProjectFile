@@ -42,7 +42,11 @@ namespace QIQI.EProjectFile
         /// </summary>
         private IdToNameMap()
         {
+#if NETSTANDARD1_3_OR_GREATER
+            LibDefinedName = Array.Empty<LibInfo.LibInfo>();
+#else
             LibDefinedName = new LibInfo.LibInfo[0];
+#endif
             UserDefinedName = new Dictionary<int, string>();
             MethodIdToClassId = new Dictionary<int, int>();
         }
