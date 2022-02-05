@@ -38,6 +38,8 @@ namespace QIQI.EProjectFile
         public const int Type_Struct = 0x41000000;
         public const int Type_DllParameter = 0x45000000;
         public const int Type_Class = 0x49000000;
+        public const int Type_Form = 0x52000000;
+        public const int Type_FormSelf = 0x06000000;
         public const int Mask_Num = 0x00FFFFFF;
         public const int Mask_Type = unchecked((int)0xFF000000);
 

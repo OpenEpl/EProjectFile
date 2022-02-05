@@ -28,11 +28,30 @@ namespace QIQI.EProjectFile.Expressions
 
         public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
         {
-            Target.ToTextCode(nameMap, result, indent);
-            result.Append(".");
+            if (Target is VariableExpression varExpr
+                && EplSystemId.GetType(varExpr.Id) == EplSystemId.Type_FormSelf)
+            {
+                // 在窗口程序集直接访问窗口系统属性的情况
+                // Do nothing
+            }
+            else
+            {
+                Target.ToTextCode(nameMap, result, indent);
+                result.Append(".");
+            }
             if (LibraryId == -2)
             {
-                result.Append(nameMap.GetUserDefinedName(MemberId));
+                // 当出现 窗口名.xxx 访问模式
+                // 既有可能为 窗口.系统属性 也有可能为 窗口.用户窗口组件名
+                if (EplSystemId.GetType(StructId) == EplSystemId.Type_Form 
+                    && (MemberId & 0xFF000000) == 0)
+                {
+                    result.Append(nameMap.GetLibTypeMemberName(0, 0, MemberId - 1));
+                }
+                else
+                {
+                    result.Append(nameMap.GetUserDefinedName(MemberId));
+                }
             }
             else
             {
