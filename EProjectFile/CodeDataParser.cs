@@ -441,10 +441,16 @@ namespace QIQI.EProjectFile
                     {
                         case 0x39:
                             int memberId = reader.ReadInt32();
-                            if (EplSystemId.GetType(memberId) == EplSystemId.Type_StructMember)
-                                result = new AccessMemberExpression(result, reader.ReadInt32(), memberId);
+                            int structId = reader.ReadInt32();
+                            if (EplSystemId.IsLibDataType(structId))
+                            {
+                                EplSystemId.DecomposeLibDataTypeId(structId, out var libId, out var structIdInLibId);
+                                result = new AccessMemberExpression(result, libId, structIdInLibId, memberId - 1);
+                            }
                             else
-                                result = new AccessMemberExpression(result, (short)(reader.ReadInt16() - 1), (short)(reader.ReadInt16() - 1), memberId - 1);
+                            {
+                                result = new AccessMemberExpression(result, structId, memberId);
+                            }
                             break;
                         case 0x3A:
                             result = new AccessArrayExpression(result, ParseExpression(reader, encoding, false));

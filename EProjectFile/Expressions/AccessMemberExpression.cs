@@ -18,11 +18,11 @@ namespace QIQI.EProjectFile.Expressions
             StructId = structId;
             MemberId = memberId;
         }
-        public AccessMemberExpression(Expression target, int structId, short libraryId, int memberId)
+        public AccessMemberExpression(Expression target, short libraryId, int structId, int memberId)
         {
             Target = target;
-            StructId = structId;
             LibraryId = libraryId;
+            StructId = structId;
             MemberId = memberId;
         }
 
@@ -30,7 +30,14 @@ namespace QIQI.EProjectFile.Expressions
         {
             Target.ToTextCode(nameMap, result, indent);
             result.Append(".");
-            result.Append(LibraryId == -2 ? nameMap.GetUserDefinedName(MemberId) : nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
+            if (LibraryId == -2)
+            {
+                result.Append(nameMap.GetUserDefinedName(MemberId));
+            }
+            else
+            {
+                result.Append(nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
+            }
         }
 
         internal override void WriteTo(MethodCodeDataWriterArgs a, bool need0x1DAnd0x37)
