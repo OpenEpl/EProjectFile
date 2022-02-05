@@ -70,7 +70,7 @@ namespace QIQI.EProjectFile
 
         public static int MakeSureIsSpecifiedType(int id, params int[] type) => Array.IndexOf(type, GetType(id)) >= 0 ? id : throw new Exception("不是指定类型的Id");
 
-        public static bool IsLibDataType(int id) => (id & 0xF0000000) == 0 && id != DataType_Void;
+        public static bool IsLibDataType(int id) => (id & 0xFF000000) == 0 && id != DataType_Void;
 
         /// <summary>
         /// 合成库类型Id
