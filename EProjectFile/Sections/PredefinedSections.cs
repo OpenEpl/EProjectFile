@@ -7,7 +7,7 @@ namespace QIQI.EProjectFile.Sections
 {
     public class PredefinedSections
     {
-        public static Dictionary<int, ISectionKey<ISection>> Keys = new ISectionKey<ISection>[]{
+        public static Dictionary<int, ISectionKey<ISection>> Keys { get; } = new ISectionKey<ISection>[]{
             ESystemInfoSection.Key,
             ProjectConfigSection.Key,
             ResourceSection.Key,
