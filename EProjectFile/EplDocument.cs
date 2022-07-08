@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Sections;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,15 +7,15 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class EProjectFile
+    public class EplDocument
     {
-        public List<ISectionInfo> Sections { get; } = new List<ISectionInfo>();
+        public List<ISection> Sections { get; } = new List<ISection>();
         public Encoding DetermineEncoding()
         {
-            return GetOrNull(ESystemInfo.Key)?.DetermineEncoding() ?? Encoding.GetEncoding("gbk");
+            return GetOrNull(ESystemInfoSection.Key)?.DetermineEncoding() ?? Encoding.GetEncoding("gbk");
         }
 
-        public TSection GetOrNull<TSection>(ISectionInfoKey<TSection> key) where TSection : ISectionInfo
+        public TSection GetOrNull<TSection>(ISectionKey<TSection> key) where TSection : ISection
         {
             if (Sections.FirstOrDefault(x => x.SectionKey == key.SectionKey) is TSection it)
             {
@@ -26,7 +27,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public TSection Get<TSection>(ISectionInfoKey<TSection> key) where TSection : ISectionInfo
+        public TSection Get<TSection>(ISectionKey<TSection> key) where TSection : ISection
         {
             return (TSection)Sections.First(x => x.SectionKey == key.SectionKey);
         }
@@ -40,7 +41,7 @@ namespace QIQI.EProjectFile
                 while (!reader.IsFinish)
                 {
                     var rawSection = reader.ReadSection();
-                    ISectionInfo section;
+                    ISection section;
                     if (PredefinedSections.Keys.TryGetValue(rawSection.Key, out var sectionKey))
                     {
                         section = sectionKey.Parse(rawSection.Data, encoding, reader.CryptEc);
@@ -49,7 +50,7 @@ namespace QIQI.EProjectFile
                     {
                         section = new GeneralSection(rawSection);
                     }
-                    if (section is ESystemInfo systemInfo)
+                    if (section is ESystemInfoSection systemInfo)
                     {
                         encoding = systemInfo.DetermineEncoding();
                     }
@@ -67,7 +68,7 @@ namespace QIQI.EProjectFile
             {
                 foreach (var section in Sections)
                 {
-                    if (section is ESystemInfo systemInfo)
+                    if (section is ESystemInfoSection systemInfo)
                     {
                         encoding = systemInfo.DetermineEncoding();
                     }

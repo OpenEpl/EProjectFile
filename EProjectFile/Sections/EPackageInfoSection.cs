@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class EPackageInfo: ISectionInfo
+    public class EPackageInfoSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<EPackageInfo>
+        private class KeyImpl : ISectionKey<EPackageInfoSection>
         {
             public string SectionName => "易包信息段1";
             public int SectionKey => 0x0D007319;
             public bool IsOptional => true;
 
-            public EPackageInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public EPackageInfoSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var packageInfo = new EPackageInfo();
+                var packageInfo = new EPackageInfoSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     var nameList = new List<string>();
@@ -35,7 +35,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<EPackageInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<EPackageInfoSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

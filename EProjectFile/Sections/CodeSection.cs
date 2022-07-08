@@ -3,19 +3,19 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class CodeSectionInfo : IToTextCodeAble, ISectionInfo
+    public class CodeSection : IToTextCodeAble, ISection
     {
-        private class KeyImpl : ISectionInfoKey<CodeSectionInfo>
+        private class KeyImpl : ISectionKey<CodeSection>
         {
             public string SectionName => "程序段";
             public int SectionKey => 0x03007319;
             public bool IsOptional => false;
 
-            public CodeSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public CodeSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var codeSectionInfo = new CodeSectionInfo();
+                var codeSectionInfo = new CodeSection();
                 int[] minRequiredCmds;
                 short[] minRequiredDataTypes;
                 short[] minRequiredConstants;
@@ -71,7 +71,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<CodeSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<CodeSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

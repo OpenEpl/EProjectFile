@@ -2,23 +2,24 @@
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using QIQI.EProjectFile.Sections;
 
 namespace QIQI.EProjectFile
 {
-    public class ResourceSectionInfo : IToTextCodeAble, ISectionInfo
+    public class ResourceSection : IToTextCodeAble, ISection
     {
-        private class KeyImpl : ISectionInfoKey<ResourceSectionInfo>
+        private class KeyImpl : ISectionKey<ResourceSection>
         {
             public string SectionName => "程序资源段";
             public int SectionKey => 0x04007319;
             public bool IsOptional => false;
 
-            public ResourceSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ResourceSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                ResourceSectionInfo resourceSectionInfo;
+                ResourceSection resourceSectionInfo;
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
-                    resourceSectionInfo = new ResourceSectionInfo()
+                    resourceSectionInfo = new ResourceSection()
                     {
                         Forms = FormInfo.ReadForms(reader, encoding),
                         Constants = ConstantInfo.ReadConstants(reader, encoding)
@@ -28,7 +29,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<ResourceSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<ResourceSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

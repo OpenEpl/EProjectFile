@@ -3,19 +3,19 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class InitEcSectionInfo: ISectionInfo
+    public class InitECSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<InitEcSectionInfo>
+        private class KeyImpl : ISectionKey<InitECSection>
         {
             public string SectionName => "初始模块段";
             public int SectionKey => 0x08007319;
             public bool IsOptional => false;
 
-            public InitEcSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public InitECSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var initEcSectionInfo = new InitEcSectionInfo();
+                var initEcSectionInfo = new InitECSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     initEcSectionInfo.EcName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
@@ -25,7 +25,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<InitEcSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<InitECSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

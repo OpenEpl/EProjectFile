@@ -4,11 +4,11 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class EndOfFileSection : ISectionInfo
+    public class EndOfFileSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<EndOfFileSection>
+        private class KeyImpl : ISectionKey<EndOfFileSection>
         {
             public string SectionName => "";
             public int SectionKey => 0x07007319;
@@ -24,7 +24,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<EndOfFileSection> Key = new KeyImpl();
+        public static readonly ISectionKey<EndOfFileSection> Key = new KeyImpl();
 
         public static EndOfFileSection Instance { get; } = new EndOfFileSection();
         private EndOfFileSection()

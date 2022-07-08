@@ -3,6 +3,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Linq;
+using QIQI.EProjectFile.Sections;
+
 namespace QIQI.EProjectFile
 {
     public class ClassInfo : IHasId, IToTextCodeAble
@@ -83,7 +85,7 @@ namespace QIQI.EProjectFile
         /// <param name="indent">起始缩进</param>
         /// <param name="codeSection">若为null，不写出下属方法</param>
         /// <param name="writeCode">是否输出子程序代码</param>
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, CodeSectionInfo codeSection, bool writeCode = true)
+        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, CodeSection codeSection, bool writeCode = true)
         {
             TextCodeUtils.WriteDefinedCode(result, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
             result.AppendLine();

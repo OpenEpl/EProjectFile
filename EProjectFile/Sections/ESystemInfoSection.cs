@@ -4,19 +4,19 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class ESystemInfo: ISectionInfo
+    public class ESystemInfoSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<ESystemInfo>
+        private class KeyImpl : ISectionKey<ESystemInfoSection>
         {
             public string SectionName => "系统信息段";
             public int SectionKey => 0x02007319;
             public bool IsOptional => false;
 
-            public ESystemInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ESystemInfoSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var systemInfo = new ESystemInfo();
+                var systemInfo = new ESystemInfoSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false)))
                 {
                     systemInfo.ESystemVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
@@ -30,7 +30,7 @@ namespace QIQI.EProjectFile
                 return systemInfo;
             }
         }
-        public static readonly ISectionInfoKey<ESystemInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<ESystemInfoSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

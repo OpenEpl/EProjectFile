@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using QIQI.EProjectFile.Sections;
+
 namespace QIQI.EProjectFile
 {
     internal class TextCodeUtils
@@ -48,7 +50,7 @@ namespace QIQI.EProjectFile
         {
             WriteJoinCode(items, separator, builder, x => x.ToTextCode(nameMap, builder, indent));
         }
-        public static void WriteJoinCode(IEnumerable<ClassInfo> items, string separator, CodeSectionInfo codeSection, IdToNameMap nameMap, StringBuilder builder, int indent, bool writeCode = true)
+        public static void WriteJoinCode(IEnumerable<ClassInfo> items, string separator, CodeSection codeSection, IdToNameMap nameMap, StringBuilder builder, int indent, bool writeCode = true)
         {
             WriteJoinCode(items, separator, builder, x => x.ToTextCode(nameMap, builder, indent, codeSection, writeCode));
         }

@@ -9,17 +9,17 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Title>Epl Project Editor</Title>
     <Description>Epl Project Editor</Description>
-    <Company>QIQI&lt;Email: 1354092549@qq.com&gt;</Company>
+    <Company>OpenEpl</Company>
     <Copyright>A free and unencumbered software released into the public domain (https://unlicense.org/)</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>QIQI.EProjectFile</PackageId>
     <Tags>EPL</Tags>
-    <Authors>QIQI</Authors>
-    <PackageProjectUrl>https://github.com/1354092549/EProjectFile</PackageProjectUrl>
+    <Authors>OpenEpl</Authors>
+    <PackageProjectUrl>https://github.com/OpenEpl/EProjectFile</PackageProjectUrl>
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
-    <PackageVersion>1.3.6</PackageVersion>
-    <Version>1.3.6</Version>
+    <PackageVersion>1.4.0</PackageVersion>
+    <Version>1.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +28,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    
+
     <Content Include="bin/Release/LibNameInfoToJson.exe;QIQI.EProjectFile.targets">
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>

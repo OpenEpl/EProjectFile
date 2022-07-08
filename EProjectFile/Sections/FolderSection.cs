@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class FolderSectionInfo: ISectionInfo
+    public class FolderSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<FolderSectionInfo>
+        private class KeyImpl : ISectionKey<FolderSection>
         {
             public string SectionName => "编辑过滤器信息段";
             public int SectionKey => 0x0E007319;
             public bool IsOptional => true;
 
-            public FolderSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public FolderSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var folderSectionInfo = new FolderSectionInfo();
+                var folderSectionInfo = new FolderSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     folderSectionInfo.allocatedKey = reader.ReadInt32();
@@ -36,7 +36,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<FolderSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<FolderSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

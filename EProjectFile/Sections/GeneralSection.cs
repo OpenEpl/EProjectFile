@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class GeneralSection : ISectionInfo
+    public class GeneralSection : ISection
     {
         private RawSectionInfo raw;
 

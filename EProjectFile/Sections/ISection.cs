@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public interface ISectionInfo
+    public interface ISection
     {
         string SectionName { get; }
         int SectionKey { get; }
@@ -14,10 +14,10 @@ namespace QIQI.EProjectFile
     }
 
     /// <summary>
-    /// 注意：不是所有的 ISectionInfo 都必须带有 Key
+    /// 注意：不是所有的 ISection 都必须带有 Key
     /// </summary>
     /// <typeparam name="TSection"></typeparam>
-    public interface ISectionInfoKey<out TSection> where TSection : ISectionInfo
+    public interface ISectionKey<out TSection> where TSection : ISection
     {
         string SectionName { get; }
         int SectionKey { get; }

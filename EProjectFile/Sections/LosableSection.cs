@@ -4,19 +4,19 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class LosableSectionInfo : ISectionInfo
+    public class LosableSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<LosableSectionInfo>
+        private class KeyImpl : ISectionKey<LosableSection>
         {
             public string SectionName => "可丢失程序段";
             public int SectionKey => 0x05007319;
             public bool IsOptional => true;
 
-            public LosableSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public LosableSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var losableSectionInfo = new LosableSectionInfo();
+                var losableSectionInfo = new LosableSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
@@ -26,7 +26,7 @@ namespace QIQI.EProjectFile
                 return losableSectionInfo;
             }
         }
-        public static readonly ISectionInfoKey<LosableSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<LosableSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

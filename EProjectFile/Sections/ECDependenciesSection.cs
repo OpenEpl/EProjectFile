@@ -5,19 +5,19 @@ using System.Text;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class ECDependenciesSectionInfo : ISectionInfo
+    public class ECDependenciesSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<ECDependenciesSectionInfo>
+        private class KeyImpl : ISectionKey<ECDependenciesSection>
         {
             public string SectionName => "易模块记录段";
             public int SectionKey => 0x0C007319;
             public bool IsOptional => false;
 
-            public ECDependenciesSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ECDependenciesSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var that = new ECDependenciesSectionInfo();
+                var that = new ECDependenciesSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     var count = reader.ReadInt32();
@@ -57,7 +57,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<ECDependenciesSectionInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<ECDependenciesSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;

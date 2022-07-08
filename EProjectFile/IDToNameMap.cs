@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Sections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -76,7 +77,7 @@ namespace QIQI.EProjectFile
         /// </summary>
         /// <param name="codeSection">程序段</param>
         /// <param name="resourceSection">资源段</param>
-        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection) : this(codeSection, resourceSection, null)
+        public IdToNameMap(CodeSection codeSection, ResourceSection resourceSection) : this(codeSection, resourceSection, null)
         {
 
         }
@@ -87,7 +88,7 @@ namespace QIQI.EProjectFile
         /// <param name="codeSection">程序段</param>
         /// <param name="resourceSection">资源段</param>
         /// <param name="losableSection">可丢失程序段</param>
-        public IdToNameMap(CodeSectionInfo codeSection, ResourceSectionInfo resourceSection, LosableSectionInfo losableSection) : this(codeSection?.Libraries)
+        public IdToNameMap(CodeSection codeSection, ResourceSection resourceSection, LosableSection losableSection) : this(codeSection?.Libraries)
         {
             if (codeSection != null)
             {
@@ -178,7 +179,7 @@ namespace QIQI.EProjectFile
         /// 首选构造方法
         /// </summary>
         /// <param name="source">源码文件</param>
-        public IdToNameMap(EProjectFile source) : this(source.GetOrNull(CodeSectionInfo.Key), source.GetOrNull(ResourceSectionInfo.Key), source.GetOrNull(LosableSectionInfo.Key))
+        public IdToNameMap(EplDocument source) : this(source.GetOrNull(CodeSection.Key), source.GetOrNull(ResourceSection.Key), source.GetOrNull(LosableSection.Key))
         {
 
         }

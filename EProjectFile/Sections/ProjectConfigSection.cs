@@ -4,19 +4,19 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Sections
 {
-    public class ProjectConfigInfo : ISectionInfo
+    public class ProjectConfigSection : ISection
     {
-        private class KeyImpl : ISectionInfoKey<ProjectConfigInfo>
+        private class KeyImpl : ISectionKey<ProjectConfigSection>
         {
             public string SectionName => "用户信息段";
             public int SectionKey => 0x01007319;
             public bool IsOptional => false;
 
-            public ProjectConfigInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ProjectConfigSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var projectConfig = new ProjectConfigInfo();
+                var projectConfig = new ProjectConfigSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     projectConfig.Name = reader.ReadStringWithLengthPrefix(encoding);
@@ -39,7 +39,7 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public static readonly ISectionInfoKey<ProjectConfigInfo> Key = new KeyImpl();
+        public static readonly ISectionKey<ProjectConfigSection> Key = new KeyImpl();
         public string SectionName => Key.SectionName;
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
