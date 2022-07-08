@@ -15,13 +15,13 @@ namespace QIQI.EProjectFile.Sections
 
             public InitECSection Parse(byte[] data, Encoding encoding, bool cryptEC)
             {
-                var initEcSectionInfo = new InitECSection();
+                var that = new InitECSection();
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
-                    initEcSectionInfo.EcName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
-                    initEcSectionInfo.InitMethod = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4);
+                    that.ECName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
+                    that.InitMethod = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4);
                 }
-                return initEcSectionInfo;
+                return that;
             }
         }
 
@@ -30,7 +30,7 @@ namespace QIQI.EProjectFile.Sections
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
 
-        public string[] EcName { get; set; }
+        public string[] ECName { get; set; }
         public int[] InitMethod { get; set; }
         public byte[] ToBytes(Encoding encoding)
         {
@@ -45,7 +45,7 @@ namespace QIQI.EProjectFile.Sections
         }
         private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
-            writer.WriteStringsWithMfcStyleCountPrefix(encoding, EcName);
+            writer.WriteStringsWithMfcStyleCountPrefix(encoding, ECName);
             writer.Write(InitMethod.Length * 4);
             writer.WriteInt32sWithoutLengthPrefix(InitMethod);
         }

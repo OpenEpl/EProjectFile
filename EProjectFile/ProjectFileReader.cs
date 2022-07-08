@@ -11,7 +11,7 @@ namespace QIQI.EProjectFile
         public bool IsFinish { get; private set; } = false;
 
         private BinaryReader reader;
-        public bool CryptEc { get; } = false;
+        public bool CryptEC { get; } = false;
 
         public ProjectFileReader(Stream stream, OnInputPassword inputPassword = null)
         {
@@ -39,7 +39,7 @@ namespace QIQI.EProjectFile
                 {
                     throw new Exception("密码错误"); 
                 }
-                CryptEc = true;
+                CryptEC = true;
 
                 magic1 = reader.ReadInt32();
                 magic2 = reader.ReadInt32();
@@ -69,7 +69,7 @@ namespace QIQI.EProjectFile
             section.IsOptional = reader.ReadInt32() != 0;
             reader.ReadInt32(); // Skip DataCheckSum
             int dataLength = reader.ReadInt32();
-            if (CryptEc)
+            if (CryptEC)
             {
                 dataLength ^= 1;
             }

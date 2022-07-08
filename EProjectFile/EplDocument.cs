@@ -44,7 +44,7 @@ namespace QIQI.EProjectFile
                     ISection section;
                     if (PredefinedSections.Keys.TryGetValue(rawSection.Key, out var sectionKey))
                     {
-                        section = sectionKey.Parse(rawSection.Data, encoding, reader.CryptEc);
+                        section = sectionKey.Parse(rawSection.Data, encoding, reader.CryptEC);
                     }
                     else
                     {
