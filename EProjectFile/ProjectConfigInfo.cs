@@ -6,10 +6,44 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class ProjectConfigInfo
+    public class ProjectConfigInfo : ISectionInfo
     {
-        public const string SectionName = "用户信息段";
-        public const int SectionKey = 0x01007319;
+        private class KeyImpl : ISectionInfoKey<ProjectConfigInfo>
+        {
+            public string SectionName => "用户信息段";
+            public int SectionKey => 0x01007319;
+            public bool IsOptional => false;
+
+            public ProjectConfigInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var projectConfig = new ProjectConfigInfo();
+                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                {
+                    projectConfig.Name = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Description = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Author = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.ZipCode = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Address = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.TelephoneNumber = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.FaxNumber = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Email = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Homepage = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Copyright = reader.ReadStringWithLengthPrefix(encoding);
+                    projectConfig.Version = new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+                    projectConfig.WriteVersion = reader.ReadInt32() == 0;
+                    projectConfig.CompilePlugins = reader.ReadStringWithFixedLength(encoding, 20);
+                    projectConfig.ExportPublicClassMethod = reader.ReadInt32() != 0;
+                    reader.ReadInt32(); // Unknown
+                }
+                return projectConfig;
+            }
+        }
+
+        public static readonly ISectionInfoKey<ProjectConfigInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         public string Name { get; set; }
         public string Description { get; set; }
         public string Author { get; set; }
@@ -25,33 +59,6 @@ namespace QIQI.EProjectFile
         public bool WriteVersion { get; set; }
         public string CompilePlugins { get; set; }
         public bool ExportPublicClassMethod { get; set; }
-        [Obsolete]
-        public static ProjectConfigInfo Parse(byte[] data) => Parse(data, Encoding.GetEncoding("gbk"));
-        public static ProjectConfigInfo Parse(byte[] data, Encoding encoding)
-        {
-            var projectConfig = new ProjectConfigInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
-            {
-                projectConfig.Name = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Description = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Author = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.ZipCode = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Address = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.TelephoneNumber = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.FaxNumber = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Email = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Homepage = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Copyright = reader.ReadStringWithLengthPrefix(encoding);
-                projectConfig.Version = new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-                projectConfig.WriteVersion = reader.ReadInt32() == 0;
-                projectConfig.CompilePlugins = reader.ReadStringWithFixedLength(encoding, 20);
-                projectConfig.ExportPublicClassMethod = reader.ReadInt32() != 0;
-                reader.ReadInt32(); // Unknown
-            }
-            return projectConfig;
-        }
-        [Obsolete]
-        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

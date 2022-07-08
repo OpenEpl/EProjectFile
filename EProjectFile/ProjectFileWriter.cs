@@ -13,7 +13,7 @@ namespace QIQI.EProjectFile
             writer = new BinaryWriter(stream);
             writer.Write(0x4752504554574E43L); // CNWTEPRG
         }
-        public void WriteSection(SectionInfo section)
+        public void WriteSection(RawSectionInfo section)
         {
             index++;
 
@@ -26,7 +26,7 @@ namespace QIQI.EProjectFile
                 headerWriter.Write(EncodeName(section.Key, section.Name));
                 headerWriter.Write(new byte[2]);
                 headerWriter.Write(index); // 从1开始
-                headerWriter.Write(section.CanSkip ? 1 : 0);
+                headerWriter.Write(section.IsOptional ? 1 : 0);
                 headerWriter.Write(GetCheckSum(section.Data));
                 headerWriter.Write(section.Data.Length);
                 headerWriter.Write(new byte[40]);

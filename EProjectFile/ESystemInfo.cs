@@ -6,10 +6,35 @@ using Newtonsoft.Json.Converters;
 
 namespace QIQI.EProjectFile
 {
-    public class ESystemInfo
+    public class ESystemInfo: ISectionInfo
     {
-        public const string SectionName = "系统信息段";
-        public const int SectionKey = 0x02007319;
+        private class KeyImpl : ISectionInfoKey<ESystemInfo>
+        {
+            public string SectionName => "系统信息段";
+            public int SectionKey => 0x02007319;
+            public bool IsOptional => false;
+
+            public ESystemInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var systemInfo = new ESystemInfo();
+                using (var reader = new BinaryReader(new MemoryStream(data, false)))
+                {
+                    systemInfo.ESystemVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
+                    reader.ReadInt32(); // Skip Unknown
+                    systemInfo.Language = reader.ReadInt32();
+                    systemInfo.EProjectFormatVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
+                    systemInfo.FileType = reader.ReadInt32();
+                    reader.ReadInt32(); // Skip Unknown
+                    systemInfo.ProjectType = reader.ReadInt32();
+                }
+                return systemInfo;
+            }
+        }
+        public static readonly ISectionInfoKey<ESystemInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         [JsonConverter(typeof(VersionConverter))]
         public Version ESystemVersion { get; set; }
         /// <summary>
@@ -17,21 +42,18 @@ namespace QIQI.EProjectFile
         /// </summary>
         public int Language { get; set; } = 1;
 
-        [JsonIgnore]
-        public Encoding Encoding
+        public Encoding DetermineEncoding()
         {
-            get {
-                switch (Language)
-                {
-                    case 2:
-                        return Encoding.ASCII;
-                    case 3:
-                        return Encoding.GetEncoding("big5");
-                    case 4:
-                        return Encoding.GetEncoding("sjis");
-                    default:
-                        return Encoding.GetEncoding("gbk");
-                }
+            switch (Language)
+            {
+                case 2:
+                    return Encoding.ASCII;
+                case 3:
+                    return Encoding.GetEncoding("big5");
+                case 4:
+                    return Encoding.GetEncoding("sjis");
+                default:
+                    return Encoding.GetEncoding("gbk");
             }
         }
 
@@ -44,22 +66,7 @@ namespace QIQI.EProjectFile
 
         public int ProjectType { get; set; }
 
-        public static ESystemInfo Parse(byte[] data)
-        {
-            var systemInfo = new ESystemInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false)))
-            {
-                systemInfo.ESystemVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
-                reader.ReadInt32(); // Skip Unknown
-                systemInfo.Language = reader.ReadInt32();
-                systemInfo.EProjectFormatVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
-                systemInfo.FileType = reader.ReadInt32();
-                reader.ReadInt32(); // Skip Unknown
-                systemInfo.ProjectType = reader.ReadInt32();
-            }
-            return systemInfo;
-        }
-        public byte[] ToBytes()
+        public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;
             using (var writer = new BinaryWriter(new MemoryStream()))
@@ -70,6 +77,7 @@ namespace QIQI.EProjectFile
             }
             return data;
         }
+
         private void WriteTo(BinaryWriter writer)
         {
             writer.Write((short)ESystemVersion.Major);

@@ -5,10 +5,77 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class CodeSectionInfo : IToTextCodeAble
+    public class CodeSectionInfo : IToTextCodeAble, ISectionInfo
     {
-        public const string SectionName = "程序段";
-        public const int SectionKey = 0x03007319;
+        private class KeyImpl : ISectionInfoKey<CodeSectionInfo>
+        {
+            public string SectionName => "程序段";
+            public int SectionKey => 0x03007319;
+            public bool IsOptional => false;
+
+            public CodeSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var codeSectionInfo = new CodeSectionInfo();
+                int[] minRequiredCmds;
+                short[] minRequiredDataTypes;
+                short[] minRequiredConstants;
+                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                {
+                    codeSectionInfo.allocatedIdNum = reader.ReadInt32();
+                    reader.ReadInt32(); // 确认于易语言V5.71
+                    minRequiredCmds = reader.ReadInt32sWithByteSizePrefix();
+                    if (cryptEC)
+                    {
+                        reader.ReadInt32();
+                        reader.ReadInt32();
+                        minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
+                        codeSectionInfo.Flag = reader.ReadInt32();
+                        codeSectionInfo.MainMethod = reader.ReadInt32();
+                        codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
+                        minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
+                    }
+                    else
+                    {
+                        minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
+                        minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
+                        codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
+                        codeSectionInfo.Flag = reader.ReadInt32();
+                        codeSectionInfo.MainMethod = reader.ReadInt32();
+                    }
+                    LibraryRefInfo.ApplyCompatibilityInfo(codeSectionInfo.Libraries, minRequiredCmds, minRequiredDataTypes, minRequiredConstants);
+                    if ((codeSectionInfo.Flag & 1) != 0)
+                    {
+                        codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
+                    }
+                    codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
+                    codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix(encoding);
+                    if (cryptEC)
+                    {
+                        reader.ReadBytes(12);
+                        codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
+                        codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
+                        codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
+                        codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
+                        codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
+                    }
+                    else
+                    {
+                        codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
+                        codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
+                        codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
+                        codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
+                        codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
+                    }
+                }
+                return codeSectionInfo;
+            }
+        }
+
+        public static readonly ISectionInfoKey<CodeSectionInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         private int allocatedIdNum;
         public LibraryRefInfo[] Libraries { get; set; }
         public int Flag { get; set; }
@@ -25,64 +92,6 @@ namespace QIQI.EProjectFile
         public GlobalVariableInfo[] GlobalVariables { get; set; }
         public StructInfo[] Structs { get; set; }
         public DllDeclareInfo[] DllDeclares { get; set; }
-        [Obsolete]
-        public static CodeSectionInfo Parse(byte[] data, bool cryptEc = false) => Parse(data, Encoding.GetEncoding("gbk"), cryptEc);
-        public static CodeSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEc = false)
-        {
-            var codeSectionInfo = new CodeSectionInfo();
-            int[] minRequiredCmds;
-            short[] minRequiredDataTypes;
-            short[] minRequiredConstants;
-            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
-            {
-                codeSectionInfo.allocatedIdNum = reader.ReadInt32();
-                reader.ReadInt32(); // 确认于易语言V5.71
-                minRequiredCmds = reader.ReadInt32sWithByteSizePrefix();
-                if (cryptEc)
-                {
-                    reader.ReadInt32();
-                    reader.ReadInt32();
-                    minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
-                    codeSectionInfo.Flag = reader.ReadInt32();
-                    codeSectionInfo.MainMethod = reader.ReadInt32();
-                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
-                    minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
-                }
-                else
-                {
-                    minRequiredDataTypes = reader.ReadInt16sWithByteSizePrefix();
-                    minRequiredConstants = reader.ReadInt16sWithByteSizePrefix();
-                    codeSectionInfo.Libraries = LibraryRefInfo.ReadLibraries(reader, encoding);
-                    codeSectionInfo.Flag = reader.ReadInt32();
-                    codeSectionInfo.MainMethod = reader.ReadInt32();
-                }
-                LibraryRefInfo.ApplyCompatibilityInfo(codeSectionInfo.Libraries, minRequiredCmds, minRequiredDataTypes, minRequiredConstants);
-                if ((codeSectionInfo.Flag & 1) != 0)
-                {
-                    codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
-                }
-                codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
-                codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix(encoding);
-                if (cryptEc)
-                {
-                    reader.ReadBytes(12);
-                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
-                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
-                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
-                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
-                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
-                }
-                else
-                {
-                    codeSectionInfo.Classes = ClassInfo.ReadClasses(reader, encoding);
-                    codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
-                    codeSectionInfo.GlobalVariables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new GlobalVariableInfo(x));
-                    codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
-                    codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
-                }
-            }
-            return codeSectionInfo;
-        }
         /// <summary>
         /// 分配一个Id
         /// </summary>
@@ -92,8 +101,6 @@ namespace QIQI.EProjectFile
         {
             return ++allocatedIdNum | type;
         }
-        [Obsolete]
-        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

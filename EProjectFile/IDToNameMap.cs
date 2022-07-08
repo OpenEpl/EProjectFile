@@ -178,7 +178,7 @@ namespace QIQI.EProjectFile
         /// 首选构造方法
         /// </summary>
         /// <param name="source">源码文件</param>
-        public IdToNameMap(EProjectFile source) : this(source.Code, source.Resource, source.LosableSection)
+        public IdToNameMap(EProjectFile source) : this(source.GetOrNull(CodeSectionInfo.Key), source.GetOrNull(ResourceSectionInfo.Key), source.GetOrNull(LosableSectionInfo.Key))
         {
 
         }

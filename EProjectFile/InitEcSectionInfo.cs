@@ -5,27 +5,33 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class InitEcSectionInfo
+    public class InitEcSectionInfo: ISectionInfo
     {
+        private class KeyImpl : ISectionInfoKey<InitEcSectionInfo>
+        {
+            public string SectionName => "初始模块段";
+            public int SectionKey => 0x08007319;
+            public bool IsOptional => false;
 
-        public const string SectionName = "初始模块段";
-        public const int SectionKey = 0x08007319;
+            public InitEcSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var initEcSectionInfo = new InitEcSectionInfo();
+                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                {
+                    initEcSectionInfo.EcName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
+                    initEcSectionInfo.InitMethod = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4);
+                }
+                return initEcSectionInfo;
+            }
+        }
+
+        public static readonly ISectionInfoKey<InitEcSectionInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         public string[] EcName { get; set; }
         public int[] InitMethod { get; set; }
-        [Obsolete]
-        public static InitEcSectionInfo Parse(byte[] data) => Parse(data, Encoding.GetEncoding("gbk"));
-        public static InitEcSectionInfo Parse(byte[] data, Encoding encoding)
-        {
-            var initEcSectionInfo = new InitEcSectionInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
-            {
-                initEcSectionInfo.EcName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
-                initEcSectionInfo.InitMethod = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4);
-            }
-            return initEcSectionInfo;
-        }
-        [Obsolete]
-        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

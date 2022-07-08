@@ -6,29 +6,35 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class LosableSectionInfo
+    public class LosableSectionInfo : ISectionInfo
     {
-        public const string SectionName = "可丢失程序段";
-        public const int SectionKey = 0x05007319;
+        private class KeyImpl : ISectionInfoKey<LosableSectionInfo>
+        {
+            public string SectionName => "可丢失程序段";
+            public int SectionKey => 0x05007319;
+            public bool IsOptional => true;
+
+            public LosableSectionInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var losableSectionInfo = new LosableSectionInfo();
+                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                {
+                    losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
+                    losableSectionInfo.RemovedDefinedItem = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
+                    losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
+                }
+                return losableSectionInfo;
+            }
+        }
+        public static readonly ISectionInfoKey<LosableSectionInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         public string OutFile { get; set; }
         public RemovedDefinedItemInfo[] RemovedDefinedItem { get; set; }
         [JsonIgnore]
         public byte[] UnknownAfterRemovedDefinedItem { get; set; }
-        [Obsolete]
-        public static LosableSectionInfo Parse(byte[] data) => Parse(data, Encoding.GetEncoding("gbk"));
-        public static LosableSectionInfo Parse(byte[] data, Encoding encoding)
-        {
-            var losableSectionInfo = new LosableSectionInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
-            {
-                losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
-                losableSectionInfo.RemovedDefinedItem = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
-                losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
-            }
-            return losableSectionInfo;
-        }
-        [Obsolete]
-        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

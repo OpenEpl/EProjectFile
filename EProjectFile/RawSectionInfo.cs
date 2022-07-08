@@ -5,7 +5,7 @@ namespace QIQI.EProjectFile
     /// <summary>
     /// 易语言项目文件由多个数据段组成
     /// </summary>
-    public struct SectionInfo
+    public struct RawSectionInfo
     {
         /// <summary>
         /// 数据段的人类辨别名称
@@ -22,13 +22,13 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// 如果易系统版本过低，无法识别本数据段，或本数据段已损坏，此字段将指定是否可以直接跳过。对于重要数据段，此字段通常设置为false，否则设置为true。
         /// </summary>
-        public bool CanSkip;
+        public bool IsOptional;
 
-        public SectionInfo(int key, string name, bool canSkip, byte[] data)
+        public RawSectionInfo(int key, string name, bool canSkip, byte[] data)
         {
             Key = key;
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            CanSkip = canSkip;
+            IsOptional = canSkip;
             Data = data ?? throw new ArgumentNullException(nameof(data));
         }
     }

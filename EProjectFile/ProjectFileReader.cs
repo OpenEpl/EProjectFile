@@ -50,13 +50,13 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public SectionInfo ReadSection()
+        public RawSectionInfo ReadSection()
         {
             if (IsFinish) 
             {
                 throw new EndOfStreamException();
             }
-            SectionInfo section = new SectionInfo();
+            RawSectionInfo section = new RawSectionInfo();
             if (!(reader.ReadInt32() == 0x15117319))
             {
                 throw new Exception("Magic错误");
@@ -66,7 +66,7 @@ namespace QIQI.EProjectFile
             section.Name = DecodeName(section.Key, reader.ReadBytes(30));
             reader.ReadInt16(); // 对齐填充（确认于易语言V5.71）
             reader.ReadInt32(); // Skip Index
-            section.CanSkip = reader.ReadInt32() != 0;
+            section.IsOptional = reader.ReadInt32() != 0;
             reader.ReadInt32(); // Skip DataCheckSum
             int dataLength = reader.ReadInt32();
             if (CryptEc)

@@ -6,36 +6,44 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class EPackageInfo
+    public class EPackageInfo: ISectionInfo
     {
-        public const string SectionName = "易包信息段1";
-        public const int SectionKey = 0x0D007319;
+        private class KeyImpl : ISectionInfoKey<EPackageInfo>
+        {
+            public string SectionName => "易包信息段1";
+            public int SectionKey => 0x0D007319;
+            public bool IsOptional => true;
+
+            public EPackageInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            {
+                var packageInfo = new EPackageInfo();
+                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                {
+                    var nameList = new List<string>();
+                    while (!(reader.BaseStream.Position == reader.BaseStream.Length))
+                    {
+                        var name = reader.ReadStringWithLengthPrefix(encoding);
+                        if ("".Equals(name))
+                        {
+                            name = null;
+                        }
+                        nameList.Add(name);
+                    }
+                    packageInfo.FileNames = nameList.ToArray();
+                }
+                return packageInfo;
+            }
+        }
+
+        public static readonly ISectionInfoKey<EPackageInfo> Key = new KeyImpl();
+        public string SectionName => Key.SectionName;
+        public int SectionKey => Key.SectionKey;
+        public bool IsOptional => Key.IsOptional;
+
         /// <summary>
         /// 与每个子程序一一对应，null表示对应子程序非调用易包的子程序
         /// </summary>
         public string[] FileNames { get; set; }
-        [Obsolete]
-        public static EPackageInfo Parse(byte[] data) => Parse(data, Encoding.GetEncoding("gbk"));
-        public static EPackageInfo Parse(byte[] data, Encoding encoding)
-        {
-            var packageInfo = new EPackageInfo();
-            using (var reader = new BinaryReader(new MemoryStream(data, false), encoding)) {
-                var nameList = new List<string>();
-                while (!(reader.BaseStream.Position == reader.BaseStream.Length))
-                {
-                    var name = reader.ReadStringWithLengthPrefix(encoding);
-                    if ("".Equals(name)) 
-                    {
-                        name = null;
-                    }
-                    nameList.Add(name);
-                }
-                packageInfo.FileNames = nameList.ToArray();
-            }
-            return packageInfo;
-        }
-        [Obsolete]
-        public byte[] ToBytes() => ToBytes(Encoding.GetEncoding("gbk"));
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;
