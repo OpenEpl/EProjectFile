@@ -71,13 +71,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresses = reader.ReadInt32sWithFixedLength(count);
             var methods = new MethodInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var methodInfo = new MethodInfo(ids[i])
                 {
-                    MemoryAddress = memoryAddresss[i],
+                    MemoryAddress = memoryAddresses[i],
                     Class = reader.ReadInt32(),
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),

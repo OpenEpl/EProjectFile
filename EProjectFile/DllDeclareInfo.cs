@@ -29,13 +29,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresses = reader.ReadInt32sWithFixedLength(count);
             var dllDeclares = new DllDeclareInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var dllDeclareInfo = new DllDeclareInfo(ids[i])
                 {
-                    MemoryAddress = memoryAddresss[i],
+                    MemoryAddress = memoryAddresses[i],
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),

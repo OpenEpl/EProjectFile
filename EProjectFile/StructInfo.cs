@@ -25,13 +25,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresses = reader.ReadInt32sWithFixedLength(count);
             var structs = new StructInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var structInfo = new StructInfo(ids[i])
                 {
-                    MemoryAddress = memoryAddresss[i],
+                    MemoryAddress = memoryAddresses[i],
                     Flags = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),
                     Comment = reader.ReadStringWithLengthPrefix(encoding),
