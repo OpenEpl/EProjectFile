@@ -121,7 +121,7 @@ namespace QIQI.EProjectFile.Sections
             writer.Write(MainMethod);
             if (UnknownBeforeIconData != null)
             {
-                writer.WriteBytesWithLengthPrefix(UnknownBeforeIconData);
+                writer.Write(UnknownBeforeIconData);
             }
             writer.WriteBytesWithLengthPrefix(IconData);
             writer.WriteStringWithLengthPrefix(encoding, DebugCommandParameters);
