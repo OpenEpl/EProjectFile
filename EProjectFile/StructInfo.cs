@@ -14,7 +14,7 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
         [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         public int Flags { get; set; }
         public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public string Name { get; set; }
@@ -25,13 +25,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
             var structs = new StructInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var structInfo = new StructInfo(ids[i])
                 {
-                    UnknownAfterId = unknownsAfterIds[i],
+                    MemoryAddress = memoryAddresss[i],
                     Flags = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),
                     Comment = reader.ReadStringWithLengthPrefix(encoding),
@@ -46,7 +46,7 @@ namespace QIQI.EProjectFile
         {
             writer.Write(structs.Length * 8);
             Array.ForEach(structs, x => writer.Write(x.Id));
-            Array.ForEach(structs, x => writer.Write(x.UnknownAfterId));
+            Array.ForEach(structs, x => writer.Write(x.MemoryAddress));
             foreach (var structInfo in structs)
             {
                 writer.Write(structInfo.Flags);

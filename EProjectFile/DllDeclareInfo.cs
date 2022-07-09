@@ -15,7 +15,7 @@ namespace QIQI.EProjectFile
         }
 
         [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         public int Flags { get; set; }
         public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
         public int ReturnDataType { get; set; }
@@ -29,13 +29,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
             var dllDeclares = new DllDeclareInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var dllDeclareInfo = new DllDeclareInfo(ids[i])
                 {
-                    UnknownAfterId = unknownsAfterIds[i],
+                    MemoryAddress = memoryAddresss[i],
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),
@@ -53,7 +53,7 @@ namespace QIQI.EProjectFile
         {
             writer.Write(dllDeclares.Length * 8);
             Array.ForEach(dllDeclares, x => writer.Write(x.Id));
-            Array.ForEach(dllDeclares, x => writer.Write(x.UnknownAfterId));
+            Array.ForEach(dllDeclares, x => writer.Write(x.MemoryAddress));
             foreach (var dllDeclare in dllDeclares)
             {
                 writer.Write(dllDeclare.Flags);

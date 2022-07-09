@@ -8,7 +8,7 @@ namespace QIQI.EProjectFile
     public class FormInfo
     {
         public int Id { get; set; }
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         public int UnknownBeforeClass { get; set; }
         /// <summary>
         /// 对应的窗口程序集
@@ -22,14 +22,14 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
             var forms = new FormInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var form = new FormInfo()
                 {
                     Id = ids[i],
-                    UnknownAfterId = unknownsAfterIds[i],
+                    MemoryAddress = memoryAddresss[i],
                     UnknownBeforeClass = reader.ReadInt32(),
                     Class = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),
@@ -45,7 +45,7 @@ namespace QIQI.EProjectFile
         {
             writer.Write(forms.Length * 8);
             Array.ForEach(forms, x => writer.Write(x.Id));
-            Array.ForEach(forms, x => writer.Write(x.UnknownAfterId));
+            Array.ForEach(forms, x => writer.Write(x.MemoryAddress));
             foreach (var form in forms)
             {
                 writer.Write(form.UnknownBeforeClass);

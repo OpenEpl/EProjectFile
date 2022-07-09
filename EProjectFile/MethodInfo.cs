@@ -52,7 +52,7 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
         [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         /// <summary>
         /// 所属程序集Id
         /// </summary>
@@ -71,13 +71,13 @@ namespace QIQI.EProjectFile
             var headerSize = reader.ReadInt32();
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresss = reader.ReadInt32sWithFixedLength(count);
             var methods = new MethodInfo[count];
             for (int i = 0; i < count; i++)
             {
                 var methodInfo = new MethodInfo(ids[i])
                 {
-                    UnknownAfterId = unknownsAfterIds[i],
+                    MemoryAddress = memoryAddresss[i],
                     Class = reader.ReadInt32(),
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
@@ -103,7 +103,7 @@ namespace QIQI.EProjectFile
         {
             writer.Write(methods.Length * 8);
             Array.ForEach(methods, x => writer.Write(x.Id));
-            Array.ForEach(methods, x => writer.Write(x.UnknownAfterId));
+            Array.ForEach(methods, x => writer.Write(x.MemoryAddress));
             foreach (var method in methods)
             {
                 writer.Write(method.Class);
