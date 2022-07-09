@@ -92,6 +92,8 @@ namespace QIQI.EProjectFile.Sections
                         throw new Exception($"Cannot re-export EC when {nameof(dependency.InfoVersion)} is 1");
                     }
                 }
+                writer.WriteStringWithLengthPrefix(encoding, dependency.Name);
+                writer.WriteStringWithLengthPrefix(encoding, dependency.Path);
                 writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Start).ToArray());
                 writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Count).ToArray());
             }
