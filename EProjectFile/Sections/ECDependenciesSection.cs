@@ -28,14 +28,13 @@ namespace QIQI.EProjectFile.Sections
                         dependency.InfoVersion = reader.ReadInt32();
                         if (dependency.InfoVersion > 2)
                         {
-                            throw new Exception($"ECDependencyInfo.InfoVersion = {dependency.InfoVersion}, not supported");
+                            throw new Exception($"{nameof(ECDependencyInfo)}.{nameof(ECDependencyInfo.InfoVersion)} = {dependency.InfoVersion}, not supported");
                         }
-                        dependency.UnknownInt1 = reader.ReadInt32();
-                        dependency.UnknownInt2 = reader.ReadInt32();
-                        dependency.UnknownInt3 = reader.ReadInt32();
+                        dependency.FileSize = reader.ReadInt32();
+                        dependency.FileLastModifiedDate = DateTime.FromFileTime(reader.ReadInt64());
                         if (dependency.InfoVersion >= 2)
                         {
-                            dependency.UnknownInt4 = reader.ReadInt32();
+                            dependency.ReExport = reader.ReadInt32() != 0;
                         }
                         dependency.Name = reader.ReadStringWithLengthPrefix(encoding);
                         dependency.Path = reader.ReadStringWithLengthPrefix(encoding);
@@ -80,12 +79,18 @@ namespace QIQI.EProjectFile.Sections
             foreach (var dependency in ECDependencies)
             {
                 writer.Write(dependency.InfoVersion);
-                writer.Write(dependency.UnknownInt1);
-                writer.Write(dependency.UnknownInt2);
-                writer.Write(dependency.UnknownInt3);
+                writer.Write(dependency.FileSize);
+                writer.Write(dependency.FileLastModifiedDate.ToFileTime());
                 if (dependency.InfoVersion >= 2)
                 {
-                    writer.Write(dependency.UnknownInt4);
+                    writer.Write(dependency.ReExport ? 1 : 0);
+                }
+                else
+                {
+                    if (dependency.ReExport)
+                    {
+                        throw new Exception($"Cannot re-export EC when {nameof(dependency.InfoVersion)} is 1");
+                    }
                 }
                 writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Start).ToArray());
                 writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Count).ToArray());
