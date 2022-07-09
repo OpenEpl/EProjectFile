@@ -149,6 +149,34 @@ namespace QIQI.EProjectFile
             Array.ForEach(elem, x => writer.Write(x));
         }
 
+        public static TElem[] ReadBlocksWithIdAndMemoryAddress<TElem>(
+            this BinaryReader reader,
+            Func<BinaryReader, int, int, TElem> readFunction)
+        {
+            var headerSize = reader.ReadInt32();
+            int count = headerSize / 8;
+            var ids = reader.ReadInt32sWithFixedLength(count);
+            var memoryAddresses = reader.ReadInt32sWithFixedLength(count);
+            TElem[] result = new TElem[count];
+            for (int i = 0; i < count; i++)
+            {
+                result[i] = readFunction(reader, ids[i], memoryAddresses[i]);
+            }
+            return result;
+        }
+
+        public static void WriteBlocksWithIdAndMemoryAddress<TElem>(
+            this BinaryWriter writer,
+            TElem[] data,
+            Action<BinaryWriter, TElem> writeAction)
+            where TElem : IHasId, IHasMemoryAddress
+        {
+            writer.Write(data.Length * 8);
+            Array.ForEach(data, x => writer.Write(x.Id));
+            Array.ForEach(data, x => writer.Write(x.MemoryAddress));
+            Array.ForEach(data, x => writeAction(writer, x));
+        }
+
         public static int[] ReadInt32sWithFixedLength(this BinaryReader reader, int count)
         {
             var result = new int[count];

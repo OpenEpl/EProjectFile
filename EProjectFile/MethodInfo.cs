@@ -43,7 +43,7 @@ namespace QIQI.EProjectFile
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
-    public class MethodInfo : IHasId, IToTextCodeAble
+    public class MethodInfo : IHasId, IHasMemoryAddress, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -51,8 +51,8 @@ namespace QIQI.EProjectFile
         {
             this.Id = id;
         }
-        [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+
+        public int MemoryAddress { get; set; }
         /// <summary>
         /// 所属程序集Id
         /// </summary>
@@ -66,18 +66,13 @@ namespace QIQI.EProjectFile
         public MethodParameterInfo[] Parameters { get; set; }
         public MethodCodeData CodeData { get; set; }
         public bool IsStatic => EplSystemId.GetType(Class) == EplSystemId.Type_StaticClass || EplSystemId.GetType(Class) == EplSystemId.Type_FormClass;
-        public static MethodInfo[] ReadMethods(BinaryReader reader, Encoding encoding)
+        public static MethodInfo[] ReadMethods(BinaryReader r, Encoding encoding)
         {
-            var headerSize = reader.ReadInt32();
-            int count = headerSize / 8;
-            var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
-            var methods = new MethodInfo[count];
-            for (int i = 0; i < count; i++)
+            return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) =>
             {
-                var methodInfo = new MethodInfo(ids[i])
+                var elem = new MethodInfo(id)
                 {
-                    UnknownAfterId = unknownsAfterIds[i],
+                    MemoryAddress = memoryAddress,
                     Class = reader.ReadInt32(),
                     Flags = reader.ReadInt32(),
                     ReturnDataType = reader.ReadInt32(),
@@ -86,7 +81,7 @@ namespace QIQI.EProjectFile
                     Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new LocalVariableInfo(x)),
                     Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new MethodParameterInfo(x))
                 };
-                methodInfo.CodeData = new MethodCodeData(
+                elem.CodeData = new MethodCodeData(
                     reader.ReadBytesWithLengthPrefix(),
                     reader.ReadBytesWithLengthPrefix(),
                     reader.ReadBytesWithLengthPrefix(),
@@ -94,32 +89,27 @@ namespace QIQI.EProjectFile
                     reader.ReadBytesWithLengthPrefix(),
                     reader.ReadBytesWithLengthPrefix(),
                     encoding);
-                methods[i] = methodInfo;
-            }
-
-            return methods;
+                return elem;
+            });
         }
-        public static void WriteMethods(BinaryWriter writer, Encoding encoding, MethodInfo[] methods)
+        public static void WriteMethods(BinaryWriter w, Encoding encoding, MethodInfo[] methods)
         {
-            writer.Write(methods.Length * 8);
-            Array.ForEach(methods, x => writer.Write(x.Id));
-            Array.ForEach(methods, x => writer.Write(x.UnknownAfterId));
-            foreach (var method in methods)
+            w.WriteBlocksWithIdAndMemoryAddress(methods, (writer, elem) =>
             {
-                writer.Write(method.Class);
-                writer.Write(method.Flags);
-                writer.Write(method.ReturnDataType);
-                writer.WriteStringWithLengthPrefix(encoding, method.Name);
-                writer.WriteStringWithLengthPrefix(encoding, method.Comment);
-                AbstractVariableInfo.WriteVariables(writer, encoding, method.Variables);
-                AbstractVariableInfo.WriteVariables(writer, encoding, method.Parameters);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.LineOffest);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.BlockOffest);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.MethodReference);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.VariableReference);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.ConstantReference);
-                writer.WriteBytesWithLengthPrefix(method.CodeData.ExpressionData);
-            }
+                writer.Write(elem.Class);
+                writer.Write(elem.Flags);
+                writer.Write(elem.ReturnDataType);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Name);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
+                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Variables);
+                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Parameters);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.LineOffest);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.BlockOffest);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.MethodReference);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.VariableReference);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.ConstantReference);
+                writer.WriteBytesWithLengthPrefix(elem.CodeData.ExpressionData);
+            });
         }
         public override string ToString()
         {

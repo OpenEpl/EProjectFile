@@ -7,7 +7,7 @@ using QIQI.EProjectFile.Sections;
 
 namespace QIQI.EProjectFile
 {
-    public class ClassInfo : IHasId, IToTextCodeAble
+    public class ClassInfo : IHasId, IHasMemoryAddress, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -16,8 +16,7 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
 
-        [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
         public int Flags { get; set; }
         public int BaseClass { get; set; }
@@ -26,52 +25,38 @@ namespace QIQI.EProjectFile
         public int[] Method { get; set; }
         public ClassVariableInfo[] Variables { get; set; }
 
-        public static ClassInfo[] ReadClasses(BinaryReader reader, Encoding encoding)
+        public static ClassInfo[] ReadClasses(BinaryReader r, Encoding encoding)
         {
-            var headerSize = reader.ReadInt32();
-            int count = headerSize / 8;
-            var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
-            var classes = new ClassInfo[count];
-            for (int i = 0; i < count; i++)
+            return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new ClassInfo(id)
             {
-                var classInfo = new ClassInfo(ids[i])
-                {
-                    UnknownAfterId = unknownsAfterIds[i],
-                    Flags = reader.ReadInt32(),
-                    BaseClass = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(encoding),
-                    Comment = reader.ReadStringWithLengthPrefix(encoding),
-                    Method = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4),
-                    Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new ClassVariableInfo(x))
-                };
-                classes[i] = classInfo;
-            }
-
-            return classes;
+                MemoryAddress = memoryAddress,
+                Flags = reader.ReadInt32(),
+                BaseClass = reader.ReadInt32(),
+                Name = reader.ReadStringWithLengthPrefix(encoding),
+                Comment = reader.ReadStringWithLengthPrefix(encoding),
+                Method = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4),
+                Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new ClassVariableInfo(x))
+            });
         }
-        public static void WriteClasses(BinaryWriter writer, Encoding encoding, ClassInfo[] classes)
+        public static void WriteClasses(BinaryWriter w, Encoding encoding, ClassInfo[] classes)
         {
-            writer.Write(classes.Length * 8);
-            Array.ForEach(classes, x => writer.Write(x.Id));
-            Array.ForEach(classes, x => writer.Write(x.UnknownAfterId));
-            foreach (var classInfo in classes)
+            w.WriteBlocksWithIdAndMemoryAddress(classes, (writer, elem) =>
             {
-                writer.Write(classInfo.Flags);
-                writer.Write(classInfo.BaseClass);
-                writer.WriteStringWithLengthPrefix(encoding, classInfo.Name);
-                writer.WriteStringWithLengthPrefix(encoding, classInfo.Comment);
-                if (classInfo.Method == null)
+                writer.Write(elem.Flags);
+                writer.Write(elem.BaseClass);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Name);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
+                if (elem.Method == null)
                 {
                     writer.Write(0);
                 }
                 else
                 {
-                    writer.Write(classInfo.Method.Length * 4);
-                    writer.WriteInt32sWithoutLengthPrefix(classInfo.Method);
+                    writer.Write(elem.Method.Length * 4);
+                    writer.WriteInt32sWithoutLengthPrefix(elem.Method);
                 }
-                AbstractVariableInfo.WriteVariables(writer, encoding, classInfo.Variables);
-            }
+                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Variables);
+            });
         }
         public override string ToString()
         {

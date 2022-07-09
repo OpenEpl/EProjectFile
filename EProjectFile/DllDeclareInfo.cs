@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QIQI.EProjectFile
 {
-    public class DllDeclareInfo : IHasId, IToTextCodeAble
+    public class DllDeclareInfo : IHasId, IHasMemoryAddress, IToTextCodeAble
     {
         public int Id { get; }
 
@@ -14,8 +14,7 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
 
-        [JsonIgnore]
-        public int UnknownAfterId { get; set; }
+        public int MemoryAddress { get; set; }
         public int Flags { get; set; }
         public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
         public int ReturnDataType { get; set; }
@@ -24,46 +23,32 @@ namespace QIQI.EProjectFile
         public string EntryPoint { get; set; }
         public string LibraryName { get; set; }
         public DllParameterInfo[] Parameters { get; set; }
-        public static DllDeclareInfo[] ReadDllDeclares(BinaryReader reader, Encoding encoding)
+        public static DllDeclareInfo[] ReadDllDeclares(BinaryReader r, Encoding encoding)
         {
-            var headerSize = reader.ReadInt32();
-            int count = headerSize / 8;
-            var ids = reader.ReadInt32sWithFixedLength(count);
-            var unknownsAfterIds = reader.ReadInt32sWithFixedLength(count);
-            var dllDeclares = new DllDeclareInfo[count];
-            for (int i = 0; i < count; i++)
+            return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new DllDeclareInfo(id)
             {
-                var dllDeclareInfo = new DllDeclareInfo(ids[i])
-                {
-                    UnknownAfterId = unknownsAfterIds[i],
-                    Flags = reader.ReadInt32(),
-                    ReturnDataType = reader.ReadInt32(),
-                    Name = reader.ReadStringWithLengthPrefix(encoding),
-                    Comment = reader.ReadStringWithLengthPrefix(encoding),
-                    LibraryName = reader.ReadStringWithLengthPrefix(encoding),
-                    EntryPoint = reader.ReadStringWithLengthPrefix(encoding),
-                    Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new DllParameterInfo(x))
-                };
-                dllDeclares[i] = dllDeclareInfo;
-            }
-
-            return dllDeclares;
+                MemoryAddress = memoryAddress,
+                Flags = reader.ReadInt32(),
+                ReturnDataType = reader.ReadInt32(),
+                Name = reader.ReadStringWithLengthPrefix(encoding),
+                Comment = reader.ReadStringWithLengthPrefix(encoding),
+                LibraryName = reader.ReadStringWithLengthPrefix(encoding),
+                EntryPoint = reader.ReadStringWithLengthPrefix(encoding),
+                Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new DllParameterInfo(x))
+            });
         }
-        public static void WriteDllDeclares(BinaryWriter writer, Encoding encoding, DllDeclareInfo[] dllDeclares)
+        public static void WriteDllDeclares(BinaryWriter w, Encoding encoding, DllDeclareInfo[] dllDeclares)
         {
-            writer.Write(dllDeclares.Length * 8);
-            Array.ForEach(dllDeclares, x => writer.Write(x.Id));
-            Array.ForEach(dllDeclares, x => writer.Write(x.UnknownAfterId));
-            foreach (var dllDeclare in dllDeclares)
+            w.WriteBlocksWithIdAndMemoryAddress(dllDeclares, (writer, elem) =>
             {
-                writer.Write(dllDeclare.Flags);
-                writer.Write(dllDeclare.ReturnDataType);
-                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.Name);
-                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.Comment);
-                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.LibraryName);
-                writer.WriteStringWithLengthPrefix(encoding, dllDeclare.EntryPoint);
-                AbstractVariableInfo.WriteVariables(writer, encoding, dllDeclare.Parameters);
-            }
+                writer.Write(elem.Flags);
+                writer.Write(elem.ReturnDataType);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Name);
+                writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
+                writer.WriteStringWithLengthPrefix(encoding, elem.LibraryName);
+                writer.WriteStringWithLengthPrefix(encoding, elem.EntryPoint);
+                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Parameters);
+            });
         }
         public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
         {
