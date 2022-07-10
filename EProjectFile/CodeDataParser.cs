@@ -77,14 +77,20 @@ namespace QIQI.EProjectFile
         private static StatementBlock ParseStatementBlock(BinaryReader reader, Encoding encoding, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
         {
             var block = new StatementBlock();
-            while (!(reader.BaseStream.Position == reader.BaseStream.Length))
+            while (true)
             {
-                var type = reader.ReadByte();
-                while (Array.BinarySearch(KnownTypeId, type) < 0)
+                byte type;
+                do
                 {
-                    // 尝试跳过未知信息
-                    type = reader.ReadByte();
-                }
+                    try
+                    {
+                        type = reader.ReadByte();
+                    }
+                    catch (EndOfStreamException)
+                    {
+                        goto end_parse_block;
+                    }
+                } while (Array.BinarySearch(KnownTypeId, type) < 0);
                 var startOffest = (int)reader.BaseStream.Position - 1; // typeId到代码数据开头的偏移位置
                 if (lineOffestWriter != null)
                 {
@@ -343,6 +349,7 @@ namespace QIQI.EProjectFile
                         break;
                 }
             }
+            end_parse_block:
             return block;
         }
         private static Expression ParseExpression(BinaryReader reader, Encoding encoding, bool parseMember = true)
