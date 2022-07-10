@@ -77,21 +77,19 @@ namespace QIQI.EProjectFile
         private static StatementBlock ParseStatementBlock(BinaryReader reader, Encoding encoding, BinaryWriter lineOffestWriter, BinaryWriter blockOffestWriter)
         {
             var block = new StatementBlock();
+            var baseStream = reader.BaseStream;
             while (true)
             {
                 byte type;
                 do
                 {
-                    try
-                    {
-                        type = reader.ReadByte();
-                    }
-                    catch (EndOfStreamException)
+                    if (baseStream.Position == baseStream.Length)
                     {
                         goto end_parse_block;
                     }
+                    type = reader.ReadByte();
                 } while (Array.BinarySearch(KnownTypeId, type) < 0);
-                var startOffest = (int)reader.BaseStream.Position - 1; // typeId到代码数据开头的偏移位置
+                var startOffest = (int)baseStream.Position - 1; // typeId到代码数据开头的偏移位置
                 if (lineOffestWriter != null)
                 {
                     if (true // 部分数据不需要将位置写入LineOffest（一般为在IDE无显示的数据）
@@ -116,7 +114,7 @@ namespace QIQI.EProjectFile
                     case 0x54: // .判断结束
                     case 0x6F: // .默认
                     case 0x71: // 循环结束语句：XX循环尾(参数...)
-                        reader.BaseStream.Position = startOffest;
+                        baseStream.Position = startOffest;
                         return block;
                     case 0x55: // 循环体结束标识（0x71前）
                         continue;
@@ -134,7 +132,7 @@ namespace QIQI.EProjectFile
                             byte switch_type;
                             do
                             {
-                                lineOffestWriter.Write((int)reader.BaseStream.Position - 1);
+                                lineOffestWriter.Write((int)baseStream.Position - 1);
                                 var caseInfo = new SwitchStatement.CaseInfo();
                                 caseInfo.Condition = ParseCallExpressionWithoutType(reader, encoding, out var caseInfo_UnexaminedCode, out var caseInfo_Comment, out var caseInfo_Mask).ParamList.ElementAtOrDefault(0);
                                 caseInfo.UnexaminedCode = caseInfo_UnexaminedCode;
@@ -156,7 +154,7 @@ namespace QIQI.EProjectFile
                             {
                                 throw new Exception();
                             }
-                            int endOffest = (int)reader.BaseStream.Position;
+                            int endOffest = (int)baseStream.Position;
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
@@ -178,7 +176,7 @@ namespace QIQI.EProjectFile
                             var loopblock = ParseStatementBlock(reader, encoding, lineOffestWriter, blockOffestWriter);
                             CallExpression endexp = null;
 
-                            var endOffest = (int)reader.BaseStream.Position;
+                            var endOffest = (int)baseStream.Position;
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
@@ -270,7 +268,7 @@ namespace QIQI.EProjectFile
                                 throw new Exception();
                             }
 
-                            var endOffest = (int)reader.BaseStream.Position;
+                            var endOffest = (int)baseStream.Position;
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
                             blockOffestWriter.BaseStream.Seek(0, SeekOrigin.End);
@@ -304,7 +302,7 @@ namespace QIQI.EProjectFile
                             {
                                 throw new Exception();
                             }
-                            var endOffest = (int)reader.BaseStream.Position;
+                            var endOffest = (int)baseStream.Position;
 
                             blockOffestWriter.BaseStream.Position = posToFillEndOffest;
                             blockOffestWriter.Write(endOffest);
