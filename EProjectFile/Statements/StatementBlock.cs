@@ -61,9 +61,9 @@ namespace QIQI.EProjectFile.Statements
                     encoding);
             }
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            TextCodeUtils.WriteJoinCode(this, Environment.NewLine, nameMap, result, indent);
+            TextCodeUtils.JoinAndWriteCode(this, Environment.NewLine, nameMap, writer, indent);
         }
         public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
 

@@ -137,27 +137,27 @@ namespace QIQI.EProjectFile.Sections
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            ToTextCode(nameMap, result, indent, true);
+            ToTextCode(nameMap, writer, indent, true);
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, bool writeMethod, bool writeCode = true)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, bool writeMethod, bool writeCode = true)
         {
             if (GlobalVariables != null && GlobalVariables.Length != 0)
             {
-                TextCodeUtils.WriteJoinCode(GlobalVariables, Environment.NewLine, nameMap, result, indent);
-                result.AppendLine();
+                TextCodeUtils.JoinAndWriteCode(GlobalVariables, Environment.NewLine, nameMap, writer, indent);
+                writer.WriteLine();
             }
-            TextCodeUtils.WriteJoinCode(Classes, Environment.NewLine, writeMethod ? this : null, nameMap, result, indent, writeCode);
+            TextCodeUtils.JoinAndWriteCode(Classes, Environment.NewLine, writeMethod ? this : null, nameMap, writer, indent, writeCode);
             if (DllDeclares != null && DllDeclares.Length != 0)
             {
-                result.AppendLine();
-                TextCodeUtils.WriteJoinCode(DllDeclares, Environment.NewLine, nameMap, result, indent);
+                writer.WriteLine();
+                TextCodeUtils.JoinAndWriteCode(DllDeclares, Environment.NewLine, nameMap, writer, indent);
             }
             if (Structs != null && Structs.Length != 0)
             {
-                result.AppendLine();
-                TextCodeUtils.WriteJoinCode(Structs, Environment.NewLine, nameMap, result, indent);
+                writer.WriteLine();
+                TextCodeUtils.JoinAndWriteCode(Structs, Environment.NewLine, nameMap, writer, indent);
             }
         }
     }

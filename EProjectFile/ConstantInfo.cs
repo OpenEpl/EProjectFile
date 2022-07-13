@@ -188,10 +188,10 @@ namespace QIQI.EProjectFile
                     }
                 });
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             string valueCode;
             switch (Value)
             {
@@ -220,7 +220,7 @@ namespace QIQI.EProjectFile
                     valueCode = $"\"{Value}\"";
                     break;
             }
-            result.AppendFormat(".常量 {0}, {1}, {2}, {3}", nameMap.GetUserDefinedName(Id), valueCode, Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, 0, "常量", nameMap.GetUserDefinedName(Id), valueCode, Public ? "公开" : "", Comment);
         }
         public override string ToString()
         {

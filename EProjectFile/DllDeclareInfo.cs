@@ -50,11 +50,11 @@ namespace QIQI.EProjectFile
                 AbstractVariableInfo.WriteVariables(writer, encoding, elem.Parameters);
             });
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "DLL命令", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), LibraryName, EntryPoint, Public ? "公开" : "", Comment);
-            result.AppendLine();
-            TextCodeUtils.WriteJoinCode(Parameters, Environment.NewLine, nameMap, result, indent + 1);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "DLL命令", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), LibraryName, EntryPoint, Public ? "公开" : "", Comment);
+            writer.WriteLine();
+            TextCodeUtils.JoinAndWriteCode(Parameters, Environment.NewLine, nameMap, writer, indent + 1);
         }
         public override string ToString()
         {

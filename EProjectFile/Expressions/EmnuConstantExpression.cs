@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
 {
@@ -23,12 +24,12 @@ namespace QIQI.EProjectFile.Expressions
             a.ExpressionData.Write((short)(LibraryId + 1));
             a.ExpressionData.Write(MemberId + 1);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            result.Append("#");
-            result.Append(nameMap.GetLibTypeName(LibraryId, StructId));
-            result.Append(".");
-            result.Append(nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
+            writer.Write("#");
+            writer.Write(nameMap.GetLibTypeName(LibraryId, StructId));
+            writer.Write(".");
+            writer.Write(nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
         }
     }
 }

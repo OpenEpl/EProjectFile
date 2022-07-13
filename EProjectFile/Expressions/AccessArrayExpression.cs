@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
@@ -16,12 +17,12 @@ namespace QIQI.EProjectFile.Expressions
             this.Index = index;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            Target.ToTextCode(nameMap, result, indent);
-            result.Append("[");
-            Index.ToTextCode(nameMap, result, indent);
-            result.Append("]");
+            Target.ToTextCode(nameMap, writer, indent);
+            writer.Write("[");
+            Index.ToTextCode(nameMap, writer, indent);
+            writer.Write("]");
         }
 
         internal override void WriteTo(MethodCodeDataWriterArgs a, bool need0x1DAnd0x37)

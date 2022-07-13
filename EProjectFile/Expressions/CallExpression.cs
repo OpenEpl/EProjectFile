@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
 {
@@ -25,24 +26,24 @@ namespace QIQI.EProjectFile.Expressions
             ParamList = paramList;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             if (Target != null)
             {
-                Target.ToTextCode(nameMap, result, indent);
-                result.Append(".");
+                Target.ToTextCode(nameMap, writer, indent);
+                writer.Write(".");
             }
             if (InvokeSpecial && LibraryId == -2)
             {
                 if (nameMap.MethodIdToClassId.TryGetValue(MethodId, out var classId) && EplSystemId.GetType(classId) == EplSystemId.Type_Class)
                 {
-                    result.Append(nameMap.GetUserDefinedName(classId));
-                    result.Append(".");
+                    writer.Write(nameMap.GetUserDefinedName(classId));
+                    writer.Write(".");
                 }
             }
-            result.Append(LibraryId == -2 || LibraryId == -3 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
-            result.Append(" ");
-            ParamList.ToTextCode(nameMap, result, indent);
+            writer.Write(LibraryId == -2 || LibraryId == -3 ? nameMap.GetUserDefinedName(MethodId) : nameMap.GetLibCmdName(LibraryId, MethodId));
+            writer.Write(" ");
+            ParamList.ToTextCode(nameMap, writer, indent);
         }
         internal void WriteTo(MethodCodeDataWriterArgs a, byte type, bool mask, string comment)
         {

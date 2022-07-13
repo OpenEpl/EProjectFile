@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using QIQI.EProjectFile.Expressions;
 namespace QIQI.EProjectFile.Statements
@@ -22,13 +23,13 @@ namespace QIQI.EProjectFile.Statements
             UnexaminedCode = unexaminedCode;
             Mask = mask;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (Mask)
-                result.Append("' ");
-            result.Append(unexaminedCode);
+                writer.Write("' ");
+            writer.Write(unexaminedCode);
         }
         internal void WriteTo(MethodCodeDataWriterArgs a, byte type)
         {

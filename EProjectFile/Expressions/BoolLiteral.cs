@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
@@ -19,9 +20,9 @@ namespace QIQI.EProjectFile.Expressions
         {
             this.Value = value;
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            result.Append(Value ? "真" : "假");
+            writer.Write(Value ? "真" : "假");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {

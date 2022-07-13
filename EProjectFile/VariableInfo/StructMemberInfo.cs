@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace QIQI.EProjectFile
         public StructMemberInfo(int id) : base(EplSystemId.MakeSureIsSpecifiedType(id, EplSystemId.Type_StructMember))
         {
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             string strForUBound;
             if (UBound.Length == 0)
@@ -20,7 +21,7 @@ namespace QIQI.EProjectFile
                 strForUBound = "\"0\"";
             else
                 strForUBound = "\"" + string.Join(",", UBound.Select(x => x == 0 ? "" : x.ToString())) + "\"";
-            TextCodeUtils.WriteDefinedCode(result, indent, "成员", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType), ByRef ? "传址" : "", strForUBound, Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "成员", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType), ByRef ? "传址" : "", strForUBound, Comment);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using QIQI.EProjectFile.Expressions;
 namespace QIQI.EProjectFile.Statements
@@ -19,67 +20,67 @@ namespace QIQI.EProjectFile.Statements
         }
         public List<CaseInfo> Case { get; } = new List<CaseInfo>();
         public StatementBlock DefaultBlock { get; set; }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             if (Case.Count == 0)
                 throw new Exception("Must hava a case");
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (Case[0].Mask)
-                result.Append("' ");
+                writer.Write("' ");
             if (Case[0].UnexaminedCode == null)
             {
-                result.Append(".判断开始 (");
-                Case[0].Condition.ToTextCode(nameMap, result, indent);
-                result.Append(")");
+                writer.Write(".判断开始 (");
+                Case[0].Condition.ToTextCode(nameMap, writer, indent);
+                writer.Write(")");
             }
             else
             {
-                result.Append(".判断开始");
-                result.Append(Case[0].UnexaminedCode.TrimStart().Substring("判断".Length));
+                writer.Write(".判断开始");
+                writer.Write(Case[0].UnexaminedCode.TrimStart().Substring("判断".Length));
             }
             if (Case[0].Comment != null)
             {
-                result.Append("  ' ");
-                result.Append(Case[0].Comment);
+                writer.Write("  ' ");
+                writer.Write(Case[0].Comment);
             }
-            result.AppendLine();
-            Case[0].Block.ToTextCode(nameMap, result, indent + 1);
+            writer.WriteLine();
+            Case[0].Block.ToTextCode(nameMap, writer, indent + 1);
             for (int i = 1; i < Case.Count; i++)
             {
-                result.AppendLine();
+                writer.WriteLine();
                 for (int x = 0; x < indent; x++)
-                    result.Append("    ");
+                    writer.Write("    ");
                 if (Case[i].Mask)
-                    result.Append("' ");
+                    writer.Write("' ");
                 if (Case[i].UnexaminedCode == null)
                 {
-                    result.Append(".判断 (");
-                    Case[i].Condition.ToTextCode(nameMap, result, indent);
-                    result.Append(")");
+                    writer.Write(".判断 (");
+                    Case[i].Condition.ToTextCode(nameMap, writer, indent);
+                    writer.Write(")");
                 }
                 else
                 {
-                    result.Append(".");
-                    result.Append(Case[i].UnexaminedCode);
+                    writer.Write(".");
+                    writer.Write(Case[i].UnexaminedCode);
                 }
                 if (Case[i].Comment != null)
                 {
-                    result.Append("  ' ");
-                    result.Append(Case[i].Comment);
+                    writer.Write("  ' ");
+                    writer.Write(Case[i].Comment);
                 }
-                result.AppendLine();
-                Case[i].Block.ToTextCode(nameMap, result, indent + 1);
+                writer.WriteLine();
+                Case[i].Block.ToTextCode(nameMap, writer, indent + 1);
             }
-            result.AppendLine();
+            writer.WriteLine();
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
-            result.AppendLine(".默认");
-            DefaultBlock.ToTextCode(nameMap, result, indent + 1);
-            result.AppendLine();
+                writer.Write("    ");
+            writer.WriteLine(".默认");
+            DefaultBlock.ToTextCode(nameMap, writer, indent + 1);
+            writer.WriteLine();
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
-            result.Append(".判断结束");
+                writer.Write("    ");
+            writer.Write(".判断结束");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {

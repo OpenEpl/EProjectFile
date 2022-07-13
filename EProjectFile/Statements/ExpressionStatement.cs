@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using QIQI.EProjectFile.Expressions;
 namespace QIQI.EProjectFile.Statements
 {
@@ -23,17 +24,17 @@ namespace QIQI.EProjectFile.Statements
             Comment = comment;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (Mask)
-                result.Append("' ");
-            Expression?.ToTextCode(nameMap, result, indent);
+                writer.Write("' ");
+            Expression?.ToTextCode(nameMap, writer, indent);
             if (Comment != null)
             {
-                result.Append(Expression == null ? "' " : "  ' ");
-                result.Append(Comment);
+                writer.Write(Expression == null ? "' " : "  ' ");
+                writer.Write(Comment);
             }
         }
 

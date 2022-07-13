@@ -59,6 +59,6 @@ namespace QIQI.EProjectFile
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
-        public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0);
+        public abstract void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0);
     }
 }

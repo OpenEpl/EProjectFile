@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
@@ -61,11 +62,11 @@ namespace QIQI.EProjectFile.Expressions
         {
             items.RemoveAt(index);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            result.Append("{");
-            TextCodeUtils.WriteJoinCode(this, ", ", nameMap, result, indent);
-            result.Append("}");
+            writer.Write("{");
+            TextCodeUtils.JoinAndWriteCode(this, ", ", nameMap, writer, indent);
+            writer.Write("}");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {

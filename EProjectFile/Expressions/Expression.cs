@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
 {
@@ -9,6 +10,6 @@ namespace QIQI.EProjectFile.Expressions
     {
         internal abstract void WriteTo(MethodCodeDataWriterArgs a);
         public sealed override string ToString() => this.ToTextCode(IdToNameMap.Empty);
-        public abstract void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0);
+        public abstract void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0);
     }
 }

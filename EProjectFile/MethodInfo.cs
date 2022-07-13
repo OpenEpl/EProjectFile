@@ -115,27 +115,27 @@ namespace QIQI.EProjectFile
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, bool writeCode)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, bool writeCode)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "子程序", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "子程序", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
             if (Parameters != null && Parameters.Length != 0)
             {
-                result.AppendLine();
-                TextCodeUtils.WriteJoinCode(Parameters, Environment.NewLine, nameMap, result, indent);
+                writer.WriteLine();
+                TextCodeUtils.JoinAndWriteCode(Parameters, Environment.NewLine, nameMap, writer, indent);
             }
             if (!writeCode) return;
             if (Variables != null && Variables.Length != 0)
             {
-                result.AppendLine();
-                TextCodeUtils.WriteJoinCode(Variables, Environment.NewLine, nameMap, result, indent);
+                writer.WriteLine();
+                TextCodeUtils.JoinAndWriteCode(Variables, Environment.NewLine, nameMap, writer, indent);
             }
-            result.AppendLine();
-            result.AppendLine();
-            CodeDataParser.ParseStatementBlock(CodeData.ExpressionData, CodeData.Encoding).ToTextCode(nameMap, result, indent);
+            writer.WriteLine();
+            writer.WriteLine();
+            CodeDataParser.ParseStatementBlock(CodeData.ExpressionData, CodeData.Encoding).ToTextCode(nameMap, writer, indent);
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            ToTextCode(nameMap, result, indent, true);
+            ToTextCode(nameMap, writer, indent, true);
         }
     }
 }

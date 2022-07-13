@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using QIQI.EProjectFile.Expressions;
 namespace QIQI.EProjectFile.Statements
 {
@@ -8,40 +9,40 @@ namespace QIQI.EProjectFile.Statements
     public class WhileStatement : LoopStatement
     {
         public Expression Condition { get; set; }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (MaskOnStart)
-                result.Append("' ");
+                writer.Write("' ");
             if (UnexaminedCode == null)
             {
-                result.Append(".判断循环首 (");
-                Condition.ToTextCode(nameMap, result, indent);
-                result.Append(")");
+                writer.Write(".判断循环首 (");
+                Condition.ToTextCode(nameMap, writer, indent);
+                writer.Write(")");
             }
             else
             {
-                result.Append(".");
-                result.Append(UnexaminedCode);
+                writer.Write(".");
+                writer.Write(UnexaminedCode);
             }
             if (CommentOnStart != null)
             {
-                result.Append("  ' ");
-                result.Append(CommentOnStart);
+                writer.Write("  ' ");
+                writer.Write(CommentOnStart);
             }
-            result.AppendLine();
-            Block.ToTextCode(nameMap, result, indent + 1);
-            result.AppendLine();
+            writer.WriteLine();
+            Block.ToTextCode(nameMap, writer, indent + 1);
+            writer.WriteLine();
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (MaskOnEnd)
-                result.Append("' ");
-            result.Append(".判断循环尾 ()");
+                writer.Write("' ");
+            writer.Write(".判断循环尾 ()");
             if (CommentOnEnd != null)
             {
-                result.Append("  ' ");
-                result.Append(CommentOnEnd);
+                writer.Write("  ' ");
+                writer.Write(CommentOnEnd);
             }
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)

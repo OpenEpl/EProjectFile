@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
 {
@@ -19,10 +20,10 @@ namespace QIQI.EProjectFile.Expressions
             a.ExpressionData.Write((byte)0x1E);
             a.ExpressionData.Write(MethodId);
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            result.Append("&");
-            result.Append(nameMap.GetUserDefinedName(MethodId));
+            writer.Write("&");
+            writer.Write(nameMap.GetUserDefinedName(MethodId));
         }
     }
 }

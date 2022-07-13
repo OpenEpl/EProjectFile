@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using QIQI.EProjectFile.Expressions;
 namespace QIQI.EProjectFile.Statements
 {
@@ -17,39 +18,39 @@ namespace QIQI.EProjectFile.Statements
         public string Comment { get; set; }
         public bool Mask { get; set; }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
+                writer.Write("    ");
             if (Mask)
-                result.Append("' ");
+                writer.Write("' ");
             if (UnexaminedCode == null)
             {
-                result.Append(".如果 (");
-                Condition.ToTextCode(nameMap, result, indent);
-                result.Append(")");
+                writer.Write(".如果 (");
+                Condition.ToTextCode(nameMap, writer, indent);
+                writer.Write(")");
             }
             else
             {
-                result.Append(".");
-                result.Append(UnexaminedCode);
+                writer.Write(".");
+                writer.Write(UnexaminedCode);
             }
             if (Comment != null)
             {
-                result.Append("  ' ");
-                result.Append(Comment);
+                writer.Write("  ' ");
+                writer.Write(Comment);
             }
-            result.AppendLine();
-            BlockOnTrue.ToTextCode(nameMap, result, indent + 1);
-            result.AppendLine();
+            writer.WriteLine();
+            BlockOnTrue.ToTextCode(nameMap, writer, indent + 1);
+            writer.WriteLine();
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
-            result.AppendLine(".否则");
-            BlockOnFalse.ToTextCode(nameMap, result, indent + 1);
-            result.AppendLine();
+                writer.Write("    ");
+            writer.WriteLine(".否则");
+            BlockOnFalse.ToTextCode(nameMap, writer, indent + 1);
+            writer.WriteLine();
             for (int i = 0; i < indent; i++)
-                result.Append("    ");
-            result.Append(".如果结束");
+                writer.Write("    ");
+            writer.Write(".如果结束");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {

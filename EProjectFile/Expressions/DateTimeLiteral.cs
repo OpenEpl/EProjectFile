@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
@@ -15,17 +16,17 @@ namespace QIQI.EProjectFile.Expressions
             this.Value = value;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            result.Append("[");
+            writer.Write("[");
             if (Value != null)
             {
                 if (Value.TimeOfDay.TotalSeconds == 0)
-                    result.Append(Value.ToString("yyyy年MM月dd日"));
+                    writer.Write(Value.ToString("yyyy年MM月dd日"));
                 else
-                    result.Append(Value.ToString("yyyy年MM月dd日HH时mm分ss秒"));
+                    writer.Write(Value.ToString("yyyy年MM月dd日HH时mm分ss秒"));
             }
-            result.Append("]");
+            writer.Write("]");
 
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)

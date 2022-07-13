@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace QIQI.EProjectFile
         public ClassVariableInfo(int id) : base(EplSystemId.MakeSureIsSpecifiedType(id, EplSystemId.Type_ClassMember))
         {
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             string strForUBound;
             if (UBound.Length == 0)
@@ -19,7 +20,7 @@ namespace QIQI.EProjectFile
                 strForUBound = "\"0\"";
             else
                 strForUBound = "\"" + string.Join(",", UBound.Select(x => x == 0 ? "" : x.ToString())) + "\"";
-            TextCodeUtils.WriteDefinedCode(result, indent, "程序集变量", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType),  "", strForUBound, Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "程序集变量", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType),  "", strForUBound, Comment);
         }
     }
 }

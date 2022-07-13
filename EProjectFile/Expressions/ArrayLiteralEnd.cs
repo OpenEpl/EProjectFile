@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
@@ -13,7 +14,7 @@ namespace QIQI.EProjectFile.Expressions
         {
             if (Instance != null) throw new NotSupportedException();
         }
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0) => throw new NotImplementedException();
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0) => throw new NotImplementedException();
 
         internal override void WriteTo(MethodCodeDataWriterArgs a) => a.ExpressionData.Write((byte)0x20);
     }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace QIQI.EProjectFile.Expressions
 {
@@ -26,7 +27,7 @@ namespace QIQI.EProjectFile.Expressions
             MemberId = memberId;
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             if (Target is VariableExpression varExpr
                 && EplSystemId.GetType(varExpr.Id) == EplSystemId.Type_FormSelf)
@@ -36,8 +37,8 @@ namespace QIQI.EProjectFile.Expressions
             }
             else
             {
-                Target.ToTextCode(nameMap, result, indent);
-                result.Append(".");
+                Target.ToTextCode(nameMap, writer, indent);
+                writer.Write(".");
             }
             if (LibraryId == -2)
             {
@@ -46,16 +47,16 @@ namespace QIQI.EProjectFile.Expressions
                 if (EplSystemId.GetType(StructId) == EplSystemId.Type_Form 
                     && (MemberId & 0xFF000000) == 0)
                 {
-                    result.Append(nameMap.GetLibTypeMemberName(0, 0, MemberId - 1));
+                    writer.Write(nameMap.GetLibTypeMemberName(0, 0, MemberId - 1));
                 }
                 else
                 {
-                    result.Append(nameMap.GetUserDefinedName(MemberId));
+                    writer.Write(nameMap.GetUserDefinedName(MemberId));
                 }
             }
             else
             {
-                result.Append(nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
+                writer.Write(nameMap.GetLibTypeMemberName(LibraryId, StructId, MemberId));
             }
         }
 

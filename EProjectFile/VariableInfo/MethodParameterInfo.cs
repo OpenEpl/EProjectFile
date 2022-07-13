@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -14,10 +15,10 @@ namespace QIQI.EProjectFile
         {
         }
 
-        public override void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public override void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
             string strForFlags = string.Join(" ", new string[] { ByRef ? "参考" : null, OptionalParameter ? "可空" : null, ArrayParameter ? "数组" : null }.Where(x => x != null));
-            TextCodeUtils.WriteDefinedCode(result, indent, "参数", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType), strForFlags, Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "参数", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType), strForFlags, Comment);
         }
     }
 }

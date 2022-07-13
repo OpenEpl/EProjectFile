@@ -58,9 +58,9 @@ namespace QIQI.EProjectFile
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent = 0)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)
         {
-            TextCodeUtils.WriteJoinCode(Constants, Environment.NewLine, nameMap, result, indent);
+            TextCodeUtils.JoinAndWriteCode(Constants, Environment.NewLine, nameMap, writer, indent);
         }
     }
 }

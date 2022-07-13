@@ -70,22 +70,22 @@ namespace QIQI.EProjectFile
         /// <param name="indent">起始缩进</param>
         /// <param name="codeSection">若为null，不写出下属方法</param>
         /// <param name="writeCode">是否输出子程序代码</param>
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent, CodeSection codeSection, bool writeCode = true)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, CodeSection codeSection, bool writeCode = true)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
-            result.AppendLine();
-            TextCodeUtils.WriteJoinCode(Variables, Environment.NewLine, nameMap, result, indent);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
+            writer.WriteLine();
+            TextCodeUtils.JoinAndWriteCode(Variables, Environment.NewLine, nameMap, writer, indent);
             if (codeSection != null) 
             {
-                result.AppendLine();
-                result.AppendLine();
+                writer.WriteLine();
+                writer.WriteLine();
                 var methodId = Method.ToDictionary(x => x);
-                TextCodeUtils.WriteJoinCode(codeSection.Methods.Where(x => methodId.ContainsKey(x.Id)), Environment.NewLine + Environment.NewLine, nameMap, result, indent, writeCode);
+                TextCodeUtils.JoinAndWriteCode(codeSection.Methods.Where(x => methodId.ContainsKey(x.Id)), Environment.NewLine + Environment.NewLine, nameMap, writer, indent, writeCode);
             }
         }
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent)
         {
-            ToTextCode(nameMap, result, indent, null);
+            ToTextCode(nameMap, writer, indent, null);
         }
     }
 }

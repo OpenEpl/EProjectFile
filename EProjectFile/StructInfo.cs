@@ -48,11 +48,11 @@ namespace QIQI.EProjectFile
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
-        public void ToTextCode(IdToNameMap nameMap, StringBuilder result, int indent)
+        public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent)
         {
-            TextCodeUtils.WriteDefinedCode(result, indent, "数据类型", nameMap.GetUserDefinedName(Id), Public ? "公开" : "", Comment);
-            result.AppendLine();
-            TextCodeUtils.WriteJoinCode(Member, Environment.NewLine, nameMap, result, indent + 1);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "数据类型", nameMap.GetUserDefinedName(Id), Public ? "公开" : "", Comment);
+            writer.WriteLine();
+            TextCodeUtils.JoinAndWriteCode(Member, Environment.NewLine, nameMap, writer, indent + 1);
         }
     }
 }
