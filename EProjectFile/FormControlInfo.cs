@@ -31,6 +31,10 @@ namespace QIQI.EProjectFile
         [JsonIgnore]
         public int UnknownBeforeVisible { get; set; }
         public bool TabStop { get; set; }
+        /// <summary>
+        /// 被锁定的组件在设计器中无法被修改位置（右键菜单可以“锁定”、“解除锁定”）
+        /// </summary>
+        public bool Locked { get; set; }
         public int TabIndex { get; set; }
         /// <summary>
         /// 【仅用于不带有编辑信息的EC文件】事件处理程序映射表
@@ -66,7 +70,8 @@ namespace QIQI.EProjectFile
                 elem.Visible = (showStatus & 0x1) != 0;
                 elem.Disable = (showStatus & 0x2) != 0;
                 elem.TabStop = (showStatus & 0x4) != 0;
-                if ((showStatus & 0xFFFFFFF8) != 0)
+                elem.Locked = (showStatus & 0x10) != 0;
+                if ((showStatus & 0xFFFFFFE8) != 0)
                 {
                     throw new Exception($"Unknown flag for show status of the control is found, value = 0x{showStatus:X8}");
                 }
@@ -94,7 +99,7 @@ namespace QIQI.EProjectFile
             writer.WriteBytesWithLengthPrefix(Cursor);
             writer.WriteCStyleString(encoding, Tag);
             writer.Write(UnknownBeforeVisible);
-            writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0) | (TabStop ? 0x4 : 0));
+            writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0) | (TabStop ? 0x4 : 0) | (Locked ? 0x10 : 0));
             writer.Write(TabIndex);
             writer.Write(Events.Length);
             Array.ForEach(
