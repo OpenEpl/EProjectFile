@@ -30,8 +30,8 @@ namespace QIQI.EProjectFile
         public string Tag { get; set; }
         [JsonIgnore]
         public int UnknownBeforeVisible { get; set; }
-        [JsonIgnore]
-        public int UnknownBeforeEvents { get; set; }
+        public bool TabStop { get; set; }
+        public int TabIndex { get; set; }
         /// <summary>
         /// 【仅用于不带有编辑信息的EC文件】事件处理程序映射表
         /// </summary>
@@ -65,8 +65,13 @@ namespace QIQI.EProjectFile
                 int showStatus = reader.ReadInt32();
                 elem.Visible = (showStatus & 0x1) != 0;
                 elem.Disable = (showStatus & 0x2) != 0;
+                elem.TabStop = (showStatus & 0x4) != 0;
+                if ((showStatus & 0xFFFFFFF8) != 0)
+                {
+                    throw new Exception($"Unknown flag for show status of the control is found, value = 0x{showStatus:X8}");
+                }
             }
-            elem.UnknownBeforeEvents = reader.ReadInt32();
+            elem.TabIndex = reader.ReadInt32();
             elem.Events = new object[reader.ReadInt32()].Select(x => new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32())).ToArray();
             elem.UnknownBeforeExtensionData = reader.ReadBytes(20);
             elem.ExtensionData = reader.ReadBytes(length - (int)(reader.BaseStream.Position - startPosition));
@@ -89,8 +94,8 @@ namespace QIQI.EProjectFile
             writer.WriteBytesWithLengthPrefix(Cursor);
             writer.WriteCStyleString(encoding, Tag);
             writer.Write(UnknownBeforeVisible);
-            writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0));
-            writer.Write(UnknownBeforeEvents);
+            writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0) | (TabStop ? 0x4 : 0));
+            writer.Write(TabIndex);
             writer.Write(Events.Length);
             Array.ForEach(
                 Events, 

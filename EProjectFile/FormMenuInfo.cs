@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Text;
 
@@ -32,6 +33,10 @@ namespace QIQI.EProjectFile
                 elem.Visible = (showStatus & 0x1) == 0;
                 elem.Disable = (showStatus & 0x2) != 0;
                 elem.Selected = (showStatus & 0x4) != 0;
+                if ((showStatus & 0xFFFFFFF8) != 0)
+                {
+                    throw new Exception($"Unknown flag for show status of the menu is found, value = 0x{showStatus:X8}");
+                }
             }
             elem.Text = reader.ReadCStyleString(encoding);
             elem.ClickEvent = reader.ReadInt32();
