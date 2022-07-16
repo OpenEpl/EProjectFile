@@ -12,8 +12,11 @@ namespace QIQI.EProjectFile
         [JsonIgnore]
         public byte[] UnknownBeforeName { get; set; }
         public string Comment { get; set; }
-        [JsonIgnore]
-        public int UnknownBeforeLeft { get; set; } // !=0
+        /// <summary>
+        /// 最后一次保存时易语言窗口设计器创建该组件后得到的 CWnd 对象的内存地址
+        /// 在用于编辑文件的场景下，意义不大
+        /// </summary>
+        public int CWndAddress { get; set; }
         public int Left { get; set; }
         public int Top { get; set; }
         public int Width { get; set; }
@@ -47,7 +50,7 @@ namespace QIQI.EProjectFile
             elem.UnknownBeforeName = reader.ReadBytes(20);
             elem.Name = reader.ReadCStyleString(encoding);
             elem.Comment = reader.ReadCStyleString(encoding);
-            elem.UnknownBeforeLeft = reader.ReadInt32();
+            elem.CWndAddress = reader.ReadInt32();
             elem.Left = reader.ReadInt32();
             elem.Top = reader.ReadInt32();
             elem.Width = reader.ReadInt32();
@@ -75,7 +78,7 @@ namespace QIQI.EProjectFile
             writer.Write(UnknownBeforeName);
             writer.WriteCStyleString(encoding, Name);
             writer.WriteCStyleString(encoding, Comment);
-            writer.Write(UnknownBeforeLeft);
+            writer.Write(CWndAddress);
             writer.Write(Left);
             writer.Write(Top);
             writer.Write(Width);
