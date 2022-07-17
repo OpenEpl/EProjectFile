@@ -18,8 +18,8 @@
     <Authors>OpenEpl</Authors>
     <PackageProjectUrl>https://github.com/OpenEpl/EProjectFile</PackageProjectUrl>
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
-    <PackageVersion>1.5.0</PackageVersion>
-    <Version>1.5.0</Version>
+    <PackageVersion>1.5.1</PackageVersion>
+    <Version>1.5.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
