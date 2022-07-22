@@ -15,7 +15,7 @@ namespace QIQI.EProjectFile.Statements
                 writer.Write("    ");
             if (MaskOnStart)
                 writer.Write("' ");
-            writer.Write(".判断循环首 ()");
+            writer.Write(".循环判断首 ()");
             if (CommentOnStart != null)
             {
                 writer.Write("  ' ");
@@ -30,7 +30,7 @@ namespace QIQI.EProjectFile.Statements
                 writer.Write("' ");
             if (UnexaminedCode == null)
             {
-                writer.Write(".判断循环尾 (");
+                writer.Write(".循环判断尾 (");
                 Condition.ToTextCode(nameMap, writer, indent);
                 writer.Write(")");
             }
