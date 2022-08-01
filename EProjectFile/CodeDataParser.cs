@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using QIQI.EProjectFile.Expressions;
+using QIQI.EProjectFile.Internal;
 using QIQI.EProjectFile.Statements;
 namespace QIQI.EProjectFile
 {

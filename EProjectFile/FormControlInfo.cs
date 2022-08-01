@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
+using QIQI.EProjectFile.Internal;
 
 namespace QIQI.EProjectFile
 {

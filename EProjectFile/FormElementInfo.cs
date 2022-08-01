@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using QIQI.EProjectFile.Internal;
+using System.IO;
 using System.Text;
 
 namespace QIQI.EProjectFile

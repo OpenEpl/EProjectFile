@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using QIQI.EProjectFile.Internal;
 
 namespace QIQI.EProjectFile
 {

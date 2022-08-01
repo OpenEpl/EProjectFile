@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using QIQI.EProjectFile.Sections;
+using QIQI.EProjectFile.Internal;
 
 namespace QIQI.EProjectFile
 {

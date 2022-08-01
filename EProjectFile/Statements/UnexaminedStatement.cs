@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using QIQI.EProjectFile.Expressions;
+using QIQI.EProjectFile.Internal;
+
 namespace QIQI.EProjectFile.Statements
 {
     /// <summary>

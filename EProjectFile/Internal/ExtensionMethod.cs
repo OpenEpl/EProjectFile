@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Internal
 {
     internal static class ExtensionMethod
     {
@@ -59,7 +59,7 @@ namespace QIQI.EProjectFile
         public static int ReadMfcStyleCountPrefix(this BinaryReader reader)
         {
             ushort count_16bit = reader.ReadUInt16();
-            if (count_16bit != (ushort)0xFFFFU) 
+            if (count_16bit != (ushort)0xFFFFU)
             {
                 return count_16bit;
             }
@@ -68,7 +68,7 @@ namespace QIQI.EProjectFile
 
         public static string[] ReadStringsWithMfcStyleCountPrefix(this BinaryReader reader, Encoding encoding)
         {
-            var result = new string[ReadMfcStyleCountPrefix(reader)];
+            var result = new string[reader.ReadMfcStyleCountPrefix()];
             for (int i = 0; i < result.Length; i++)
             {
                 result[i] = reader.ReadStringWithLengthPrefix(encoding);
@@ -79,7 +79,7 @@ namespace QIQI.EProjectFile
             this BinaryReader reader,
             Func<BinaryReader, int, TElem> readFunction)
         {
-            return ReadBlocksWithIdAndOffest(reader, (elemReader, id, length) => readFunction(elemReader, id));
+            return reader.ReadBlocksWithIdAndOffest((elemReader, id, length) => readFunction(elemReader, id));
         }
 
         public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
@@ -143,7 +143,7 @@ namespace QIQI.EProjectFile
                 offsets[i] = offsets[i - 1] + elem[i - 1].Length;
             }
             writer.Write(count);
-            writer.Write((count * 8) + elem.Sum(x => x.Length));
+            writer.Write(count * 8 + elem.Sum(x => x.Length));
             Array.ForEach(data, x => writer.Write(x.Id));
             writer.WriteInt32sWithoutLengthPrefix(offsets);
             Array.ForEach(elem, x => writer.Write(x));

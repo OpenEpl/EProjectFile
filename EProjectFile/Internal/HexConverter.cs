@@ -4,7 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Globalization;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Internal
 {
     internal class HexConverter : JsonConverter
     {
@@ -62,7 +62,7 @@ namespace QIQI.EProjectFile
                 throw new Exception();
             }
             return data;
-            
+
         }
         private byte[] ReadByteArray(JsonReader reader)
         {

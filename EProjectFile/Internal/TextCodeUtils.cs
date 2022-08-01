@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using QIQI.EProjectFile.Sections;
 using System.IO;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Internal
 {
     internal class TextCodeUtils
     {
