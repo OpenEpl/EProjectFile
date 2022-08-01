@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 
@@ -46,7 +47,7 @@ namespace QIQI.EProjectFile.Sections
                     LibraryRefInfo.ApplyCompatibilityInfo(codeSectionInfo.Libraries, minRequiredCmds, minRequiredDataTypes, minRequiredConstants);
                     if ((codeSectionInfo.Flag & 1) != 0)
                     {
-                        codeSectionInfo.UnknownBeforeIconData = reader.ReadBytes(16); // Unknown
+                        codeSectionInfo.UnknownBeforeIconData = reader.ReadImmutableBytes(16); // Unknown
                     }
                     codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
                     codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix(encoding);
@@ -85,7 +86,7 @@ namespace QIQI.EProjectFile.Sections
         /// </summary>
         public int MainMethod { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeIconData { get; set; }
+        public ImmutableArray<byte> UnknownBeforeIconData { get; set; }
         public byte[] IconData { get; set; }
         public string DebugCommandParameters { get; set; }
         public ClassInfo[] Classes { get; set; }

@@ -2,7 +2,10 @@
 using Newtonsoft.Json.Converters;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Immutable;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace QIQI.EProjectFile.Sections
@@ -22,7 +25,12 @@ namespace QIQI.EProjectFile.Sections
                 {
                     losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
                     losableSectionInfo.RemovedDefinedItem = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
-                    losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
+                    losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadImmutableBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position)) switch
+                    {
+                        // use shared object if it equals to the dafault value, which can reduce memory usage.
+                        var x when x.SequenceEqual(DefaultUnknownAfterRemovedDefinedItem) => DefaultUnknownAfterRemovedDefinedItem,
+                        var x => x
+                    };
                 }
                 return losableSectionInfo;
             }
@@ -34,8 +42,10 @@ namespace QIQI.EProjectFile.Sections
 
         public string OutFile { get; set; }
         public RemovedDefinedItemInfo[] RemovedDefinedItem { get; set; }
+        private static readonly ImmutableArray<byte> DefaultUnknownAfterRemovedDefinedItem 
+            = ImmutableArray.Create(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 } );
         [JsonIgnore]
-        public byte[] UnknownAfterRemovedDefinedItem { get; set; }
+        public ImmutableArray<byte> UnknownAfterRemovedDefinedItem { get; set; } = DefaultUnknownAfterRemovedDefinedItem;
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

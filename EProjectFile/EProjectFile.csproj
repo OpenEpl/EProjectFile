@@ -20,6 +20,7 @@
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
     <PackageVersion>1.5.1</PackageVersion>
     <Version>1.5.1</Version>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
 
     <Content Include="bin/Release/LibNameInfoToJson.exe;QIQI.EProjectFile.targets">
       <Pack>true</Pack>

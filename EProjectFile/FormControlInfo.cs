@@ -5,13 +5,15 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Text;
 using QIQI.EProjectFile.Internal;
+using System.Collections.Immutable;
 
 namespace QIQI.EProjectFile
 {
     public class FormControlInfo : FormElementInfo
     {
+        private static readonly ImmutableArray<byte> Zero20Bytes = ImmutableArray.Create(new byte[20]);
         [JsonIgnore]
-        public byte[] UnknownBeforeName { get; set; }
+        public ImmutableArray<byte> UnknownBeforeName { get; set; } = Zero20Bytes;
         public string Comment { get; set; }
         /// <summary>
         /// 最后一次保存时易语言窗口设计器创建该组件后得到的 CWnd 对象的内存地址
@@ -42,7 +44,7 @@ namespace QIQI.EProjectFile
         /// </summary>
         public KeyValuePair<int, int>[] Events { get; set; }
         [JsonIgnore]
-        public byte[] UnknownBeforeExtensionData { get; set; }
+        public ImmutableArray<byte> UnknownBeforeExtensionData { get; set; } = Zero20Bytes;
         /// <summary>
         /// 控件特有数据
         /// </summary>
@@ -52,7 +54,11 @@ namespace QIQI.EProjectFile
         {
             var startPosition = reader.BaseStream.Position;
             var elem = new FormControlInfo() { };
-            elem.UnknownBeforeName = reader.ReadBytes(20);
+            elem.UnknownBeforeName = reader.ReadImmutableBytes(20) switch
+            {
+                var x when x.SequenceEqual(Zero20Bytes) => Zero20Bytes,
+                var x => x
+            };
             elem.Name = reader.ReadCStyleString(encoding);
             elem.Comment = reader.ReadCStyleString(encoding);
             elem.CWndAddress = reader.ReadInt32();
@@ -79,7 +85,11 @@ namespace QIQI.EProjectFile
             }
             elem.TabIndex = reader.ReadInt32();
             elem.Events = new object[reader.ReadInt32()].Select(x => new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32())).ToArray();
-            elem.UnknownBeforeExtensionData = reader.ReadBytes(20);
+            elem.UnknownBeforeExtensionData = reader.ReadImmutableBytes(20) switch
+            {
+                var x when x.SequenceEqual(Zero20Bytes) => Zero20Bytes,
+                var x => x
+            };
             elem.ExtensionData = reader.ReadBytes(length - (int)(reader.BaseStream.Position - startPosition));
             return elem;
         }

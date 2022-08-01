@@ -1,15 +1,19 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace QIQI.EProjectFile
 {
     public class FormMenuInfo : FormElementInfo
     {
+        private static readonly ImmutableArray<byte> Zero16Bytes = ImmutableArray.Create(new byte[16]);
+        private static readonly ImmutableArray<byte> Zero20Bytes = ImmutableArray.Create(new byte[20]);
         [JsonIgnore]
-        public byte[] UnknownBeforeName { get; set; }
+        public ImmutableArray<byte> UnknownBeforeName { get; set; } = Zero20Bytes;
         public int HotKey { get; set; }
         public int Level { get; set; }
         public bool Selected { get; set; }
@@ -19,12 +23,16 @@ namespace QIQI.EProjectFile
         /// </summary>
         public int ClickEvent { get; set; }
         [JsonIgnore]
-        public byte[] UnknownAfterClickEvent { get; set; }
+        public ImmutableArray<byte> UnknownAfterClickEvent { get; set; } = Zero16Bytes;
         internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int length)
         {
             var startPosition = reader.BaseStream.Position;
             var elem = new FormMenuInfo() { };
-            elem.UnknownBeforeName = reader.ReadBytes(20);
+            elem.UnknownBeforeName = reader.ReadImmutableBytes(20) switch
+            {
+                var x when x.SequenceEqual(Zero20Bytes) => Zero20Bytes,
+                var x => x
+            };
             elem.Name = reader.ReadCStyleString(encoding);
             reader.ReadCStyleString(encoding); // 菜单没有Comment
             elem.HotKey = reader.ReadInt32();
@@ -41,7 +49,11 @@ namespace QIQI.EProjectFile
             }
             elem.Text = reader.ReadCStyleString(encoding);
             elem.ClickEvent = reader.ReadInt32();
-            elem.UnknownAfterClickEvent = reader.ReadBytes(length - (int)(reader.BaseStream.Position - startPosition));
+            elem.UnknownAfterClickEvent = reader.ReadImmutableBytes(length - (int)(reader.BaseStream.Position - startPosition)) switch
+            {
+                var x when x.SequenceEqual(Zero16Bytes) => Zero16Bytes,
+                var x => x
+            }; ;
             return elem;
         }
         protected override void WriteWithoutId(BinaryWriter writer, Encoding encoding)
