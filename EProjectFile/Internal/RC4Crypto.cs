@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace QIQI.EProjectFile
+namespace QIQI.EProjectFile.Internal
 {
     internal class RC4Crypto : ICloneable
     {
