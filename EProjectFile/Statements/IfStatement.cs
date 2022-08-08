@@ -43,6 +43,8 @@ namespace QIQI.EProjectFile.Statements
             writer.WriteLine();
             for (int i = 0; i < indent; i++)
                 writer.Write("    ");
+            if (Mask)
+                writer.Write("' ");
             writer.Write(".如果真结束");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)

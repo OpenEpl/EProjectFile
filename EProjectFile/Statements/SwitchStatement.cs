@@ -75,11 +75,15 @@ namespace QIQI.EProjectFile.Statements
             writer.WriteLine();
             for (int i = 0; i < indent; i++)
                 writer.Write("    ");
+            if (Case[0].Mask)
+                writer.Write("' ");
             writer.WriteLine(".默认");
             DefaultBlock.ToTextCode(nameMap, writer, indent + 1);
             writer.WriteLine();
             for (int i = 0; i < indent; i++)
                 writer.Write("    ");
+            if (Case[0].Mask)
+                writer.Write("' ");
             writer.Write(".判断结束");
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
