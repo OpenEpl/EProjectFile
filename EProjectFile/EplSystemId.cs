@@ -7,8 +7,8 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// Not a Variable
         /// </summary>
-        /// <seealso cref="AccessArrayExpression"/>
-        /// <seealso cref="AccessMemberExpression"/>
+        /// <seealso cref="Expressions.AccessArrayExpression"/>
+        /// <seealso cref="Expressions.AccessMemberExpression"/>
         internal const int Id_NaV = 0x0500FFFE;
 
         public const int Type_Method = 0x04000000;

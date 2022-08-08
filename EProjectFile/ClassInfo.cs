@@ -67,7 +67,7 @@ namespace QIQI.EProjectFile
         /// 到文本代码（结尾无换行）
         /// </summary>
         /// <param name="nameMap">命名映射器</param>
-        /// <param name="result">输出目标</param>
+        /// <param name="writer">输出目标</param>
         /// <param name="indent">起始缩进</param>
         /// <param name="codeSection">若为null，不写出下属方法</param>
         /// <param name="writeCode">是否输出子程序代码</param>
