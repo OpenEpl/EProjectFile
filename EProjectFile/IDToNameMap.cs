@@ -1,4 +1,6 @@
-﻿using QIQI.EProjectFile.Sections;
+﻿using OpenEpl.ELibInfo;
+using OpenEpl.ELibInfo.Loader;
+using QIQI.EProjectFile.Sections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,17 +39,13 @@ namespace QIQI.EProjectFile
         public static readonly IdToNameMap Empty = new IdToNameMap();
         public Dictionary<int, string> UserDefinedName { get; }
         public Dictionary<int, int> MethodIdToClassId { get; }
-        public LibInfo.LibInfo[] LibDefinedName { get; }
+        public ELibManifest[] LibDefinedName { get; }
         /// <summary>
         /// 不加载名称数据模式（私有） 
         /// </summary>
         private IdToNameMap()
         {
-#if NETSTANDARD1_3_OR_GREATER
-            LibDefinedName = Array.Empty<LibInfo.LibInfo>();
-#else
-            LibDefinedName = new LibInfo.LibInfo[0];
-#endif
+            LibDefinedName = Array.Empty<ELibManifest>();
             UserDefinedName = new Dictionary<int, string>();
             MethodIdToClassId = new Dictionary<int, int>();
         }
@@ -61,7 +59,8 @@ namespace QIQI.EProjectFile
             {
                 try
                 {
-                    return LibInfo.LibInfo.Load(x);
+                    Guid.TryParse(x.GuidString, out var guid);
+                    return ELibInfoLoader.Default.Load(guid, x.FileName, x.Version);
                 }
                 catch (Exception)
                 {
@@ -221,7 +220,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].Cmd[id].Name;
+                return LibDefinedName[lib].Cmds[id].Name;
             }
             catch (Exception)
             {
@@ -232,7 +231,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[id].Name;
+                return LibDefinedName[lib].DataTypes[id].Name;
             }
             catch (Exception)
             {
@@ -243,7 +242,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].Constant[id].Name;
+                return LibDefinedName[lib].Constants[id].Name;
             }
             catch (Exception)
             {
@@ -259,7 +258,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[typeId].Evnet[id].Name;
+                return LibDefinedName[lib].DataTypes[typeId].Evnets[id].Name;
             }
             catch (Exception)
             {
@@ -275,7 +274,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataType[typeId].Member[id].Name;
+                return LibDefinedName[lib].DataTypes[typeId].Members[id].Name;
             }
             catch (Exception)
             {
