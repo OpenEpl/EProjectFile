@@ -18,7 +18,7 @@
     <Authors>OpenEpl</Authors>
     <PackageProjectUrl>https://github.com/OpenEpl/EProjectFile</PackageProjectUrl>
     <RootNamespace>QIQI.EProjectFile</RootNamespace>
-    <Version>1.6.0</Version>
+    <Version>1.6.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -37,7 +37,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="OpenEpl.ELibInfo" Version="0.0.2" />
+    <PackageReference Include="OpenEpl.ELibInfo" Version="0.0.2">
+      <PrivateAssets>build; analyzers</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
   </ItemGroup>
 </Project>
