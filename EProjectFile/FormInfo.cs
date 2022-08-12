@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -23,8 +24,8 @@ namespace QIQI.EProjectFile
         public int Class { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public FormElementInfo[] Elements { get; set; }
-        public static FormInfo[] ReadForms(BinaryReader r, Encoding encoding)
+        public List<FormElementInfo> Elements { get; set; }
+        public static List<FormInfo> ReadForms(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new FormInfo(id)
             {
@@ -37,7 +38,7 @@ namespace QIQI.EProjectFile
             });
         }
 
-        public static void WriteForms(BinaryWriter w, Encoding encoding, FormInfo[] forms)
+        public static void WriteForms(BinaryWriter w, Encoding encoding, List<FormInfo> forms)
         {
             w.WriteBlocksWithIdAndMemoryAddress(forms, (writer, elem) =>
             {

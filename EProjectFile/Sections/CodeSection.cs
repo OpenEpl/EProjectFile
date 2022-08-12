@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
@@ -89,11 +90,11 @@ namespace QIQI.EProjectFile.Sections
         public ImmutableArray<byte> UnknownBeforeIconData { get; set; }
         public byte[] IconData { get; set; }
         public string DebugCommandParameters { get; set; }
-        public ClassInfo[] Classes { get; set; }
-        public MethodInfo[] Methods { get; set; }
-        public GlobalVariableInfo[] GlobalVariables { get; set; }
-        public StructInfo[] Structs { get; set; }
-        public DllDeclareInfo[] DllDeclares { get; set; }
+        public List<ClassInfo> Classes { get; set; }
+        public List<MethodInfo> Methods { get; set; }
+        public List<GlobalVariableInfo> GlobalVariables { get; set; }
+        public List<StructInfo> Structs { get; set; }
+        public List<DllDeclareInfo> DllDeclares { get; set; }
         /// <summary>
         /// 分配一个Id
         /// </summary>
@@ -145,18 +146,18 @@ namespace QIQI.EProjectFile.Sections
         }
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, bool writeMethod, bool writeCode = true)
         {
-            if (GlobalVariables != null && GlobalVariables.Length != 0)
+            if (GlobalVariables != null && GlobalVariables.Count != 0)
             {
                 TextCodeUtils.JoinAndWriteCode(GlobalVariables, Environment.NewLine, nameMap, writer, indent);
                 writer.WriteLine();
             }
             TextCodeUtils.JoinAndWriteCode(Classes, Environment.NewLine, writeMethod ? this : null, nameMap, writer, indent, writeCode);
-            if (DllDeclares != null && DllDeclares.Length != 0)
+            if (DllDeclares != null && DllDeclares.Count != 0)
             {
                 writer.WriteLine();
                 TextCodeUtils.JoinAndWriteCode(DllDeclares, Environment.NewLine, nameMap, writer, indent);
             }
-            if (Structs != null && Structs.Length != 0)
+            if (Structs != null && Structs.Count != 0)
             {
                 writer.WriteLine();
                 TextCodeUtils.JoinAndWriteCode(Structs, Environment.NewLine, nameMap, writer, indent);

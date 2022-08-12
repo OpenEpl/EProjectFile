@@ -1,4 +1,5 @@
 ﻿using QIQI.EProjectFile.Internal;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -12,7 +13,7 @@ namespace QIQI.EProjectFile
         public string Name { get; set; }
         public bool Visible { get; set; }
         public bool Disable { get; set; }
-        public static FormElementInfo[] ReadFormElements(BinaryReader r, Encoding encoding)
+        public static List<FormElementInfo> ReadFormElements(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndOffest((reader, id, length) =>
             {
@@ -31,7 +32,7 @@ namespace QIQI.EProjectFile
                 return elem;
             });
         }
-        public static void WriteFormElements(BinaryWriter w, Encoding encoding, FormElementInfo[] formElements)
+        public static void WriteFormElements(BinaryWriter w, Encoding encoding, List<FormElementInfo> formElements)
         {
             w.WriteBlocksWithIdAndOffest(
                 encoding,

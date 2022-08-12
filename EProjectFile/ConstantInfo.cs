@@ -104,7 +104,7 @@ namespace QIQI.EProjectFile
         [JsonConverter(typeof(ConstantValueConverter))]
         public object Value { get; set; } // 对于未验证代码，此值为string
 
-        public static ConstantInfo[] ReadConstants(BinaryReader r, Encoding encoding)
+        public static List<ConstantInfo> ReadConstants(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndOffest(
                 (reader, id) =>
@@ -150,7 +150,7 @@ namespace QIQI.EProjectFile
                     return constant;
                 });
         }
-        public static void WriteConstants(BinaryWriter w, Encoding encoding, ConstantInfo[] constants)
+        public static void WriteConstants(BinaryWriter w, Encoding encoding, List<ConstantInfo> constants)
         {
             w.WriteBlocksWithIdAndOffest(
                 encoding,

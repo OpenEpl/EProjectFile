@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -20,8 +21,8 @@ namespace QIQI.EProjectFile
         public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public StructMemberInfo[] Member { get; set; }
-        public static StructInfo[] ReadStructs(BinaryReader r, Encoding encoding)
+        public List<StructMemberInfo> Member { get; set; }
+        public static List<StructInfo> ReadStructs(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) =>
                 new StructInfo(id)
@@ -34,7 +35,7 @@ namespace QIQI.EProjectFile
                 }
             );
         }
-        public static void WriteStructs(BinaryWriter w, Encoding encoding, StructInfo[] structs)
+        public static void WriteStructs(BinaryWriter w, Encoding encoding, List<StructInfo> structs)
         {
             w.WriteBlocksWithIdAndMemoryAddress(structs, (writer, elem) =>
             {

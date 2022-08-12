@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -23,8 +24,8 @@ namespace QIQI.EProjectFile
         public string Comment { get; set; }
         public string EntryPoint { get; set; }
         public string LibraryName { get; set; }
-        public DllParameterInfo[] Parameters { get; set; }
-        public static DllDeclareInfo[] ReadDllDeclares(BinaryReader r, Encoding encoding)
+        public List<DllParameterInfo> Parameters { get; set; }
+        public static List<DllDeclareInfo> ReadDllDeclares(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new DllDeclareInfo(id)
             {
@@ -38,7 +39,7 @@ namespace QIQI.EProjectFile
                 Parameters = AbstractVariableInfo.ReadVariables(reader, encoding, x => new DllParameterInfo(x))
             });
         }
-        public static void WriteDllDeclares(BinaryWriter w, Encoding encoding, DllDeclareInfo[] dllDeclares)
+        public static void WriteDllDeclares(BinaryWriter w, Encoding encoding, List<DllDeclareInfo> dllDeclares)
         {
             w.WriteBlocksWithIdAndMemoryAddress(dllDeclares, (writer, elem) =>
             {

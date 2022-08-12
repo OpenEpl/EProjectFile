@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -19,7 +20,7 @@ namespace QIQI.EProjectFile
         public int Flags { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        internal static TElem[] ReadVariables<TElem>(BinaryReader r, Encoding encoding, Func<int, TElem> newFunction) where TElem : AbstractVariableInfo
+        internal static List<TElem> ReadVariables<TElem>(BinaryReader r, Encoding encoding, Func<int, TElem> newFunction) where TElem : AbstractVariableInfo
         {
             return r.ReadBlocksWithIdAndOffest((reader, id) =>
             {
@@ -32,7 +33,7 @@ namespace QIQI.EProjectFile
                 return x;
             });
         }
-        internal static void WriteVariables(BinaryWriter w, Encoding encoding, AbstractVariableInfo[] variables)
+        internal static void WriteVariables<TElem>(BinaryWriter w, Encoding encoding, List<TElem> variables) where TElem : AbstractVariableInfo
         {
             w.WriteBlocksWithIdAndOffest(
                 encoding,

@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using QIQI.EProjectFile.Sections;
 using QIQI.EProjectFile.Internal;
+using System.Collections.Generic;
 
 namespace QIQI.EProjectFile
 {
@@ -22,10 +23,10 @@ namespace QIQI.EProjectFile
         public int BaseClass { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public int[] Method { get; set; }
-        public ClassVariableInfo[] Variables { get; set; }
+        public List<int> Method { get; set; }
+        public List<ClassVariableInfo> Variables { get; set; }
 
-        public static ClassInfo[] ReadClasses(BinaryReader r, Encoding encoding)
+        public static List<ClassInfo> ReadClasses(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new ClassInfo(id)
             {
@@ -34,11 +35,11 @@ namespace QIQI.EProjectFile
                 BaseClass = reader.ReadInt32(),
                 Name = reader.ReadStringWithLengthPrefix(encoding),
                 Comment = reader.ReadStringWithLengthPrefix(encoding),
-                Method = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4),
+                Method = reader.ReadInt32sListWithFixedLength(reader.ReadInt32() / 4),
                 Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new ClassVariableInfo(x))
             });
         }
-        public static void WriteClasses(BinaryWriter w, Encoding encoding, ClassInfo[] classes)
+        public static void WriteClasses(BinaryWriter w, Encoding encoding, List<ClassInfo> classes)
         {
             w.WriteBlocksWithIdAndMemoryAddress(classes, (writer, elem) =>
             {
@@ -52,8 +53,8 @@ namespace QIQI.EProjectFile
                 }
                 else
                 {
-                    writer.Write(elem.Method.Length * 4);
-                    writer.WriteInt32sWithoutLengthPrefix(elem.Method);
+                    writer.Write(elem.Method.Count * 4);
+                    foreach (var x in elem.Method) writer.Write(x);
                 }
                 AbstractVariableInfo.WriteVariables(writer, encoding, elem.Variables);
             });

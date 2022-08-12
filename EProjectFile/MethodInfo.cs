@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -63,11 +64,11 @@ namespace QIQI.EProjectFile
         public int ReturnDataType { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public LocalVariableInfo[] Variables { get; set; }
-        public MethodParameterInfo[] Parameters { get; set; }
+        public List<LocalVariableInfo> Variables { get; set; }
+        public List<MethodParameterInfo> Parameters { get; set; }
         public MethodCodeData CodeData { get; set; }
         public bool IsStatic => EplSystemId.GetType(Class) == EplSystemId.Type_StaticClass || EplSystemId.GetType(Class) == EplSystemId.Type_FormClass;
-        public static MethodInfo[] ReadMethods(BinaryReader r, Encoding encoding)
+        public static List<MethodInfo> ReadMethods(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) =>
             {
@@ -93,7 +94,7 @@ namespace QIQI.EProjectFile
                 return elem;
             });
         }
-        public static void WriteMethods(BinaryWriter w, Encoding encoding, MethodInfo[] methods)
+        public static void WriteMethods(BinaryWriter w, Encoding encoding, List<MethodInfo> methods)
         {
             w.WriteBlocksWithIdAndMemoryAddress(methods, (writer, elem) =>
             {
@@ -119,13 +120,13 @@ namespace QIQI.EProjectFile
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, bool writeCode)
         {
             TextCodeUtils.WriteDefinitionCode(writer, indent, "子程序", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(ReturnDataType), Public ? "公开" : "", Comment);
-            if (Parameters != null && Parameters.Length != 0)
+            if (Parameters != null && Parameters.Count != 0)
             {
                 writer.WriteLine();
                 TextCodeUtils.JoinAndWriteCode(Parameters, Environment.NewLine, nameMap, writer, indent);
             }
             if (!writeCode) return;
-            if (Variables != null && Variables.Length != 0)
+            if (Variables != null && Variables.Count != 0)
             {
                 writer.WriteLine();
                 TextCodeUtils.JoinAndWriteCode(Variables, Environment.NewLine, nameMap, writer, indent);

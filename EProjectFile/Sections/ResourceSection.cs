@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -35,8 +36,8 @@ namespace QIQI.EProjectFile
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
 
-        public FormInfo[] Forms { get; set; }
-        public ConstantInfo[] Constants { get; set; }
+        public List<FormInfo> Forms { get; set; }
+        public List<ConstantInfo> Constants { get; set; }
         public byte[] ToBytes(Encoding encoding)
         {
             byte[] data;

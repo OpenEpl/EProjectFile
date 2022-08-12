@@ -105,13 +105,13 @@ namespace QIQI.EProjectFile
                     {
                         UserDefinedName.Add(method.Id, method.Name);
                     }
-                    Array.ForEach(method.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
-                    Array.ForEach(method.Variables, x => UserDefinedName.Add(x.Id, x.Name));
+                    foreach (var x in method.Parameters) UserDefinedName.Add(x.Id, x.Name);
+                    foreach (var x in method.Variables) UserDefinedName.Add(x.Id, x.Name);
                 }
                 foreach (var dll in codeSection.DllDeclares)
                 {
                     UserDefinedName.Add(dll.Id, dll.Name);
-                    Array.ForEach(dll.Parameters, x => UserDefinedName.Add(x.Id, x.Name));
+                    foreach (var x in dll.Parameters) UserDefinedName.Add(x.Id, x.Name);
                 }
                 foreach (var classInfo in codeSection.Classes)
                 {
@@ -131,22 +131,22 @@ namespace QIQI.EProjectFile
                     {
                         UserDefinedName.Add(classInfo.Id, classInfo.Name);
                     }
-                    Array.ForEach(classInfo.Variables, x => UserDefinedName.Add(x.Id, x.Name));
+                    foreach (var x in classInfo.Variables) UserDefinedName.Add(x.Id, x.Name);
                 }
                 foreach (var structInfo in codeSection.Structs)
                 {
                     UserDefinedName.Add(structInfo.Id, structInfo.Name);
-                    Array.ForEach(structInfo.Member, x => UserDefinedName.Add(x.Id, x.Name));
+                    foreach (var x in structInfo.Member) UserDefinedName.Add(x.Id, x.Name);
                 }
-                Array.ForEach(codeSection.GlobalVariables, x => UserDefinedName.Add(x.Id, x.Name));
+                foreach (var x in codeSection.GlobalVariables) UserDefinedName.Add(x.Id, x.Name);
             }
             if (resourceSection != null)
             {
-                Array.ForEach(resourceSection.Constants, x => UserDefinedName.Add(x.Id, x.Name));
+                foreach (var x in resourceSection.Constants) UserDefinedName.Add(x.Id, x.Name);
                 foreach (var formInfo in resourceSection.Forms)
                 {
                     UserDefinedName.Add(formInfo.Id, formInfo.Name);
-                    Array.ForEach(formInfo.Elements, x => UserDefinedName.Add(x.Id, x.Name));
+                    foreach (var x in formInfo.Elements) UserDefinedName.Add(x.Id, x.Name);
                 }
             }
             if (losableSection != null)

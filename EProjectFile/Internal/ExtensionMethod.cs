@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -75,21 +76,21 @@ namespace QIQI.EProjectFile.Internal
             }
             return result;
         }
-        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
+        public static List<TElem> ReadBlocksWithIdAndOffest<TElem>(
             this BinaryReader reader,
             Func<BinaryReader, int, TElem> readFunction)
         {
             return reader.ReadBlocksWithIdAndOffest((elemReader, id, length) => readFunction(elemReader, id));
         }
 
-        public static TElem[] ReadBlocksWithIdAndOffest<TElem>(
+        public static List<TElem> ReadBlocksWithIdAndOffest<TElem>(
             this BinaryReader reader,
             Func<BinaryReader, int, int, TElem> readFunction)
         {
             var count = reader.ReadInt32();
             var size = reader.ReadInt32();
             var endPosition = reader.BaseStream.Position + size;
-            TElem[] result = new TElem[count];
+            var result = new List<TElem>(count);
             var ids = reader.ReadInt32sWithFixedLength(count);
             var offsets = reader.ReadInt32sWithFixedLength(count);
             var startPosition = reader.BaseStream.Position;
@@ -97,7 +98,7 @@ namespace QIQI.EProjectFile.Internal
             {
                 reader.BaseStream.Position = startPosition + offsets[i];
                 int length = reader.ReadInt32();
-                result[i] = readFunction(reader, ids[i], length);
+                result.Add(readFunction(reader, ids[i], length));
             }
             reader.BaseStream.Position = endPosition;
             return result;
@@ -106,7 +107,7 @@ namespace QIQI.EProjectFile.Internal
         public static void WriteBlocksWithIdAndOffest<TElem>(
             this BinaryWriter writer,
             Encoding encoding,
-            TElem[] data,
+            List<TElem> data,
             Action<BinaryWriter, TElem> writeAction)
             where TElem : IHasId
         {
@@ -116,7 +117,7 @@ namespace QIQI.EProjectFile.Internal
                 writer.Write(0);
                 return;
             }
-            var count = data.Length;
+            var count = data.Count;
             var elem = new byte[count][];
             for (int i = 0; i < count; i++)
             {
@@ -144,12 +145,12 @@ namespace QIQI.EProjectFile.Internal
             }
             writer.Write(count);
             writer.Write(count * 8 + elem.Sum(x => x.Length));
-            Array.ForEach(data, x => writer.Write(x.Id));
+            foreach (var x in data) writer.Write(x.Id);
             writer.WriteInt32sWithoutLengthPrefix(offsets);
             Array.ForEach(elem, x => writer.Write(x));
         }
 
-        public static TElem[] ReadBlocksWithIdAndMemoryAddress<TElem>(
+        public static List<TElem> ReadBlocksWithIdAndMemoryAddress<TElem>(
             this BinaryReader reader,
             Func<BinaryReader, int, int, TElem> readFunction)
         {
@@ -157,24 +158,29 @@ namespace QIQI.EProjectFile.Internal
             int count = headerSize / 8;
             var ids = reader.ReadInt32sWithFixedLength(count);
             var memoryAddresses = reader.ReadInt32sWithFixedLength(count);
-            TElem[] result = new TElem[count];
+            var result = new List<TElem>(count);
             for (int i = 0; i < count; i++)
             {
-                result[i] = readFunction(reader, ids[i], memoryAddresses[i]);
+                result.Add(readFunction(reader, ids[i], memoryAddresses[i]));
             }
             return result;
         }
 
         public static void WriteBlocksWithIdAndMemoryAddress<TElem>(
             this BinaryWriter writer,
-            TElem[] data,
+            List<TElem> data,
             Action<BinaryWriter, TElem> writeAction)
             where TElem : IHasId, IHasMemoryAddress
         {
-            writer.Write(data.Length * 8);
-            Array.ForEach(data, x => writer.Write(x.Id));
-            Array.ForEach(data, x => writer.Write(x.MemoryAddress));
-            Array.ForEach(data, x => writeAction(writer, x));
+            if (data == null)
+            {
+                writer.Write(0);
+                return;
+            }
+            writer.Write(data.Count * 8);
+            foreach (var x in data) writer.Write(x.Id);
+            foreach (var x in data) writer.Write(x.MemoryAddress);
+            foreach (var x in data) writeAction(writer, x);
         }
 
         public static int[] ReadInt32sWithFixedLength(this BinaryReader reader, int count)
@@ -193,6 +199,16 @@ namespace QIQI.EProjectFile.Internal
         public static int[] ReadInt32sWithByteSizePrefix(this BinaryReader reader)
         {
             return reader.ReadInt32sWithFixedLength(reader.ReadInt32() / sizeof(int));
+        }
+
+        public static List<int> ReadInt32sListWithFixedLength(this BinaryReader reader, int count)
+        {
+            var result = new List<int>(count);
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(reader.ReadInt32());
+            }
+            return result;
         }
 
         public static short[] ReadInt16sWithFixedLength(this BinaryReader reader, int count)
