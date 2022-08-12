@@ -18,7 +18,6 @@ namespace QIQI.EProjectFile
         }
 
         public int MemoryAddress { get; set; }
-        public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
         public int Flags { get; set; }
         public int BaseClass { get; set; }
         public string Name { get; set; }
@@ -73,7 +72,7 @@ namespace QIQI.EProjectFile
         /// <param name="writeCode">是否输出子程序代码</param>
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, CodeSection codeSection, bool writeCode = true)
         {
-            TextCodeUtils.WriteDefinitionCode(writer, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), Public ? "公开" : "", Comment);
+            TextCodeUtils.WriteDefinitionCode(writer, indent, "程序集", nameMap.GetUserDefinedName(Id), BaseClass == 0 || BaseClass == -1 ? "" : nameMap.GetUserDefinedName(BaseClass), "", Comment);
             writer.WriteLine();
             TextCodeUtils.JoinAndWriteCode(Variables, Environment.NewLine, nameMap, writer, indent);
             if (codeSection != null) 
