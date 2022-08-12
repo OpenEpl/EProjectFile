@@ -15,6 +15,7 @@ namespace QIQI.EProjectFile.Sections
             EPackageInfoSection.Key,
             InitECSection.Key,
             LosableSection.Key,
+            ClassPublicitySection.Key,
             FolderSection.Key,
             ECDependenciesSection.Key,
             EndOfFileSection.Key
