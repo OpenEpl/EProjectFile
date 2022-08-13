@@ -23,7 +23,7 @@ namespace QIQI.EProjectFile
         public int BaseClass { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public List<int> Method { get; set; }
+        public List<int> Methods { get; set; }
         public List<ClassVariableInfo> Variables { get; set; }
 
         public static List<ClassInfo> ReadClasses(BinaryReader r, Encoding encoding)
@@ -35,7 +35,7 @@ namespace QIQI.EProjectFile
                 BaseClass = reader.ReadInt32(),
                 Name = reader.ReadStringWithLengthPrefix(encoding),
                 Comment = reader.ReadStringWithLengthPrefix(encoding),
-                Method = reader.ReadInt32sListWithFixedLength(reader.ReadInt32() / 4),
+                Methods = reader.ReadInt32sListWithFixedLength(reader.ReadInt32() / 4),
                 Variables = AbstractVariableInfo.ReadVariables(reader, encoding, x => new ClassVariableInfo(x))
             });
         }
@@ -47,14 +47,14 @@ namespace QIQI.EProjectFile
                 writer.Write(elem.BaseClass);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Name);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
-                if (elem.Method == null)
+                if (elem.Methods == null)
                 {
                     writer.Write(0);
                 }
                 else
                 {
-                    writer.Write(elem.Method.Count * 4);
-                    foreach (var x in elem.Method) writer.Write(x);
+                    writer.Write(elem.Methods.Count * 4);
+                    foreach (var x in elem.Methods) writer.Write(x);
                 }
                 AbstractVariableInfo.WriteVariables(writer, encoding, elem.Variables);
             });
@@ -80,7 +80,7 @@ namespace QIQI.EProjectFile
             {
                 writer.WriteLine();
                 writer.WriteLine();
-                var methodId = Method.ToDictionary(x => x);
+                var methodId = Methods.ToDictionary(x => x);
                 TextCodeUtils.JoinAndWriteCode(codeSection.Methods.Where(x => methodId.ContainsKey(x.Id)), Environment.NewLine + Environment.NewLine, nameMap, writer, indent, writeCode);
             }
         }

@@ -115,7 +115,7 @@ namespace QIQI.EProjectFile
                 }
                 foreach (var classInfo in codeSection.Classes)
                 {
-                    foreach (var item in classInfo.Method)
+                    foreach (var item in classInfo.Methods)
                     {
                         MethodIdToClassId[item] = classInfo.Id;
                     }
@@ -136,7 +136,7 @@ namespace QIQI.EProjectFile
                 foreach (var structInfo in codeSection.Structs)
                 {
                     UserDefinedName.Add(structInfo.Id, structInfo.Name);
-                    foreach (var x in structInfo.Member) UserDefinedName.Add(x.Id, x.Name);
+                    foreach (var x in structInfo.Members) UserDefinedName.Add(x.Id, x.Name);
                 }
                 foreach (var x in codeSection.GlobalVariables) UserDefinedName.Add(x.Id, x.Name);
             }

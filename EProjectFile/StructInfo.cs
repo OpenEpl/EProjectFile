@@ -21,7 +21,7 @@ namespace QIQI.EProjectFile
         public bool Public { get => (Flags & 0x1) != 0; set => Flags = (Flags & ~0x1) | (value ? 0x1 : 0); }
         public string Name { get; set; }
         public string Comment { get; set; }
-        public List<StructMemberInfo> Member { get; set; }
+        public List<StructMemberInfo> Members { get; set; }
         public static List<StructInfo> ReadStructs(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) =>
@@ -31,7 +31,7 @@ namespace QIQI.EProjectFile
                     Flags = reader.ReadInt32(),
                     Name = reader.ReadStringWithLengthPrefix(encoding),
                     Comment = reader.ReadStringWithLengthPrefix(encoding),
-                    Member = AbstractVariableInfo.ReadVariables(reader, encoding, x => new StructMemberInfo(x))
+                    Members = AbstractVariableInfo.ReadVariables(reader, encoding, x => new StructMemberInfo(x))
                 }
             );
         }
@@ -42,7 +42,7 @@ namespace QIQI.EProjectFile
                 writer.Write(elem.Flags);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Name);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
-                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Member);
+                AbstractVariableInfo.WriteVariables(writer, encoding, elem.Members);
             });
         }
         public override string ToString()
@@ -54,7 +54,7 @@ namespace QIQI.EProjectFile
         {
             TextCodeUtils.WriteDefinitionCode(writer, indent, "数据类型", nameMap.GetUserDefinedName(Id), Public ? "公开" : "", Comment);
             writer.WriteLine();
-            TextCodeUtils.JoinAndWriteCode(Member, Environment.NewLine, nameMap, writer, indent + 1);
+            TextCodeUtils.JoinAndWriteCode(Members, Environment.NewLine, nameMap, writer, indent + 1);
         }
     }
 }
