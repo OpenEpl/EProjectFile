@@ -34,6 +34,8 @@ namespace QIQI.EProjectFile
             { EplSystemId.DataType_MethodPtr, "子程序指针" },
             { EplSystemId.DataType_Short, "短整数型" },
             { EplSystemId.DataType_String, "文本型" },
+            { EplSystemId.DataType_Any, "通用型" },
+            { EplSystemId.DataType_Lambda, "条件语句型" },
             { EplSystemId.DataType_Void, "" }
         };
         public static readonly IdToNameMap Empty = new IdToNameMap();

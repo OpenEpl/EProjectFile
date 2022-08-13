@@ -69,6 +69,10 @@ namespace QIQI.EProjectFile
         public const int DataType_String = unchecked((int)0x80000004);
         public const int DataType_Bin = unchecked((int)0x80000005);
         public const int DataType_MethodPtr = unchecked((int)0x80000006);
+        /// <summary>
+        /// 条件语句型（SDT_STATMENT），通常只用于支持库命令的参数，如 核心库 的 查找 命令
+        /// </summary>
+        public const int DataType_Lambda = unchecked((int)0x80000008);
 
         public static int MakeSureIsSpecifiedType(int id, params int[] type) => Array.IndexOf(type, GetType(id)) >= 0 ? id : throw new Exception("不是指定类型的Id");
 
