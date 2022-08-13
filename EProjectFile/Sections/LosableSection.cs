@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using QIQI.EProjectFile.Internal;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.IO;
@@ -24,7 +25,7 @@ namespace QIQI.EProjectFile.Sections
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
                     losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
-                    losableSectionInfo.RemovedDefinedItem = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
+                    losableSectionInfo.RemovedDefinedItems = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
                     losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadImmutableBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position)) switch
                     {
                         // use shared object if it equals to the dafault value, which can reduce memory usage.
@@ -41,7 +42,7 @@ namespace QIQI.EProjectFile.Sections
         public bool IsOptional => Key.IsOptional;
 
         public string OutFile { get; set; }
-        public RemovedDefinedItemInfo[] RemovedDefinedItem { get; set; }
+        public List<RemovedDefinedItemInfo> RemovedDefinedItems { get; set; }
         private static readonly ImmutableArray<byte> DefaultUnknownAfterRemovedDefinedItem 
             = ImmutableArray.Create(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 } );
         [JsonIgnore]
@@ -60,7 +61,7 @@ namespace QIQI.EProjectFile.Sections
         private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
             writer.WriteStringWithLengthPrefix(encoding, OutFile);
-            RemovedDefinedItemInfo.WriteRemovedDefinedItems(writer, encoding, RemovedDefinedItem);
+            RemovedDefinedItemInfo.WriteRemovedDefinedItems(writer, encoding, RemovedDefinedItems);
             writer.Write(UnknownAfterRemovedDefinedItem);
         }
         public override string ToString()

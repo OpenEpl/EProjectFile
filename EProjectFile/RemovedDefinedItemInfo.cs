@@ -17,12 +17,12 @@ namespace QIQI.EProjectFile
             this.Id = id;
         }
 
-        public static RemovedDefinedItemInfo[] ReadRemovedDefinedItems(BinaryReader reader, Encoding encoding)
+        public static List<RemovedDefinedItemInfo> ReadRemovedDefinedItems(BinaryReader reader, Encoding encoding)
         {
             var count = reader.ReadInt32();
             var size = reader.ReadInt32();
             var endPosition = reader.BaseStream.Position + size;
-            var result = new RemovedDefinedItemInfo[count];
+            var result = new List<RemovedDefinedItemInfo>(count);
             var ids = reader.ReadInt32sWithFixedLength(count);
             var nameCode = reader.ReadInt32sWithFixedLength(count);
             var offsets = reader.ReadInt32sWithFixedLength(count);
@@ -31,10 +31,10 @@ namespace QIQI.EProjectFile
             {
                 reader.BaseStream.Position = startPosition + offsets[i];
                 var name = reader.ReadCStyleString(encoding);
-                result[i] = new RemovedDefinedItemInfo(ids[i])
+                result.Add(new RemovedDefinedItemInfo(ids[i])
                 {
                     Name = name,
-                };
+                });
                 var calculatedNameCode = CalculateNameCode(name, encoding);
                 if (nameCode[i] != calculatedNameCode)
                 {
@@ -46,7 +46,7 @@ namespace QIQI.EProjectFile
             return result;
         }
 
-        public static void WriteRemovedDefinedItems(BinaryWriter writer, Encoding encoding, RemovedDefinedItemInfo[] data)
+        public static void WriteRemovedDefinedItems(BinaryWriter writer, Encoding encoding, List<RemovedDefinedItemInfo> data)
         {
             if (data == null)
             {
@@ -54,7 +54,7 @@ namespace QIQI.EProjectFile
                 writer.Write(0);
                 return;
             }
-            var count = data.Length;
+            var count = data.Count;
             var elem = new byte[count][];
             for (int i = 0; i < count; i++)
             {
@@ -76,8 +76,8 @@ namespace QIQI.EProjectFile
             }
             writer.Write(count);
             writer.Write((count * 12) + elem.Sum(x => x.Length));
-            Array.ForEach(data, x => writer.Write(x.Id));
-            Array.ForEach(data, x => writer.Write(CalculateNameCode(x.Name, encoding)));
+            foreach (var x in data) writer.Write(x.Id);
+            foreach (var x in data) writer.Write(CalculateNameCode(x.Name, encoding));
             writer.WriteInt32sWithoutLengthPrefix(offsets);
             Array.ForEach(elem, x => writer.Write(x));
         }

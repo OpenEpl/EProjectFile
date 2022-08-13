@@ -153,7 +153,7 @@ namespace QIQI.EProjectFile
             }
             if (losableSection != null)
             {
-                foreach (var x in losableSection.RemovedDefinedItem)
+                foreach (var x in losableSection.RemovedDefinedItems)
                 {
                     // 在删除、撤销等操作下，有效ID可能被记录到可丢失程序段，这些信息应当丢弃
                     if (!UserDefinedName.ContainsKey(x.Id))
