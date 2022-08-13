@@ -39,7 +39,7 @@ namespace QIQI.EProjectFile.Statements
             a.ExpressionData.Write(type);
             a.ExpressionData.Write(0);
             a.ExpressionData.Write((short)-1);
-            a.ExpressionData.Write((short)(Mask ? 0x20 : 0));
+            a.ExpressionData.Write((short)(Mask ? 0 : 0x40));
             a.ExpressionData.WriteBStr(a.Encoding, UnexaminedCode);
             a.ExpressionData.WriteBStr(a.Encoding, null);
             a.ExpressionData.Write((byte)0x36);
