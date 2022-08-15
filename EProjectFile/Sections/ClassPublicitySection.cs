@@ -26,7 +26,7 @@ namespace QIQI.EProjectFile.Sections
                         publicities.Add(new ClassPublicityInfo()
                         {
                             Class = reader.ReadInt32(),
-                            Public = reader.ReadInt32() != 0
+                            Flags = reader.ReadInt32()
                         });
                     }
                 }
@@ -57,7 +57,7 @@ namespace QIQI.EProjectFile.Sections
             foreach (var publicity in ClassPublicities)
             {
                 writer.Write(publicity.Class);
-                writer.Write(publicity.Public ? 1 : 0);
+                writer.Write(publicity.Flags);
             }
         }
         public override string ToString()

@@ -61,6 +61,7 @@ namespace QIQI.EProjectFile
         public int Class { get; set; }
         public int Flags { get; set; }
         public bool Public { get => (Flags & 0x8) != 0; set => Flags = (Flags & ~0x8) | (value ? 0x8 : 0); }
+        public bool Hidden { get => (Flags & 0x80) != 0; set => Flags = (Flags & ~0x80) | (value ? 0x80 : 0); }
         public int ReturnDataType { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }

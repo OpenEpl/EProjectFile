@@ -19,6 +19,7 @@ namespace QIQI.EProjectFile
         public int MemoryAddress { get; set; }
         public int Flags { get; set; }
         public bool Public { get => (Flags & 0x2) != 0; set => Flags = (Flags & ~0x2) | (value ? 0x2 : 0); }
+        public bool Hidden { get => (Flags & 0x4) != 0; set => Flags = (Flags & ~0x4) | (value ? 0x4 : 0); }
         public int ReturnDataType { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }

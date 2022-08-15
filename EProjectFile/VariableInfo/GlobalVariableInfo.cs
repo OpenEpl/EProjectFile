@@ -10,6 +10,7 @@ namespace QIQI.EProjectFile
     public class GlobalVariableInfo : AbstractVariableInfo
     {
         public bool Public { get => (Flags & 0x100) != 0; set => Flags = (Flags & ~0x100) | (value ? 0x100 : 0); }
+        public bool Hidden { get => (Flags & 0x200) != 0; set => Flags = (Flags & ~0x200) | (value ? 0x200 : 0); }
         public GlobalVariableInfo(int id) : base(EplSystemId.MakeSureIsSpecifiedType(id, EplSystemId.Type_Global))
         {
         }
