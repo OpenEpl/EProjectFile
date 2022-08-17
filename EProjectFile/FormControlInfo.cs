@@ -12,6 +12,8 @@ namespace QIQI.EProjectFile
     public class FormControlInfo : FormElementInfo
     {
         private static readonly ImmutableArray<byte> Zero20Bytes = ImmutableArray.Create(new byte[20]);
+
+        public override int Id { get; }
         [JsonIgnore]
         public ImmutableArray<byte> UnknownBeforeName { get; set; } = Zero20Bytes;
         public string Comment { get; set; }
@@ -50,10 +52,16 @@ namespace QIQI.EProjectFile
         /// </summary>
         [JsonConverter(typeof(HexConverter))]
         public byte[] ExtensionData { get; set; }
-        internal static FormControlInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int length)
+
+        public FormControlInfo(int id)
+        {
+            this.Id = id;
+        }
+
+        internal static FormControlInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int id, int length)
         {
             var startPosition = reader.BaseStream.Position;
-            var elem = new FormControlInfo() { };
+            var elem = new FormControlInfo(id);
             elem.UnknownBeforeName = reader.ReadImmutableBytes(20) switch
             {
                 var x when x.SequenceEqual(Zero20Bytes) => Zero20Bytes,

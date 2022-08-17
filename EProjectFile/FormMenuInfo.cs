@@ -12,6 +12,14 @@ namespace QIQI.EProjectFile
     {
         private static readonly ImmutableArray<byte> Zero16Bytes = ImmutableArray.Create(new byte[16]);
         private static readonly ImmutableArray<byte> Zero20Bytes = ImmutableArray.Create(new byte[20]);
+
+        public override int Id { get; }
+
+        public FormMenuInfo(int id)
+        {
+            this.Id = id;
+        }
+
         [JsonIgnore]
         public ImmutableArray<byte> UnknownBeforeName { get; set; } = Zero20Bytes;
         public int HotKey { get; set; }
@@ -24,10 +32,10 @@ namespace QIQI.EProjectFile
         public int ClickEvent { get; set; }
         [JsonIgnore]
         public ImmutableArray<byte> UnknownAfterClickEvent { get; set; } = Zero16Bytes;
-        internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int length)
+        internal static FormMenuInfo ReadWithoutDataType(BinaryReader reader, Encoding encoding, int id, int length)
         {
             var startPosition = reader.BaseStream.Position;
-            var elem = new FormMenuInfo() { };
+            var elem = new FormMenuInfo(id);
             elem.UnknownBeforeName = reader.ReadImmutableBytes(20) switch
             {
                 var x when x.SequenceEqual(Zero20Bytes) => Zero20Bytes,

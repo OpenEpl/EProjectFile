@@ -7,12 +7,12 @@ namespace QIQI.EProjectFile
 {
     public abstract class FormElementInfo : IHasId
     {
-        public int Id { get; private set; }
-
+        public abstract int Id { get; }
         public int DataType { get; set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
         public bool Disable { get; set; }
+
         public static List<FormElementInfo> ReadFormElements(BinaryReader r, Encoding encoding)
         {
             return r.ReadBlocksWithIdAndOffest((reader, id, length) =>
@@ -21,13 +21,12 @@ namespace QIQI.EProjectFile
                 FormElementInfo elem;
                 if (dataType == 65539)
                 {
-                    elem = FormMenuInfo.ReadWithoutDataType(r, encoding, length - 4);
+                    elem = FormMenuInfo.ReadWithoutDataType(r, encoding, id, length - 4);
                 }
                 else
                 {
-                    elem = FormControlInfo.ReadWithoutDataType(r, encoding, length - 4);
+                    elem = FormControlInfo.ReadWithoutDataType(r, encoding, id, length - 4);
                 }
-                elem.Id = id;
                 elem.DataType = dataType;
                 return elem;
             });

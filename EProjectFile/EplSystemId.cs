@@ -22,7 +22,6 @@ namespace QIQI.EProjectFile
         /// 程序集变量 或 类模块成员
         /// </summary>
         public const int Type_ClassMember = 0x15000000;
-        public const int Type_Control = 0x16000000;
         public const int Type_Constant = 0x18000000;
         /// <summary>
         /// 窗口程序集
@@ -40,6 +39,9 @@ namespace QIQI.EProjectFile
         public const int Type_Class = 0x49000000;
         public const int Type_Form = 0x52000000;
         public const int Type_FormSelf = 0x06000000;
+        public const int Type_FormControl = 0x16000000;
+        public const int Type_FormMenu = 0x26000000;
+
         public const int Mask_Num = 0x00FFFFFF;
         public const int Mask_Type = unchecked((int)0xFF000000);
 
