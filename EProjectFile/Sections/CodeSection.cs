@@ -3,6 +3,7 @@ using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
@@ -24,7 +25,7 @@ namespace QIQI.EProjectFile.Sections
                 short[] minRequiredConstants;
                 using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
                 {
-                    codeSectionInfo.allocatedIdNum = reader.ReadInt32();
+                    codeSectionInfo.AllocatedIdNum = reader.ReadInt32();
                     reader.ReadInt32(); // 确认于易语言V5.71
                     minRequiredCmds = reader.ReadInt32sWithByteSizePrefix();
                     if (cryptEC)
@@ -79,7 +80,16 @@ namespace QIQI.EProjectFile.Sections
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
 
-        private int allocatedIdNum;
+        /// <summary>
+        /// 已分配的Id的数值部分的最大值，分配新Id时，其 <c>IdNum = <see cref="AllocatedIdNum"/> + 1</c>。<br/>
+        /// 在不分配任何Id的情况下，默认为 <c>0xFFFF</c>（与易语言内部保持一致），即通常第一个有效Id为 <c>0x10000</c>。
+        /// </summary>
+        /// <remarks>
+        /// 该值允许外部修改，但应仅用于特殊用途；对于常规的分配Id操作，请使用 <see cref="AllocId(int)"/>。
+        /// </remarks>
+        /// <seealso cref="AllocId(int)"/>
+        [DefaultValue(0xFFFF)]
+        public int AllocatedIdNum { get; set; } = 0xFFFF;
         public LibraryRefInfo[] Libraries { get; set; }
         public int Flag { get; set; }
         /// <summary>
@@ -96,13 +106,14 @@ namespace QIQI.EProjectFile.Sections
         public List<StructInfo> Structs { get; set; }
         public List<DllDeclareInfo> DllDeclares { get; set; }
         /// <summary>
-        /// 分配一个Id
+        /// 分配一个Id，并自动更新 <see cref="AllocatedIdNum"/>
         /// </summary>
-        /// <param name="type">参考EplSystemId.Type_***</param>
+        /// <param name="type">可参考 <see cref="EplSystemId"/> 中以 <c>Type_</c> 开头的常量</param>
         /// <returns>指定类型的新Id</returns>
+        /// <seealso cref="AllocatedIdNum"/>
         public int AllocId(int type)
         {
-            return ++allocatedIdNum | type;
+            return ++AllocatedIdNum | type;
         }
         public byte[] ToBytes(Encoding encoding)
         {
@@ -117,7 +128,7 @@ namespace QIQI.EProjectFile.Sections
         }
         private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
-            writer.Write(allocatedIdNum);
+            writer.Write(AllocatedIdNum);
             writer.Write(51113791); // 确认于易语言V5.71
             LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
             writer.Write(Flag);
