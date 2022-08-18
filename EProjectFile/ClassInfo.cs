@@ -19,7 +19,11 @@ namespace QIQI.EProjectFile
         }
 
         public int MemoryAddress { get; set; }
-        public int Flags { get; set; }
+        /// <summary>
+        /// 窗口程序集 中指定关联窗口的 <see cref="FormInfo.Id"/>
+        /// </summary>
+        /// <seealso cref="FormInfo.Class"/>
+        public int Form { get; set; }
         public int BaseClass { get; set; }
         public string Name { get; set; }
         public string Comment { get; set; }
@@ -31,7 +35,7 @@ namespace QIQI.EProjectFile
             return r.ReadBlocksWithIdAndMemoryAddress((reader, id, memoryAddress) => new ClassInfo(id)
             {
                 MemoryAddress = memoryAddress,
-                Flags = reader.ReadInt32(),
+                Form = reader.ReadInt32(),
                 BaseClass = reader.ReadInt32(),
                 Name = reader.ReadStringWithLengthPrefix(encoding),
                 Comment = reader.ReadStringWithLengthPrefix(encoding),
@@ -43,7 +47,7 @@ namespace QIQI.EProjectFile
         {
             w.WriteBlocksWithIdAndMemoryAddress(classes, (writer, elem) =>
             {
-                writer.Write(elem.Flags);
+                writer.Write(elem.Form);
                 writer.Write(elem.BaseClass);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Name);
                 writer.WriteStringWithLengthPrefix(encoding, elem.Comment);
