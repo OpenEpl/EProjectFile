@@ -201,7 +201,8 @@ namespace QIQI.EProjectFile
             { EplSystemId.Type_StructMember, "StructMem" },
             { EplSystemId.Type_Struct, "Struct" },
             { EplSystemId.Type_DllParameter, "DllParam" },
-            { EplSystemId.Type_Class, "Cls" }
+            { EplSystemId.Type_Class, "Cls" },
+            { EplSystemId.Type_Form, "Form" }
         };
 
         public string GetUserDefinedName(int id)
@@ -210,14 +211,12 @@ namespace QIQI.EProjectFile
             {
                 return result;
             }
-            else if (IdTypeName.TryGetValue(EplSystemId.GetType(id), out result))
+            return EplSystemId.GetType(id) switch
             {
-                return $"_{result}_0x{id & EplSystemId.Mask_Num:X6}";
-            }
-            else
-            {
-                return $"_User_0x{id:X8}";
-            }
+                var type when IdTypeName.TryGetValue(type, out result) => $"_{result}_0x{id & EplSystemId.Mask_Num:X6}",
+                EplSystemId.Type_FormSelf => string.Empty,
+                _ => $"_User_0x{id:X8}"
+            };
         }
         public string GetLibCmdName(int lib, int id)
         {
