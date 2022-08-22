@@ -260,7 +260,7 @@ namespace QIQI.EProjectFile
         {
             try
             {
-                return LibDefinedName[lib].DataTypes[typeId].Evnets[id].Name;
+                return LibDefinedName[lib].DataTypes[typeId].Events[id].Name;
             }
             catch (Exception)
             {
