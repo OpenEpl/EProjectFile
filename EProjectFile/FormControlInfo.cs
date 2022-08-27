@@ -120,14 +120,19 @@ namespace QIQI.EProjectFile
             writer.Write(UnknownBeforeVisible);
             writer.Write((Visible ? 0x1 : 0) | (Disable ? 0x2 : 0) | (TabStop ? 0x4 : 0) | (Locked ? 0x10 : 0));
             writer.Write(TabIndex);
-            writer.Write(Events.Length);
-            Array.ForEach(
-                Events, 
-                x =>
+            if (Events is null)
+            {
+                writer.Write(0);
+            }
+            else
+            {
+                writer.Write(Events.Length);
+                foreach (var x in Events)
                 {
                     writer.Write(x.Key);
                     writer.Write(x.Value);
-                });
+                }
+            }
             writer.Write(UnknownBeforeExtensionData);
             writer.Write(ExtensionData);
         }
