@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
 
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent)

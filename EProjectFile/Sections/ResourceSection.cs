@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using QIQI.EProjectFile.Sections;
 
@@ -57,7 +57,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
 
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 
 namespace QIQI.EProjectFile.Sections
@@ -101,7 +101,7 @@ namespace QIQI.EProjectFile.Sections
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

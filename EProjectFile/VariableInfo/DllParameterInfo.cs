@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace QIQI.EProjectFile
 {
@@ -18,6 +19,10 @@ namespace QIQI.EProjectFile
         {
             string strForFlags = string.Join(" ", new string[] { ByRef ? "传址" : null, ArrayParameter ? "数组" : null }.Where(x => x != null));
             TextCodeUtils.WriteDefinitionCode(writer, indent, "参数", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType), strForFlags, Comment);
+        }
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

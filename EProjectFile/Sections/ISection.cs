@@ -1,10 +1,13 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Internal;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace QIQI.EProjectFile.Sections
 {
+    [JsonConverter(typeof(SectionJsonConverter))]
     public interface ISection
     {
         string SectionName { get; }

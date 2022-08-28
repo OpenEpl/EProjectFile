@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.IO;
@@ -12,7 +11,6 @@ namespace QIQI.EProjectFile
     {
         public string FileName { get; set; }
         public string GuidString { get; set; } // 为了保证最大限度的准确还原，直接存储原始格式字符串
-        [JsonConverter(typeof(VersionConverter))]
         public Version Version { get; set; }
         public string Name { get; set; }
         /// <summary>
@@ -62,7 +60,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

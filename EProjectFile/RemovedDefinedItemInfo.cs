@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
@@ -108,6 +108,11 @@ namespace QIQI.EProjectFile
             }
             byte composition3 = bytes[0];
             return (composition1 << 24) | (composition2 << 8) | composition3;
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Text;
 using QIQI.EProjectFile.Internal;
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace QIQI.EProjectFile
 {
@@ -30,7 +31,7 @@ namespace QIQI.EProjectFile
         public int UnknownBeforeParent { get; set; }
         public int Parent { get; set; }
         public int[] Children { get; set; }
-        [JsonConverter(typeof(HexConverter))]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] Cursor { get; set; }
         public string Tag { get; set; }
         [JsonIgnore]
@@ -50,7 +51,7 @@ namespace QIQI.EProjectFile
         /// <summary>
         /// 控件特有数据
         /// </summary>
-        [JsonConverter(typeof(HexConverter))]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] ExtensionData { get; set; }
 
         public FormControlInfo(int id)
@@ -138,7 +139,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace QIQI.EProjectFile
 {
@@ -22,6 +23,10 @@ namespace QIQI.EProjectFile
             else
                 strForUBound = "\"" + string.Join(",", UBound.Select(x => x == 0 ? "" : x.ToString())) + "\"";
             TextCodeUtils.WriteDefinitionCode(writer, indent, "程序集变量", nameMap.GetUserDefinedName(Id), nameMap.GetDataTypeName(DataType),  "", strForUBound, Comment);
+        }
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

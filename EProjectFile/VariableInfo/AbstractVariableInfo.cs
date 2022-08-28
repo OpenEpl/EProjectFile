@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 
 namespace QIQI.EProjectFile
@@ -55,12 +55,6 @@ namespace QIQI.EProjectFile
                     writer.WriteCStyleString(encoding, elem.Comment);
                 });
         }
-
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
-        }
-
         public abstract void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent = 0);
     }
 }

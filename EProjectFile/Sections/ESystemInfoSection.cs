@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Internal;
+using System;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -35,7 +35,6 @@ namespace QIQI.EProjectFile.Sections
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
 
-        [JsonConverter(typeof(VersionConverter))]
         public Version ESystemVersion { get; set; }
         /// <summary>
         /// 1=中文（GBK），2=英语，3=中文（BIG5），4=日文（SJIS）
@@ -57,7 +56,6 @@ namespace QIQI.EProjectFile.Sections
             }
         }
 
-        [JsonConverter(typeof(VersionConverter))]
         public Version EProjectFormatVersion { get; set; }
         /// <summary>
         /// 1=源码，3=模块
@@ -93,7 +91,7 @@ namespace QIQI.EProjectFile.Sections
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

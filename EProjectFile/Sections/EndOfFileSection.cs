@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace QIQI.EProjectFile.Sections
 {

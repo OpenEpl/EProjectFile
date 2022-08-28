@@ -1,90 +1,93 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace QIQI.EProjectFile
 {
     public class ConstantInfo : IHasId, IToTextCodeAble
     {
-        private class ConstantValueConverter : JsonConverter
+        private class ConstantValueConverter : JsonConverter<object>
         {
-            public override bool CanConvert(Type objectType)
-            {
-                return true;
-            }
+            public override bool HandleNull => true;
 
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 switch (reader.TokenType)
                 {
-                    case JsonToken.Boolean:
-                    case JsonToken.Float:
-                    case JsonToken.Integer:
-                    case JsonToken.String:
-                        return reader.Value;
+                    case JsonTokenType.True:
+                        return true;
+                    case JsonTokenType.False:
+                        return false;
+                    case JsonTokenType.Number:
+                        return reader.GetDouble();
+                    case JsonTokenType.String:
+                        return reader.GetString();
+                    case JsonTokenType.Null:
+                        return null;
                 }
-                if (reader.TokenType != JsonToken.StartObject)
+                if (reader.TokenType != JsonTokenType.StartObject)
                 {
-                    throw new Exception();
+                    throw new Exception("Unsupported constant value");
                 }
                 object value = null;
                 while (reader.Read())
                 {
                     switch (reader.TokenType)
                     {
-                        case JsonToken.PropertyName:
+                        case JsonTokenType.PropertyName:
                             if (value != null)
                             {
                                 throw new Exception();
                             }
-                            var keyName = (string)reader.Value;
+                            var keyName = reader.GetString();
                             reader.Read();
                             if ("bytes".Equals(keyName))
                             {
-                                value = new HexConverter().ReadJson(reader, typeof(byte[]), null, serializer);
+                                value = ByteArrayHexConverter.HexToBytes(reader.GetString());
                             }
                             else if ("date".Equals(keyName))
                             {
-                                value = new IsoDateTimeConverter().ReadJson(reader, typeof(DateTime), null, serializer);
+                                value = reader.GetDateTime();
                             }
                             else
                             {
-                                throw new Exception();
+                                throw new Exception($"Unsupported constant type: {keyName}");
                             }
                             break;
-                        case JsonToken.EndObject:
+                        case JsonTokenType.EndObject:
                             return value;
-                        case JsonToken.Comment:
+                        case JsonTokenType.Comment:
                             break;
                         default:
-                            throw new Exception();
+                            throw new Exception($"Unknown token type while parsing constant value: {reader.TokenType}");
                     }
                 }
-                throw new Exception();
+                throw new Exception($"Unexpected EOF while parsing constant value");
             }
 
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
             {
                 switch (value)
                 {
-                    case byte[] _:
+                    case null:
+                        writer.WriteNullValue();
+                        break;
+                    case byte[] bytes:
                         writer.WriteStartObject();
-                        writer.WritePropertyName("bytes");
-                        new HexConverter().WriteJson(writer, value, serializer);
+                        writer.WriteString("bytes", ByteArrayHexConverter.BytesToHex(bytes));
                         writer.WriteEndObject();
                         break;
-                    case DateTime _:
+                    case DateTime dateTime:
                         writer.WriteStartObject();
-                        writer.WritePropertyName("date");
-                        new IsoDateTimeConverter().WriteJson(writer, value, serializer);
+                        writer.WriteString("date", dateTime);
                         writer.WriteEndObject();
                         break;
                     default:
-                        writer.WriteValue(value);
+                        JsonSerializer.Serialize<object>(writer, value, options);
                         break;
                 }
             }
@@ -226,7 +229,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using QIQI.EProjectFile.Internal;
+using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace QIQI.EProjectFile
 {
@@ -13,6 +15,11 @@ namespace QIQI.EProjectFile
         public CodeFolderInfo(int key)
         {
             this.Key = key;
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

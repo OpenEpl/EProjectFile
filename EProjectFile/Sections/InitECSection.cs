@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.IO;
@@ -52,7 +52,7 @@ namespace QIQI.EProjectFile.Sections
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
 }

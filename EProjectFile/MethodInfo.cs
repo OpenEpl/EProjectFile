@@ -1,27 +1,35 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace QIQI.EProjectFile
 {
     public struct MethodCodeData
     {
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] LineOffest;
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] BlockOffest;
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] MethodReference;
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] VariableReference;
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] ConstantReference;
-        [JsonConverter(typeof(HexConverter))]
+        [JsonInclude]
+        [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] ExpressionData;
-        [JsonIgnore]
+        [JsonInclude]
+        [JsonConverter(typeof(EncodingJsonConverter))]
         public Encoding Encoding;
         [Obsolete]
         public MethodCodeData(byte[] lineOffest, byte[] blockOffest, byte[] methodReference, byte[] variableReference, byte[] constantReference, byte[] expressionData)
@@ -42,7 +50,7 @@ namespace QIQI.EProjectFile
 
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
     }
     public class MethodInfo : IHasId, IHasMemoryAddress, IToTextCodeAble
@@ -116,7 +124,7 @@ namespace QIQI.EProjectFile
         }
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonSerializer.Serialize(this, JsonUtils.Options);
         }
         public void ToTextCode(IdToNameMap nameMap, TextWriter writer, int indent, bool writeCode)
         {
