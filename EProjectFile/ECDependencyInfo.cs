@@ -1,6 +1,7 @@
 ﻿using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -22,9 +23,10 @@ namespace QIQI.EProjectFile
             }
         }
 
-        public int InfoVersion { get; set; }
+        [DefaultValue(2)]
+        public int InfoVersion { get; set; } = 2;
         public int FileSize { get; set; }
-        public DateTime FileLastModifiedDate { get; set; }
+        public DateTime FileLastModifiedDate { get; set; } = DateTime.FromFileTime(0);
         public bool ReExport { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
