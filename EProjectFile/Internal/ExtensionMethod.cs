@@ -76,6 +76,16 @@ namespace QIQI.EProjectFile.Internal
             }
             return result;
         }
+        public static List<string> ReadStringsAsListWithMfcStyleCountPrefix(this BinaryReader reader, Encoding encoding)
+        {
+            var count = reader.ReadMfcStyleCountPrefix();
+            var result = new List<string>(count);
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(reader.ReadStringWithLengthPrefix(encoding));
+            }
+            return result;
+        }
         public static List<TElem> ReadBlocksWithIdAndOffest<TElem>(
             this BinaryReader reader,
             Func<BinaryReader, int, TElem> readFunction)
@@ -332,15 +342,18 @@ namespace QIQI.EProjectFile.Internal
                 writer.Write(data);
             }
         }
-        public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, Encoding encoding, string[] data)
+        public static void WriteStringsWithMfcStyleCountPrefix(this BinaryWriter writer, Encoding encoding, ICollection<string> data)
         {
             if (data == null)
             {
                 writer.WriteMfcStyleCountPrefix(0);
                 return;
             }
-            writer.WriteMfcStyleCountPrefix(data.Length);
-            Array.ForEach(data, x => writer.WriteStringWithLengthPrefix(encoding, x));
+            writer.WriteMfcStyleCountPrefix(data.Count);
+            foreach (var x in data)
+            {
+                writer.WriteStringWithLengthPrefix(encoding, x);
+            }
         }
         public static void WriteCStyleString(this BinaryWriter writer, Encoding encoding, string data)
         {

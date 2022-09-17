@@ -18,6 +18,7 @@ namespace QIQI.EProjectFile.Sections
             ClassPublicitySection.Key,
             FolderSection.Key,
             ECDependenciesSection.Key,
+            ProjectConfigExSection.Key,
             EndOfFileSection.Key
         }.ToDictionary(x => x.SectionKey);
     }
