@@ -301,7 +301,7 @@ namespace QIQI.EProjectFile.Internal
         }
         public static void WriteStringWithFixedLength(this BinaryWriter writer, Encoding encoding, string data, int length)
         {
-            var bytes = encoding.GetBytes(data);
+            var bytes = encoding.GetBytes(data ?? string.Empty);
             if (bytes.Length > length)
                 throw new ArgumentException("字符串过长");
             writer.Write(bytes);
@@ -357,8 +357,10 @@ namespace QIQI.EProjectFile.Internal
         }
         public static void WriteCStyleString(this BinaryWriter writer, Encoding encoding, string data)
         {
-            if (data == null) data = string.Empty;
-            writer.Write(encoding.GetBytes(data));
+            if (data != null)
+            {
+                writer.Write(encoding.GetBytes(data));
+            }
             writer.Write((byte)0);
         }
         public static string ToHexString(this byte[] bytes)
