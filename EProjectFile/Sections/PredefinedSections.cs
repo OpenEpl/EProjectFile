@@ -19,6 +19,7 @@ namespace QIQI.EProjectFile.Sections
             FolderSection.Key,
             ECDependenciesSection.Key,
             ProjectConfigExSection.Key,
+            ConditionalCompilationSection.Key,
             EndOfFileSection.Key
         }.ToDictionary(x => x.SectionKey);
     }

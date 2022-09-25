@@ -355,6 +355,26 @@ namespace QIQI.EProjectFile.Internal
                 writer.WriteStringWithLengthPrefix(encoding, x);
             }
         }
+        public static void WriteStringsWithMfcStyleCountPrefix<T>(this BinaryWriter writer, Encoding encoding, ICollection<T> data, Func<T, string> selector)
+        {
+            if (data == null)
+            {
+                writer.WriteMfcStyleCountPrefix(0);
+                return;
+            }
+            writer.WriteMfcStyleCountPrefix(data.Count);
+            foreach (var x in data)
+            {
+                if (x == null)
+                {
+                    writer.Write(0);
+                }
+                else
+                {
+                    writer.WriteStringWithLengthPrefix(encoding, selector(x));
+                }
+            }
+        }
         public static void WriteCStyleString(this BinaryWriter writer, Encoding encoding, string data)
         {
             if (data != null)
