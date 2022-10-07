@@ -1,4 +1,5 @@
-﻿using QIQI.EProjectFile.EditorTabInfo;
+﻿using QIQI.EProjectFile.Context;
+using QIQI.EProjectFile.EditorTabInfo;
 using QIQI.EProjectFile.Internal;
 using System.Collections.Generic;
 using System.IO;
@@ -16,11 +17,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x09007319;
             public bool IsOptional => true;
 
-            public EditorInfoSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public EditorInfoSection Parse(BlockParserContext context)
             {
-                var that = new EditorInfoSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false)))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var that = new EditorInfoSection();
                     var count = reader.ReadInt32() + 1;
                     that.Tabs = new List<IEditorTabInfo>(count);
                     for (int i = 0; i < count; i++)
@@ -33,15 +35,15 @@ namespace QIQI.EProjectFile.Sections
                         var typeId = itemData[0];
                         if (PredefinedEditorTabInfos.Keys.TryGetValue(typeId, out var key))
                         {
-                            that.Tabs.Add(key.Parse(itemData, encoding, cryptEC));
+                            that.Tabs.Add(key.Parse(new BlockParserContext(itemData, encoding, context.CryptEC)));
                         }
                         else
                         {
                             that.Tabs.Add(new GeneralEditorTabInfo(typeId, itemData.Skip(1).ToArray()));
                         }
                     }
-                }
-                return that;
+                    return that;
+                });
             }
         }
         public static readonly ISectionKey<EditorInfoSection> Key = new KeyImpl();

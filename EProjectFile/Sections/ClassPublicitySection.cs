@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using QIQI.EProjectFile.Internal;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -15,13 +16,13 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x0B007319;
             public bool IsOptional => true;
 
-            public ClassPublicitySection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ClassPublicitySection Parse(BlockParserContext context)
             {
-                var that = new ClassPublicitySection();
-                var count = data.Length / 8;
-                var publicities = new List<ClassPublicityInfo>(count);
-                using (BinaryReader reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var that = new ClassPublicitySection();
+                    var count = context.DataLength / 8;
+                    var publicities = new List<ClassPublicityInfo>(count);
                     for (int i = 0; i < count; i++)
                     {
                         publicities.Add(new ClassPublicityInfo()
@@ -30,9 +31,9 @@ namespace QIQI.EProjectFile.Sections
                             Flags = reader.ReadInt32()
                         });
                     }
-                }
-                that.ClassPublicities = publicities;
-                return that;
+                    that.ClassPublicities = publicities;
+                    return that;
+                });
             }
         }
 

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Text.Json.Serialization;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -18,18 +19,19 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x03007319;
             public bool IsOptional => false;
 
-            public CodeSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public CodeSection Parse(BlockParserContext context)
             {
-                var codeSectionInfo = new CodeSection();
-                int[] minRequiredCmds;
-                short[] minRequiredDataTypes;
-                short[] minRequiredConstants;
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var codeSectionInfo = new CodeSection();
+                    int[] minRequiredCmds;
+                    short[] minRequiredDataTypes;
+                    short[] minRequiredConstants;
                     codeSectionInfo.AllocatedIdNum = reader.ReadInt32();
                     reader.ReadInt32(); // 确认于易语言V5.71
                     minRequiredCmds = reader.ReadInt32sWithByteSizePrefix();
-                    if (cryptEC)
+                    if (context.CryptEC)
                     {
                         reader.ReadInt32();
                         reader.ReadInt32();
@@ -54,7 +56,7 @@ namespace QIQI.EProjectFile.Sections
                     }
                     codeSectionInfo.IconData = reader.ReadBytesWithLengthPrefix();
                     codeSectionInfo.DebugCommandParameters = reader.ReadStringWithLengthPrefix(encoding);
-                    if (cryptEC)
+                    if (context.CryptEC)
                     {
                         reader.ReadBytes(12);
                         codeSectionInfo.Methods = MethodInfo.ReadMethods(reader, encoding);
@@ -71,8 +73,8 @@ namespace QIQI.EProjectFile.Sections
                         codeSectionInfo.Structs = StructInfo.ReadStructs(reader, encoding);
                         codeSectionInfo.DllDeclares = DllDeclareInfo.ReadDllDeclares(reader, encoding);
                     }
-                }
-                return codeSectionInfo;
+                    return codeSectionInfo;
+                });
             }
         }
 

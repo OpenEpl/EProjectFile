@@ -3,6 +3,7 @@ using QIQI.EProjectFile.Internal;
 using System;
 using System.IO;
 using System.Text;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -14,11 +15,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x01007319;
             public bool IsOptional => false;
 
-            public ProjectConfigSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ProjectConfigSection Parse(BlockParserContext context)
             {
-                var projectConfig = new ProjectConfigSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var projectConfig = new ProjectConfigSection();
                     projectConfig.Name = reader.ReadStringWithLengthPrefix(encoding);
                     projectConfig.Description = reader.ReadStringWithLengthPrefix(encoding);
                     projectConfig.Author = reader.ReadStringWithLengthPrefix(encoding);
@@ -34,8 +36,8 @@ namespace QIQI.EProjectFile.Sections
                     projectConfig.CompilePlugins = reader.ReadStringWithFixedLength(encoding, 20);
                     projectConfig.ExportPublicClassMethod = reader.ReadInt32() != 0;
                     reader.ReadInt32(); // Unknown
-                }
-                return projectConfig;
+                    return projectConfig;
+                });
             }
         }
 

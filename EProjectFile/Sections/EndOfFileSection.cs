@@ -1,4 +1,5 @@
 ﻿
+using QIQI.EProjectFile.Context;
 using System;
 using System.IO;
 using System.Text;
@@ -14,9 +15,9 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x07007319;
             public bool IsOptional => false;
 
-            public EndOfFileSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public EndOfFileSection Parse(BlockParserContext context)
             {
-                if (data != null && data.Length > 0)
+                if (context.DataLength > 0)
                 {
                     throw new Exception("EndOfFileSection should be empty");
                 }

@@ -1,4 +1,5 @@
-﻿using QIQI.EProjectFile.Internal;
+﻿using QIQI.EProjectFile.Context;
+using QIQI.EProjectFile.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,6 @@ namespace QIQI.EProjectFile.Sections
         string SectionName { get; }
         int SectionKey { get; }
         bool IsOptional { get; }
-        TSection Parse(byte[] data, Encoding encoding, bool cryptEC);
+        TSection Parse(BlockParserContext context);
     }
 }

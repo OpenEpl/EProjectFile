@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using QIQI.EProjectFile.Internal;
 using System.Linq;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -16,11 +17,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x11007319;
             public bool IsOptional => true;
 
-            public ConditionalCompilationSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ConditionalCompilationSection Parse(BlockParserContext context)
             {
-                var that = new ConditionalCompilationSection();
-                using (BinaryReader reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var that = new ConditionalCompilationSection();
                     that.ActivatedScheme = reader.ReadInt32();
                     var names = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
                     var allFeatures = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
@@ -29,8 +31,8 @@ namespace QIQI.EProjectFile.Sections
                         Name = name,
                         Features = features
                     }).ToList();
-                }
-                return that;
+                    return that;
+                });
             }
         }
 

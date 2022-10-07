@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Text.Json;
 using QIQI.EProjectFile.Internal;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -16,11 +17,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x0C007319;
             public bool IsOptional => false;
 
-            public ECDependenciesSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ECDependenciesSection Parse(BlockParserContext context)
             {
-                var that = new ECDependenciesSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var that = new ECDependenciesSection();
                     var count = reader.ReadInt32();
                     that.ECDependencies = new List<ECDependencyInfo>(count);
                     for (int i = 0; i < count; i++)
@@ -52,8 +54,8 @@ namespace QIQI.EProjectFile.Sections
                         }
                         that.ECDependencies.Add(dependency);
                     }
-                }
-                return that;
+                    return that;
+                });
             }
         }
 

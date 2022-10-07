@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,26 +17,28 @@ namespace QIQI.EProjectFile.EditorTabInfo
 
             public byte TypeId { get; }
 
-            public TEditorTabInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public TEditorTabInfo Parse(BlockParserContext context)
             {
-                using BinaryReader reader = new BinaryReader(new MemoryStream(data, false), encoding);
-                if (reader.ReadByte() != TypeId)
+                return context.Consume(reader =>
                 {
-                    throw new Exception($"Mismatched type for {typeof(TEditorTabInfo).Name}");
-                }
-                var that = new TEditorTabInfo()
-                {
-                    Offset = reader.ReadInt32() & 0x7FFFFFFF,
-                    ColumnInTable = reader.ReadByte(),
-                    SelectionStart = reader.ReadInt32(),
-                    SelectionCurrent = reader.ReadInt32(),
-                    SelectionEndpoints = new List<int>()
-                };
-                while (reader.BaseStream.Position < reader.BaseStream.Length)
-                {
-                    that.SelectionEndpoints.Add(reader.ReadInt32());
-                }
-                return that;
+                    if (reader.ReadByte() != TypeId)
+                    {
+                        throw new Exception($"Mismatched type for {typeof(TEditorTabInfo).Name}");
+                    }
+                    var that = new TEditorTabInfo()
+                    {
+                        Offset = reader.ReadInt32() & 0x7FFFFFFF,
+                        ColumnInTable = reader.ReadByte(),
+                        SelectionStart = reader.ReadInt32(),
+                        SelectionCurrent = reader.ReadInt32(),
+                        SelectionEndpoints = new List<int>()
+                    };
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        that.SelectionEndpoints.Add(reader.ReadInt32());
+                    }
+                    return that;
+                });
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using QIQI.EProjectFile.Context;
 using QIQI.EProjectFile.Internal;
 using QIQI.EProjectFile.Sections;
 
@@ -16,18 +17,19 @@ namespace QIQI.EProjectFile
             public int SectionKey => 0x04007319;
             public bool IsOptional => false;
 
-            public ResourceSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ResourceSection Parse(BlockParserContext context)
             {
-                ResourceSection resourceSectionInfo;
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    ResourceSection resourceSectionInfo;
                     resourceSectionInfo = new ResourceSection()
                     {
                         Forms = FormInfo.ReadForms(reader, encoding),
                         Constants = ConstantInfo.ReadConstants(reader, encoding)
                     };
-                }
-                return resourceSectionInfo;
+                    return resourceSectionInfo;
+                });
             }
         }
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -15,11 +16,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x0E007319;
             public bool IsOptional => true;
 
-            public FolderSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public FolderSection Parse(BlockParserContext context)
             {
-                var folderSectionInfo = new FolderSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var folderSectionInfo = new FolderSection();
                     folderSectionInfo.allocatedKey = reader.ReadInt32();
                     while (!(reader.BaseStream.Position == reader.BaseStream.Length))
                     {
@@ -32,8 +34,8 @@ namespace QIQI.EProjectFile.Sections
                             Children = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4)
                         });
                     }
-                }
-                return folderSectionInfo;
+                    return folderSectionInfo;
+                });
             }
         }
 

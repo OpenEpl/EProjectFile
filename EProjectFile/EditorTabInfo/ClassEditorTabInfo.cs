@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -11,34 +12,36 @@ namespace QIQI.EProjectFile.EditorTabInfo
         {
             public byte TypeId => 1;
 
-            public ClassEditorTabInfo Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ClassEditorTabInfo Parse(BlockParserContext context)
             {
-                using BinaryReader reader = new BinaryReader(new MemoryStream(data, false), encoding);
-                if (reader.ReadByte() != TypeId)
+                return context.Consume(reader =>
                 {
-                    throw new Exception($"Mismatched type for {nameof(ClassEditorTabInfo)}");
-                }
-                var that = new ClassEditorTabInfo()
-                {
-                    ClassId = reader.ReadInt32(),
-                    ElemId = reader.ReadInt16(),
-                    Offset = reader.ReadInt32() & 0x7FFFFFFF,
-                    ColumnInTable = reader.ReadByte(),
-                    SelectionStart = reader.ReadInt32(),
-                    SelectionCurrent = reader.ReadInt32(),
-                    SelectionEndpoints = new List<ClassEditorEndpoint>()
-                };
-                while (reader.BaseStream.Position < reader.BaseStream.Length)
-                {
-                    var elemId = reader.ReadInt16();
-                    var offset = reader.ReadInt32();
-                    that.SelectionEndpoints.Add(new ClassEditorEndpoint()
+                    if (reader.ReadByte() != TypeId)
                     {
-                        ElemId = elemId,
-                        Offset = offset
-                    });
-                }
-                return that;
+                        throw new Exception($"Mismatched type for {nameof(ClassEditorTabInfo)}");
+                    }
+                    var that = new ClassEditorTabInfo()
+                    {
+                        ClassId = reader.ReadInt32(),
+                        ElemId = reader.ReadInt16(),
+                        Offset = reader.ReadInt32() & 0x7FFFFFFF,
+                        ColumnInTable = reader.ReadByte(),
+                        SelectionStart = reader.ReadInt32(),
+                        SelectionCurrent = reader.ReadInt32(),
+                        SelectionEndpoints = new List<ClassEditorEndpoint>()
+                    };
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        var elemId = reader.ReadInt16();
+                        var offset = reader.ReadInt32();
+                        that.SelectionEndpoints.Add(new ClassEditorEndpoint()
+                        {
+                            ElemId = elemId,
+                            Offset = offset
+                        });
+                    }
+                    return that;
+                });
             }
         }
         public static readonly IEditorTabInfoKey<ClassEditorTabInfo> Key = new KeyImpl();

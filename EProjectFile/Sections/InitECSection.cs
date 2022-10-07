@@ -14,15 +14,16 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x08007319;
             public bool IsOptional => false;
 
-            public InitECSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public InitECSection Parse(Context.BlockParserContext context)
             {
-                var that = new InitECSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var that = new InitECSection();
                     that.ECName = reader.ReadStringsWithMfcStyleCountPrefix(encoding);
                     that.InitMethod = reader.ReadInt32sWithFixedLength(reader.ReadInt32() / 4);
-                }
-                return that;
+                    return that;
+                });
             }
         }
 

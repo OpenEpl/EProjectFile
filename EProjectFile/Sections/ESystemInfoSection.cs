@@ -1,4 +1,5 @@
-﻿using QIQI.EProjectFile.Internal;
+﻿using QIQI.EProjectFile.Context;
+using QIQI.EProjectFile.Internal;
 using System;
 using System.IO;
 using System.Text;
@@ -14,11 +15,11 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x02007319;
             public bool IsOptional => false;
 
-            public ESystemInfoSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public ESystemInfoSection Parse(BlockParserContext context)
             {
-                var systemInfo = new ESystemInfoSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false)))
+                return context.Consume(reader =>
                 {
+                    var systemInfo = new ESystemInfoSection();
                     systemInfo.ESystemVersion = new Version(reader.ReadInt16(), reader.ReadInt16());
                     reader.ReadInt32(); // Skip Unknown
                     systemInfo.Language = reader.ReadInt32();
@@ -26,8 +27,8 @@ namespace QIQI.EProjectFile.Sections
                     systemInfo.FileType = reader.ReadInt32();
                     reader.ReadInt32(); // Skip Unknown
                     systemInfo.ProjectType = reader.ReadInt32();
-                }
-                return systemInfo;
+                    return systemInfo;
+                });
             }
         }
         public static readonly ISectionKey<ESystemInfoSection> Key = new KeyImpl();

@@ -1,4 +1,5 @@
-﻿using QIQI.EProjectFile.Sections;
+﻿using QIQI.EProjectFile.Context;
+using QIQI.EProjectFile.Sections;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +45,7 @@ namespace QIQI.EProjectFile
                     ISection section;
                     if (PredefinedSections.Keys.TryGetValue(rawSection.Key, out var sectionKey))
                     {
-                        section = sectionKey.Parse(rawSection.Data, encoding, reader.CryptEC);
+                        section = sectionKey.Parse(new BlockParserContext(rawSection.Data, encoding, reader.CryptEC));
                     }
                     else
                     {

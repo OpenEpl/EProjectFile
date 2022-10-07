@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -19,11 +20,12 @@ namespace QIQI.EProjectFile.Sections
             public int SectionKey => 0x05007319;
             public bool IsOptional => true;
 
-            public LosableSection Parse(byte[] data, Encoding encoding, bool cryptEC)
+            public LosableSection Parse(BlockParserContext context)
             {
-                var losableSectionInfo = new LosableSection();
-                using (var reader = new BinaryReader(new MemoryStream(data, false), encoding))
+                return context.Consume(reader =>
                 {
+                    var encoding = context.Encoding;
+                    var losableSectionInfo = new LosableSection();
                     losableSectionInfo.OutFile = reader.ReadStringWithLengthPrefix(encoding);
                     losableSectionInfo.RemovedDefinedItems = RemovedDefinedItemInfo.ReadRemovedDefinedItems(reader, encoding);
                     losableSectionInfo.UnknownAfterRemovedDefinedItem = reader.ReadImmutableBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position)) switch
@@ -32,8 +34,8 @@ namespace QIQI.EProjectFile.Sections
                         var x when x.SequenceEqual(DefaultUnknownAfterRemovedDefinedItem) => DefaultUnknownAfterRemovedDefinedItem,
                         var x => x
                     };
-                }
-                return losableSectionInfo;
+                    return losableSectionInfo;
+                });
             }
         }
         public static readonly ISectionKey<LosableSection> Key = new KeyImpl();
