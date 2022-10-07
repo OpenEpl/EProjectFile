@@ -18,7 +18,40 @@ Package Manager `Install-Package QIQI.EProjectFile`
 
 ## 项目状态
 本项目属于**实验性项目**，所有 API 随时可能发生破坏性的变更（breaking changes）  
-由于可能存在的程序错误，本项目可能造成被操作文件的数据丢失、损坏，请在进行操作前提前备份
+由于可能存在的程序错误，本项目可能造成被操作文件的数据丢失、损坏，请在进行操作前提前备份。  
+当前项目的完成度可用于从 *.e 文件中提取出所有代码信息和少量编辑信息，并进行代码编辑，  
+可用于 文本代码互转、EplDiff、甚至自行实现编译器等场景。  
+### 数据段支持情况
+
+| 段标识 | 段名称 | 本项目使用的类名 | 备注 |
+| ---- | ---- | ---- | ---- |
+| `0x01007319` | 用户信息段 | `ProjectConfigSection` |
+| `0x02007319` | 系统信息段 | `ESystemInfoSection` |
+| `0x03007319` | 程序段 | `CodeSection` |
+| `0x04007319` | 程序资源段 | `ResourceSection` |
+| `0x05007319` | 可丢失程序段 | `LosableSection` | 只支持解析部分数据 |
+| `0x06007319` | *\<Unknown\>* | *Not supported* | 新版易语言已经不会写出此段 |
+| `0x07007319` | *(empty)* | `EndOfFileSection` |
+| `0x08007319` | 初始模块段 | `InitECSection` |
+| `0x09007319` | 编辑信息段2 | `EditorInfoSection` |
+| `0x0A007319` | 辅助信息段1 | `EventIndicesSection` |
+| `0x0B007319` | 辅助信息段2 | `ClassPublicitySection` |
+| `0x0C007319` | 易模块记录段 | `ECDependenciesSection` |
+| `0x0D007319` | 易包信息段1 | `EPackageInfoSection` |
+| `0x0E007319` | 编辑过滤器信息段 | `FolderSection` |
+| `0x0F007319` | 易模块记录段2 | *Not supported* | 当引用加密模块时，此段用于记忆密码 |
+| `0x10007319` | 辅助信息段3 | `ProjectConfigExSection` |
+| `0x11007319` | 编译条件信息段 | `ConditionalCompilationSection` |
+
+### 代码解析与生成
+| 特性名称 | 完成情况 |
+| ---- | :----: |
+| 代码数据中语义部分的解析与生成 | ✔️ |
+| 代码数据中注释部分的解析与生成 | ✔️ |
+| 处理 屏蔽 标志 | ✔️ |
+| 处理 书签 标志 | ❌ |
+| 处理 折叠 标志 | ❌ |
+| 处理 展开 标志 | ❌ |
 
 ## 交流途径
 一般的 bug 反馈 与 feature 请求，请用 GitHub 的 Issues 模块反馈  
