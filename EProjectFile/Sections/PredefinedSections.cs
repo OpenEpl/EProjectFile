@@ -20,6 +20,7 @@ namespace QIQI.EProjectFile.Sections
             ProjectConfigExSection.Key,
             ConditionalCompilationSection.Key,
             EditorInfoSection.Key,
+            EventIndicesSection.Key,
             EndOfFileSection.Key
         }.ToDictionary(x => x.SectionKey);
     }
