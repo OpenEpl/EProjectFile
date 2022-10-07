@@ -44,6 +44,7 @@ Package Manager `Install-Package QIQI.EProjectFile`
 | `0x11007319` | 编译条件信息段 | `ConditionalCompilationSection` |
 
 ### 代码解析与生成
+
 | 特性名称 | 完成情况 |
 | ---- | :----: |
 | 代码数据中语义部分的解析与生成 | ✔️ |
@@ -67,10 +68,11 @@ Package Manager `Install-Package QIQI.EProjectFile`
 
 ## 特别感谢
 本项目的发展得益于开源社区中许多贡献者的支持，这里仅列举部分人员用于表示感谢，*请注意该列表并非全部贡献者*
+
 | 用户 | 成就 |
 | ---- | ---- |
 | 东灿 | [最早开源的项目文件结构分析代码](https://bbs.125.la/forum.php?mod=viewthread&tid=13751690) |
 | 曙光 | 最早开源的代码数据解析软件 |
 | 为你芯冻 | [e.net](https://github.com/wnxd/e.net)（包含一定的项目解析代码） |
 | JimStone（谢栋） | 支持库兼容性信息分析 [`80348c3`](https://github.com/OpenEpl/EProjectFile/commit/80348c3e42d775c1b2f2c45af699356c46b3503d) |
-| @clhhz | 发现 MemoryAddress 字段 (#2) |
+| @clhhz | 发现 MemoryAddress 字段 \([#2](https://github.com/OpenEpl/EProjectFile/pull/2)\) |
