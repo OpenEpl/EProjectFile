@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -20,6 +19,7 @@ namespace QIQI.EProjectFile.Sections
             ECDependenciesSection.Key,
             ProjectConfigExSection.Key,
             ConditionalCompilationSection.Key,
+            EditorInfoSection.Key,
             EndOfFileSection.Key
         }.ToDictionary(x => x.SectionKey);
     }
