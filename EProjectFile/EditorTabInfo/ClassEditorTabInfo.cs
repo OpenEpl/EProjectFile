@@ -85,10 +85,11 @@ namespace QIQI.EProjectFile.EditorTabInfo
 
         public void WriteTo(BinaryWriter writer, Encoding encoding)
         {
+            writer.Write(20 + (SelectionEndpoints?.Count ?? 0) * 6);
             writer.Write(TypeId);
             writer.Write(ClassId);
             writer.Write(ElemId);
-            writer.Write(Offset | 0x80000000);
+            writer.Write(Offset | unchecked((int)0x80000000));
             writer.Write(ColumnInTable);
             writer.Write(SelectionStart);
             writer.Write(SelectionCurrent);

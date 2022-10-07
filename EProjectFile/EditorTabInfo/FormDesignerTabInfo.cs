@@ -42,6 +42,7 @@ namespace QIQI.EProjectFile.EditorTabInfo
 
         public void WriteTo(BinaryWriter writer, Encoding encoding)
         {
+            writer.Write(5 + (UnitIds?.Count ?? 0) * 4);
             writer.Write(TypeId);
             writer.Write(FormId);
             if (UnitIds != null)

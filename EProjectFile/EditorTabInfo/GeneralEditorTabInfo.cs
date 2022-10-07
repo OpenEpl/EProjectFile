@@ -21,8 +21,15 @@ namespace QIQI.EProjectFile.EditorTabInfo
 
         public void WriteTo(BinaryWriter writer, Encoding encoding)
         {
+            if (Data is null)
+            {
+                writer.Write(1);
+                writer.Write(TypeId);
+                return;
+            }
+            writer.Write(1 + Data.Length);
             writer.Write(TypeId);
-            writer.WriteBytesWithLengthPrefix(Data);
+            writer.Write(Data);
         }
     }
 }
