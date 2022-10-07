@@ -49,22 +49,15 @@ namespace QIQI.EProjectFile.Sections
             = ImmutableArray.Create(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 } );
         [JsonIgnore]
         public ImmutableArray<byte> UnknownAfterRemovedDefinedItem { get; set; } = DefaultUnknownAfterRemovedDefinedItem;
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.WriteStringWithLengthPrefix(encoding, OutFile);
-            RemovedDefinedItemInfo.WriteRemovedDefinedItems(writer, encoding, RemovedDefinedItems);
-            writer.Write(UnknownAfterRemovedDefinedItem);
+                var encoding = context.Encoding;
+                writer.WriteStringWithLengthPrefix(encoding, OutFile);
+                RemovedDefinedItemInfo.WriteRemovedDefinedItems(writer, encoding, RemovedDefinedItems);
+                writer.Write(UnknownAfterRemovedDefinedItem);
+            });
         }
         public override string ToString()
         {

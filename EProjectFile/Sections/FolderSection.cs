@@ -49,29 +49,22 @@ namespace QIQI.EProjectFile.Sections
 
         public int AllocKey() => ++allocatedKey;
 
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.Write(allocatedKey);
-            foreach (var folder in Folders)
-            {
-                writer.Write(folder.Expand ? 1 : 0);
-                writer.Write(folder.Key);
-                writer.Write(folder.ParentKey);
-                writer.WriteStringWithLengthPrefix(encoding, folder.Name);
-                writer.Write(folder.Children.Length * 4);
-                writer.WriteInt32sWithoutLengthPrefix(folder.Children);
-            }
+                var encoding = context.Encoding;
+                writer.Write(allocatedKey);
+                foreach (var folder in Folders)
+                {
+                    writer.Write(folder.Expand ? 1 : 0);
+                    writer.Write(folder.Key);
+                    writer.Write(folder.ParentKey);
+                    writer.WriteStringWithLengthPrefix(encoding, folder.Name);
+                    writer.Write(folder.Children.Length * 4);
+                    writer.WriteInt32sWithoutLengthPrefix(folder.Children);
+                }
+            });
         }
         public override string ToString()
         {

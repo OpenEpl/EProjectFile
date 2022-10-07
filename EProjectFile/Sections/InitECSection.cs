@@ -3,6 +3,7 @@ using QIQI.EProjectFile.Internal;
 using System;
 using System.IO;
 using System.Text;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -34,22 +35,15 @@ namespace QIQI.EProjectFile.Sections
 
         public string[] ECName { get; set; }
         public int[] InitMethod { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.WriteStringsWithMfcStyleCountPrefix(encoding, ECName);
-            writer.Write(InitMethod.Length * 4);
-            writer.WriteInt32sWithoutLengthPrefix(InitMethod);
+                var encoding = context.Encoding;
+                writer.WriteStringsWithMfcStyleCountPrefix(encoding, ECName);
+                writer.Write(InitMethod.Length * 4);
+                writer.WriteInt32sWithoutLengthPrefix(InitMethod);
+            });
         }
         public override string ToString()
         {

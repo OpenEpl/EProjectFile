@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using QIQI.EProjectFile.Context;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -37,7 +38,7 @@ namespace QIQI.EProjectFile.Sections
         [JsonConverter(typeof(ByteArrayHexConverter))]
         public byte[] Data { get => raw.Data; set => raw.Data = value; }
 
-        public byte[] ToBytes(Encoding encoding) => (byte[])raw.Data.Clone();
+        public byte[] ToBytes(BlockByteifierContext context) => (byte[])raw.Data.Clone();
 
         public override string ToString()
         {

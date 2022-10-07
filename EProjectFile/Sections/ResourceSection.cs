@@ -40,22 +40,15 @@ namespace QIQI.EProjectFile
 
         public List<FormInfo> Forms { get; set; }
         public List<ConstantInfo> Constants { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            FormInfo.WriteForms(writer, encoding, Forms);
-            ConstantInfo.WriteConstants(writer, encoding, Constants);
-            writer.Write(0);
+                var encoding = context.Encoding;
+                FormInfo.WriteForms(writer, encoding, Forms);
+                ConstantInfo.WriteConstants(writer, encoding, Constants);
+                writer.Write(0);
+            });
         }
         public override string ToString()
         {

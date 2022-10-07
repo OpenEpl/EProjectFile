@@ -118,36 +118,29 @@ namespace QIQI.EProjectFile.Sections
         {
             return ++AllocatedIdNum | type;
         }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.Write(AllocatedIdNum);
-            writer.Write(51113791); // 确认于易语言V5.71
-            LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
-            writer.Write(Flag);
-            writer.Write(MainMethod);
-            if (UnknownBeforeIconData != null)
-            {
-                writer.Write(UnknownBeforeIconData);
-            }
-            writer.WriteBytesWithLengthPrefix(IconData);
-            writer.WriteStringWithLengthPrefix(encoding, DebugCommandParameters);
-            ClassInfo.WriteClasses(writer, encoding, Classes);
-            MethodInfo.WriteMethods(writer, encoding, Methods);
-            AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
-            StructInfo.WriteStructs(writer, encoding, Structs);
-            DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
-            writer.Write(new byte[40]); // Unknown（40个0）
+                var encoding = context.Encoding;
+                writer.Write(AllocatedIdNum);
+                writer.Write(51113791); // 确认于易语言V5.71
+                LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
+                writer.Write(Flag);
+                writer.Write(MainMethod);
+                if (UnknownBeforeIconData != null)
+                {
+                    writer.Write(UnknownBeforeIconData);
+                }
+                writer.WriteBytesWithLengthPrefix(IconData);
+                writer.WriteStringWithLengthPrefix(encoding, DebugCommandParameters);
+                ClassInfo.WriteClasses(writer, encoding, Classes);
+                MethodInfo.WriteMethods(writer, encoding, Methods);
+                AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
+                StructInfo.WriteStructs(writer, encoding, Structs);
+                DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
+                writer.Write(new byte[40]); // Unknown（40个0）
+            });
         }
 
         public override string ToString()

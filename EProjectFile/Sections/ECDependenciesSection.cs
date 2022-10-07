@@ -65,41 +65,34 @@ namespace QIQI.EProjectFile.Sections
         public bool IsOptional => Key.IsOptional;
 
         public List<ECDependencyInfo> ECDependencies { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.Write(ECDependencies.Count);
-            foreach (var dependency in ECDependencies)
-            {
-                writer.Write(dependency.InfoVersion);
-                writer.Write(dependency.FileSize);
-                writer.Write(dependency.FileLastModifiedDate.ToFileTime());
-                if (dependency.InfoVersion >= 2)
+                var encoding = context.Encoding;
+                writer.Write(ECDependencies.Count);
+                foreach (var dependency in ECDependencies)
                 {
-                    writer.Write(dependency.ReExport ? 1 : 0);
-                }
-                else
-                {
-                    if (dependency.ReExport)
+                    writer.Write(dependency.InfoVersion);
+                    writer.Write(dependency.FileSize);
+                    writer.Write(dependency.FileLastModifiedDate.ToFileTime());
+                    if (dependency.InfoVersion >= 2)
                     {
-                        throw new Exception($"Cannot re-export EC when {nameof(dependency.InfoVersion)} is 1");
+                        writer.Write(dependency.ReExport ? 1 : 0);
                     }
+                    else
+                    {
+                        if (dependency.ReExport)
+                        {
+                            throw new Exception($"Cannot re-export EC when {nameof(dependency.InfoVersion)} is 1");
+                        }
+                    }
+                    writer.WriteStringWithLengthPrefix(encoding, dependency.Name);
+                    writer.WriteStringWithLengthPrefix(encoding, dependency.Path);
+                    writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Start).ToArray());
+                    writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Count).ToArray());
                 }
-                writer.WriteStringWithLengthPrefix(encoding, dependency.Name);
-                writer.WriteStringWithLengthPrefix(encoding, dependency.Path);
-                writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Start).ToArray());
-                writer.WriteInt32sWithByteSizePrefix(dependency.DefinedIds.Select(x => x.Count).ToArray());
-            }
+            });
         }
         public override string ToString()
         {

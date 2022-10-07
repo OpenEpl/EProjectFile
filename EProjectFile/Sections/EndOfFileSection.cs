@@ -36,7 +36,7 @@ namespace QIQI.EProjectFile.Sections
         public int SectionKey => Key.SectionKey;
         public bool IsOptional => Key.IsOptional;
 
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
             return Array.Empty<byte>();
         }

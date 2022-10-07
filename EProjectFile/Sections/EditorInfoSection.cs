@@ -53,35 +53,27 @@ namespace QIQI.EProjectFile.Sections
 
         public List<IEditorTabInfo> Tabs { get; set; }
 
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream()))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            if (Tabs is null)
-            {
-                writer.Write(-1);
-                return;
-            }
-            writer.Write(Tabs.Count - 1);
-            foreach (var tab in Tabs)
-            {
-                if (tab is null)
+                var encoding = context.Encoding;
+                if (Tabs is null)
                 {
-                    writer.Write(0);
-                    continue;
+                    writer.Write(-1);
+                    return;
                 }
-                tab.WriteTo(writer, encoding);
-            }
+                writer.Write(Tabs.Count - 1);
+                foreach (var tab in Tabs)
+                {
+                    if (tab is null)
+                    {
+                        writer.Write(0);
+                        continue;
+                    }
+                    tab.WriteTo(writer, encoding);
+                }
+            });
         }
 
         public override string ToString()

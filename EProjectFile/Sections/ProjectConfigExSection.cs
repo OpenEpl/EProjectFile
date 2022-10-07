@@ -49,22 +49,15 @@ namespace QIQI.EProjectFile.Sections
         /// </summary>
         /// <remarks>设置在模块源码中。</remarks>
         public string ECPasswordTips { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.WriteStringsWithMfcStyleCountPrefix(encoding, ExternalFilePaths);
-            writer.WriteStringWithLengthPrefix(encoding, ECPassword);
-            writer.WriteStringWithLengthPrefix(encoding, ECPasswordTips);
+                var encoding = context.Encoding;
+                writer.WriteStringsWithMfcStyleCountPrefix(encoding, ExternalFilePaths);
+                writer.WriteStringWithLengthPrefix(encoding, ECPassword);
+                writer.WriteStringWithLengthPrefix(encoding, ECPasswordTips);
+            });
         }
         public override string ToString()
         {

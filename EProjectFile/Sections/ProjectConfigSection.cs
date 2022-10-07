@@ -60,37 +60,30 @@ namespace QIQI.EProjectFile.Sections
         public bool WriteVersion { get; set; }
         public string CompilePlugins { get; set; }
         public bool ExportPublicClassMethod { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            writer.WriteStringWithLengthPrefix(encoding, Name);
-            writer.WriteStringWithLengthPrefix(encoding, Description);
-            writer.WriteStringWithLengthPrefix(encoding, Author);
-            writer.WriteStringWithLengthPrefix(encoding, ZipCode);
-            writer.WriteStringWithLengthPrefix(encoding, Address);
-            writer.WriteStringWithLengthPrefix(encoding, TelephoneNumber);
-            writer.WriteStringWithLengthPrefix(encoding, FaxNumber);
-            writer.WriteStringWithLengthPrefix(encoding, Email);
-            writer.WriteStringWithLengthPrefix(encoding, Homepage);
-            writer.WriteStringWithLengthPrefix(encoding, Copyright);
-            writer.Write(Version.Major);
-            writer.Write(Version.Minor);
-            writer.Write(Version.Build);
-            writer.Write(Version.Revision);
-            writer.Write(WriteVersion ? 0 : 1);
-            writer.WriteStringWithFixedLength(encoding, CompilePlugins, 20);
-            writer.Write(ExportPublicClassMethod ? 1 : 0);
-            writer.Write(0); // Unknown
+                var encoding = context.Encoding;
+                writer.WriteStringWithLengthPrefix(encoding, Name);
+                writer.WriteStringWithLengthPrefix(encoding, Description);
+                writer.WriteStringWithLengthPrefix(encoding, Author);
+                writer.WriteStringWithLengthPrefix(encoding, ZipCode);
+                writer.WriteStringWithLengthPrefix(encoding, Address);
+                writer.WriteStringWithLengthPrefix(encoding, TelephoneNumber);
+                writer.WriteStringWithLengthPrefix(encoding, FaxNumber);
+                writer.WriteStringWithLengthPrefix(encoding, Email);
+                writer.WriteStringWithLengthPrefix(encoding, Homepage);
+                writer.WriteStringWithLengthPrefix(encoding, Copyright);
+                writer.Write(Version.Major);
+                writer.Write(Version.Minor);
+                writer.Write(Version.Build);
+                writer.Write(Version.Revision);
+                writer.Write(WriteVersion ? 0 : 1);
+                writer.WriteStringWithFixedLength(encoding, CompilePlugins, 20);
+                writer.Write(ExportPublicClassMethod ? 1 : 0);
+                writer.Write(0); // Unknown
+            });
         }
         public override string ToString()
         {

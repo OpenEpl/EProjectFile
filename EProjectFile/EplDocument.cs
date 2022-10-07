@@ -67,17 +67,21 @@ namespace QIQI.EProjectFile
             var encoding = Encoding.GetEncoding("gbk");
             using (var writer = new ProjectFileWriter(stream))
             {
+                var context = new BlockByteifierContext()
+                {
+                    Encoding = encoding
+                };
                 foreach (var section in Sections)
                 {
                     if (section is ESystemInfoSection systemInfo)
                     {
                         encoding = systemInfo.DetermineEncoding();
                     }
-                    writer.WriteSection(new RawSectionInfo(section.SectionKey, section.SectionName, section.IsOptional, section.ToBytes(encoding)));
+                    writer.WriteSection(new RawSectionInfo(section.SectionKey, section.SectionName, section.IsOptional, section.ToBytes(context)));
                 }
                 {
                     var section = EndOfFileSection.Instance;
-                    writer.WriteSection(new RawSectionInfo(section.SectionKey, section.SectionName, section.IsOptional, section.ToBytes(encoding)));
+                    writer.WriteSection(new RawSectionInfo(section.SectionKey, section.SectionName, section.IsOptional, section.ToBytes(context)));
                 }
             }
         }

@@ -47,20 +47,13 @@ namespace QIQI.EProjectFile.Sections
         /// 与每个子程序一一对应，null表示对应子程序非调用易包的子程序
         /// </summary>
         public string[] FileNames { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
-        }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            Array.ForEach(FileNames, x => writer.WriteStringWithLengthPrefix(encoding, x));
+                var encoding = context.Encoding;
+                Array.ForEach(FileNames, x => writer.WriteStringWithLengthPrefix(encoding, x));
+            });
         }
         public override string ToString()
         {

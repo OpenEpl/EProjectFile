@@ -65,31 +65,24 @@ namespace QIQI.EProjectFile.Sections
 
         public int ProjectType { get; set; }
 
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream()))
+            return context.Collect(writer => 
             {
-                WriteTo(writer);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
+                var encoding = context.Encoding;
+                writer.Write((short)ESystemVersion.Major);
+                writer.Write((short)ESystemVersion.Minor);
+                writer.Write(1);
+                writer.Write(Language);
+                writer.Write((short)EProjectFormatVersion.Major);
+                writer.Write((short)EProjectFormatVersion.Minor);
+                writer.Write(FileType);
+                writer.Write(0);
+                writer.Write(ProjectType);
+                writer.Write(new byte[32]);
+            });
         }
 
-        private void WriteTo(BinaryWriter writer)
-        {
-            writer.Write((short)ESystemVersion.Major);
-            writer.Write((short)ESystemVersion.Minor);
-            writer.Write(1);
-            writer.Write(Language);
-            writer.Write((short)EProjectFormatVersion.Major);
-            writer.Write((short)EProjectFormatVersion.Minor);
-            writer.Write(FileType);
-            writer.Write(0);
-            writer.Write(ProjectType);
-            writer.Write(new byte[32]);
-        }
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, JsonUtils.Options);

@@ -14,7 +14,7 @@ namespace QIQI.EProjectFile.Sections
         string SectionName { get; }
         int SectionKey { get; }
         bool IsOptional { get; }
-        byte[] ToBytes(Encoding encoding);
+        byte[] ToBytes(BlockByteifierContext context);
     }
 
     /// <summary>

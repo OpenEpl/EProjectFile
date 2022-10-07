@@ -43,16 +43,17 @@ namespace QIQI.EProjectFile.Sections
         public bool IsOptional => Key.IsOptional;
 
         public List<ClassPublicityInfo> ClassPublicities { get; set; }
-        public byte[] ToBytes(Encoding encoding)
+        public byte[] ToBytes(BlockByteifierContext context)
         {
-            byte[] data;
-            using (var writer = new BinaryWriter(new MemoryStream(), encoding))
+            return context.Collect(writer => 
             {
-                WriteTo(writer, encoding);
-                writer.Flush();
-                data = ((MemoryStream)writer.BaseStream).ToArray();
-            }
-            return data;
+                var encoding = context.Encoding;
+                foreach (var publicity in ClassPublicities)
+                {
+                    writer.Write(publicity.Class);
+                    writer.Write(publicity.Flags);
+                }
+            });
         }
         private void WriteTo(BinaryWriter writer, Encoding encoding)
         {
