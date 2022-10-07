@@ -55,14 +55,6 @@ namespace QIQI.EProjectFile.Sections
                 }
             });
         }
-        private void WriteTo(BinaryWriter writer, Encoding encoding)
-        {
-            foreach (var publicity in ClassPublicities)
-            {
-                writer.Write(publicity.Class);
-                writer.Write(publicity.Flags);
-            }
-        }
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, JsonUtils.Options);
