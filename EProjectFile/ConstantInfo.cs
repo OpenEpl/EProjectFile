@@ -47,7 +47,7 @@ namespace QIQI.EProjectFile
                             reader.Read();
                             if ("bytes".Equals(keyName))
                             {
-                                value = ByteArrayHexConverter.HexToBytes(reader.GetString());
+                                value = BytesUtils.HexToBytes(reader.GetString());
                             }
                             else if ("date".Equals(keyName))
                             {
@@ -78,7 +78,7 @@ namespace QIQI.EProjectFile
                         break;
                     case byte[] bytes:
                         writer.WriteStartObject();
-                        writer.WriteString("bytes", ByteArrayHexConverter.BytesToHex(bytes));
+                        writer.WriteString("bytes", BytesUtils.BytesToHex(bytes));
                         writer.WriteEndObject();
                         break;
                     case DateTime dateTime:

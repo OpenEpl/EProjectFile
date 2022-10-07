@@ -12,13 +12,13 @@ namespace QIQI.EProjectFile.Internal
     {
         public static ImmutableArray<byte> HexToBytes(string src)
         {
-            var data = ByteArrayHexConverter.HexToBytes(src);
+            var data = BytesUtils.HexToBytes(src);
             return Unsafe.As<byte[], ImmutableArray<byte>>(ref data);
         }
 
         public static string BytesToHex(ImmutableArray<byte> data)
         {
-            return ByteArrayHexConverter.BytesToHex(Unsafe.As<ImmutableArray<byte>, byte[]>(ref data));
+            return BytesUtils.BytesToHex(Unsafe.As<ImmutableArray<byte>, byte[]>(ref data));
         }
 
         public override ImmutableArray<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
