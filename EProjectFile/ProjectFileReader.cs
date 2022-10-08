@@ -35,7 +35,7 @@ namespace QIQI.EProjectFile
                     throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
                 }
                 int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
-                var cryptoTransform = new CryptoECTransform(Encoding.GetEncoding("gbk").GetBytes(password), lengthOfRead);
+                var cryptoTransform = new CryptoECTransform(Encoding.GetEncoding("gbk").GetBytes(password));
 
                 // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
                 // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream

@@ -30,7 +30,7 @@ namespace QIQI.EProjectFile.Internal
 
         public byte[] PasswordHash { get; }
 
-        public CryptoECTransform(byte[] key, int lengthOfUncrypted)
+        public CryptoECTransform(byte[] key)
         {
             keyTable = new RC4Crypto(key, InitialStatus);
             PasswordHash = CalculatePasswordHash(key);
