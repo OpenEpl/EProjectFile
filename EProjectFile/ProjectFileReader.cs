@@ -22,35 +22,64 @@ namespace QIQI.EProjectFile
             int magic2 = reader.ReadInt32();
             if (magic1 == 0x454C5457) // WTLE
             {
-                if (magic2 != 0x00020001)
+                switch (magic2)
                 {
-                    throw new Exception("不支持此类加密文件");
+                    case 0x00000001:
+                        {
+                            string password = inputPassword?.Invoke(null);
+                            if (string.IsNullOrEmpty(password))
+                            {
+                                throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
+                            }
+                            const int lengthOfRead = 8;
+                            var cryptoTransform = new EStdCryptoTransform(Encoding.GetEncoding("gbk").GetBytes(password));
+
+                            // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
+                            // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream
+                            var cryptoStream = new CryptoStream(new PrefixedStream(stream, new byte[lengthOfRead]), cryptoTransform, CryptoStreamMode.Read);
+
+                            // 跳过非加密部分（但使得 CryptoStream 按与加密部分相同的方式来将这些数据考虑进分块过程）
+                            cryptoStream.Read(new byte[lengthOfRead], 0, lengthOfRead);
+
+                            reader = new BinaryReader(cryptoStream);
+
+                            if (!reader.ReadBytes(cryptoTransform.SecretId.Length).SequenceEqual(cryptoTransform.SecretId))
+                            {
+                                throw new Exception("密码错误");
+                            }
+                        }
+                        break;
+                    case 0x00020001:
+                        {
+                            CryptEC = true;
+                            int tip_bytes = reader.ReadInt32();
+                            string tip = reader.ReadStringWithFixedLength(Encoding.GetEncoding("gbk"), tip_bytes);
+                            string password = inputPassword?.Invoke(tip);
+                            if (string.IsNullOrEmpty(password))
+                            {
+                                throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
+                            }
+                            int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
+                            var cryptoTransform = new CryptoECTransform(Encoding.GetEncoding("gbk").GetBytes(password));
+
+                            // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
+                            // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream
+                            var cryptoStream = new CryptoStream(new PrefixedStream(stream, new byte[lengthOfRead]), cryptoTransform, CryptoStreamMode.Read);
+
+                            // 跳过非加密部分（但使得 CryptoStream 按与加密部分相同的方式来将这些数据考虑进分块过程）
+                            cryptoStream.Read(new byte[lengthOfRead], 0, lengthOfRead);
+
+                            reader = new BinaryReader(cryptoStream);
+
+                            if (!reader.ReadBytes(cryptoTransform.SecretId.Length).SequenceEqual(cryptoTransform.SecretId))
+                            {
+                                throw new Exception("密码错误");
+                            }
+                        }
+                        break;
+                    default:
+                        throw new Exception($"不支持此类加密文件 [Type=0x{magic2:x8}]");
                 }
-                CryptEC = true;
-                int tip_bytes = reader.ReadInt32();
-                string tip = reader.ReadStringWithFixedLength(Encoding.GetEncoding("gbk"), tip_bytes);
-                string password = inputPassword?.Invoke(tip);
-                if (string.IsNullOrEmpty(password))
-                {
-                    throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
-                }
-                int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
-                var cryptoTransform = new CryptoECTransform(Encoding.GetEncoding("gbk").GetBytes(password));
-
-                // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
-                // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream
-                var cryptoStream = new CryptoStream(new PrefixedStream(stream, new byte[lengthOfRead]), cryptoTransform, CryptoStreamMode.Read);
-
-                // 跳过非加密部分（但使得 CryptoStream 按与加密部分相同的方式来将这些数据考虑进分块过程）
-                cryptoStream.Read(new byte[lengthOfRead], 0, lengthOfRead);
-
-                reader = new BinaryReader(cryptoStream);
-
-                if (!reader.ReadBytes(32).SequenceEqual(cryptoTransform.PasswordHash)) 
-                {
-                    throw new Exception("密码错误"); 
-                }
-
                 magic1 = reader.ReadInt32();
                 magic2 = reader.ReadInt32();
             }

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace QIQI.EProjectFile.Internal
 {
-    sealed class CryptoECTransform : ICryptoTransform
+    sealed class CryptoECTransform : EStdCryptoTransform
     {
-        private static readonly byte[] InitialStatus = new byte[] {
+        private static readonly byte[] DefaultInitialStatus = new byte[] {
             0xF0, 0x5E, 0x99, 0xA1, 0x88, 0xE3, 0x1E, 0xEE, 0x11, 0x9E, 0xC9, 0x97, 0x1B, 0x90, 0x4F, 0x7C,
             0x52, 0xCB, 0x82, 0xFA, 0x27, 0xDE, 0xF6, 0xA8, 0xDA, 0xD3, 0xB0, 0xCF, 0x56, 0xD6, 0x85, 0x42,
             0x1A, 0x9C, 0xB5, 0x0E, 0xB8, 0xED, 0x10, 0x1C, 0x24, 0x6A, 0x69, 0xCE, 0x87, 0x55, 0x1F, 0x96,
@@ -25,47 +25,22 @@ namespace QIQI.EProjectFile.Internal
             0xA4, 0x35, 0x9B, 0xAC, 0x5C, 0x0B, 0x92, 0xCC, 0x0A, 0x84, 0x13, 0x0C, 0x00, 0xA0, 0xB3, 0x60,
             0x18, 0x5A, 0xC5, 0xC6, 0x89, 0x7E, 0x21, 0xF9, 0xC2, 0x6D, 0xBC, 0xC7, 0xAE, 0x38, 0xFD, 0xF8
         };
-        private const int BlockLength = 4096;
-        private readonly RC4Crypto keyTable;
 
-        public byte[] PasswordHash { get; }
-
-        public CryptoECTransform(byte[] key)
-        {
-            keyTable = new RC4Crypto(key, InitialStatus);
-            PasswordHash = CalculatePasswordHash(key);
-        }
-
-        public bool CanReuseTransform => false;
-
-        public bool CanTransformMultipleBlocks => false;
-
-        public int InputBlockSize => BlockLength;
-
-        public int OutputBlockSize => BlockLength;
-
-        public void Dispose()
+        public CryptoECTransform(byte[] key): base(key)
         {
         }
 
-        public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        protected override byte[] InitialStatus => DefaultInitialStatus;
+
+        protected override RC4Crypto NextBlockCrypto()
         {
             byte[] blockKey = new byte[40];
             keyTable.Decode(blockKey, 0, 8);
-            Array.Copy(PasswordHash, 0, blockKey, 8, 32);
-            Array.Copy(inputBuffer, inputOffset, outputBuffer, outputOffset, inputCount);
-            new RC4Crypto(blockKey, InitialStatus).Decode(outputBuffer, outputOffset, inputCount);
-            return inputCount;
+            Array.Copy(SecretId, 0, blockKey, 8, 32);
+            return new RC4Crypto(blockKey, InitialStatus);
         }
 
-        public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
-        {
-            var buf = new byte[inputCount];
-            TransformBlock(inputBuffer, inputOffset, inputCount, buf, 0);
-            return buf;
-        }
-
-        private static byte[] CalculatePasswordHash(byte[] key)
+        protected override byte[] CalculateSecretID(byte[] key)
         {
             byte[] hash = MD5.Create().ComputeHash(key);
 
