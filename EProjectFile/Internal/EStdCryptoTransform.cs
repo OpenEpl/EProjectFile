@@ -54,6 +54,7 @@ namespace QIQI.EProjectFile.Internal
             var crpyto = NextBlockCrypto();
             if (inputCount > lengthOfRemainedOvert)
             {
+                crpyto.Skip(lengthOfRemainedOvert);
                 crpyto.Decode(outputBuffer, outputOffset + lengthOfRemainedOvert, inputCount - lengthOfRemainedOvert);
                 lengthOfRemainedOvert = 0;
             }
