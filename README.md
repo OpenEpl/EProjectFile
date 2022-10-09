@@ -1,8 +1,9 @@
 ***Only Chinese document is available.***
 
 # EProjectFile
-一个用于编辑易语言项目文件的第三方库（C#）  
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![NuGet](https://img.shields.io/nuget/v/QIQI.EProjectFile.svg)](https://www.nuget.org/packages/QIQI.EProjectFile)  
+一个用于编辑易语言项目文件的第三方库（C#）  
 命名空间：`QIQI.EProjectFile`  
 
 ## 安装方式
