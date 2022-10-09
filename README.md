@@ -43,6 +43,15 @@ Package Manager `Install-Package QIQI.EProjectFile`
 | `0x10007319` | 辅助信息段3 | `ProjectConfigExSection` |
 | `0x11007319` | 编译条件信息段 | `ConditionalCompilationSection` |
 
+### 文件格式支持情况
+
+| 格式 | 读取 | 写出 |
+| ---- | :----: | :----: |
+| `*.e` \(未加密\) | ✔️ | ✔️ |
+| `*.e` \(加密\) | ✔️ | ✔️ |
+| `*.ec` \(未加密\) | ✔️ | ✔️ |
+| `*.ec` \(加密\) | ✔️ | ✔️ |
+
 ### 代码解析与生成
 
 | 特性名称 | 完成情况 |
