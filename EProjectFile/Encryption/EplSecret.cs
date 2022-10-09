@@ -15,27 +15,42 @@ namespace QIQI.EProjectFile.Encryption
 
         public sealed class EStd: EplSecret, IEquatable<EStd>
         {
+            private class FactoryImpl : IEplSecretFactory<EStd>
+            {
+                public EStd Create(byte[] key)
+                {
+                    var status = new RC4Crypto(key, 256).UnsafeGetStatus();
+                    return new EStd(CalculateSecretID(key), Unsafe.As<byte[], ImmutableArray<byte>>(ref status));
+                }
+
+                public EStd Create(string key)
+                {
+                    return Create(Encoding.GetEncoding("gbk").GetBytes(key));
+                }
+
+                private static ImmutableArray<byte> CalculateSecretID(byte[] key)
+                {
+                    byte[] hash = MD5.Create().ComputeHash(key);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = hash.Length - 1; i >= 0; i--)
+                    {
+                        stringBuilder.Append(hash[i].ToString("x2"));
+                    }
+
+                    var bytes = Encoding.ASCII.GetBytes(stringBuilder.ToString());
+                    return Unsafe.As<byte[], ImmutableArray<byte>>(ref bytes);
+                }
+            }
+
+            public static readonly IEplSecretFactory<EStd> Factory = new FactoryImpl();
+
             public override ImmutableArray<byte> SecretId { get; }
             public override ImmutableArray<byte> IV { get; }
 
-            public EStd(byte[] key)
+            public EStd(ImmutableArray<byte> secretId, ImmutableArray<byte> iv)
             {
-                var status = new RC4Crypto(key, 256).UnsafeGetStatus();
-                SecretId = CalculateSecretID(key);
-                IV = Unsafe.As<byte[], ImmutableArray<byte>>(ref status);
-            }
-
-            private static ImmutableArray<byte> CalculateSecretID(byte[] key)
-            {
-                byte[] hash = MD5.Create().ComputeHash(key);
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = hash.Length - 1; i >= 0; i--)
-                {
-                    stringBuilder.Append(hash[i].ToString("x2"));
-                }
-
-                var bytes = Encoding.ASCII.GetBytes(stringBuilder.ToString());
-                return Unsafe.As<byte[], ImmutableArray<byte>>(ref bytes);
+                SecretId = secretId;
+                IV = iv;
             }
 
             public override bool Equals(object obj)
@@ -71,15 +86,47 @@ namespace QIQI.EProjectFile.Encryption
 
         public sealed class EC: EplSecret, IEquatable<EC>
         {
-            public override ImmutableArray<byte> SecretId { get; }
-            public override ImmutableArray<byte> IV { get; }
-
-            public EC(byte[] key)
+            private class FactoryImpl : IEplSecretFactory<EC>
             {
-                var status = new RC4Crypto(key, DefaultInitialStatus).UnsafeGetStatus();
-                SecretId = CalculateSecretID(key);
-                IV = Unsafe.As<byte[], ImmutableArray<byte>>(ref status);
+                public EC Create(byte[] key)
+                {
+                    var status = new RC4Crypto(key, DefaultInitialStatus).UnsafeGetStatus();
+                    return new EC(CalculateSecretID(key), Unsafe.As<byte[], ImmutableArray<byte>>(ref status));
+                }
+
+                public EC Create(string key)
+                {
+                    return Create(Encoding.GetEncoding("gbk").GetBytes(key));
+                }
+
+                private static ImmutableArray<byte> CalculateSecretID(byte[] key)
+                {
+                    byte[] hash = MD5.Create().ComputeHash(key);
+
+                    // 是的！该非标准MD5不是单纯的把标准MD5两两颠倒过来就好！
+                    // 以123为例
+                    // 标准MD5：202cb962ac59075b964b07152d234b70
+                    // 颠倒MD5：704b232d15074b965b0759ac62b92c20
+                    // 易式MD5：704b232d15074bb6590759ac62b92c20
+                    byte low4bit_7 = (byte)(hash[7] & 0x0F);
+                    byte high4bit_7 = (byte)(hash[7] & 0xF0);
+                    byte low4bit_8 = (byte)(hash[8] & 0x0F);
+                    byte high4bit_8 = (byte)(hash[8] & 0xF0);
+                    hash[7] = (byte)(high4bit_7 | high4bit_8 >> 4);
+                    hash[8] = (byte)(low4bit_7 << 4 | low4bit_8);
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = hash.Length - 1; i >= 0; i--)
+                    {
+                        stringBuilder.Append(hash[i].ToString("x2"));
+                    }
+
+                    var bytes = Encoding.ASCII.GetBytes(stringBuilder.ToString());
+                    return Unsafe.As<byte[], ImmutableArray<byte>>(ref bytes);
+                }
             }
+
+            public static readonly IEplSecretFactory<EC> Factory = new FactoryImpl();
 
             internal static readonly byte[] DefaultInitialStatus = new byte[] {
                 0xF0, 0x5E, 0x99, 0xA1, 0x88, 0xE3, 0x1E, 0xEE, 0x11, 0x9E, 0xC9, 0x97, 0x1B, 0x90, 0x4F, 0x7C,
@@ -100,31 +147,13 @@ namespace QIQI.EProjectFile.Encryption
                 0x18, 0x5A, 0xC5, 0xC6, 0x89, 0x7E, 0x21, 0xF9, 0xC2, 0x6D, 0xBC, 0xC7, 0xAE, 0x38, 0xFD, 0xF8
             };
 
+            public override ImmutableArray<byte> SecretId { get; }
+            public override ImmutableArray<byte> IV { get; }
 
-            private static ImmutableArray<byte> CalculateSecretID(byte[] key)
+            public EC(ImmutableArray<byte> secretId, ImmutableArray<byte> iv)
             {
-                byte[] hash = MD5.Create().ComputeHash(key);
-
-                // 是的！该非标准MD5不是单纯的把标准MD5两两颠倒过来就好！
-                // 以123为例
-                // 标准MD5：202cb962ac59075b964b07152d234b70
-                // 颠倒MD5：704b232d15074b965b0759ac62b92c20
-                // 易式MD5：704b232d15074bb6590759ac62b92c20
-                byte low4bit_7 = (byte)(hash[7] & 0x0F);
-                byte high4bit_7 = (byte)(hash[7] & 0xF0);
-                byte low4bit_8 = (byte)(hash[8] & 0x0F);
-                byte high4bit_8 = (byte)(hash[8] & 0xF0);
-                hash[7] = (byte)(high4bit_7 | high4bit_8 >> 4);
-                hash[8] = (byte)(low4bit_7 << 4 | low4bit_8);
-
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = hash.Length - 1; i >= 0; i--)
-                {
-                    stringBuilder.Append(hash[i].ToString("x2"));
-                }
-
-                var bytes = Encoding.ASCII.GetBytes(stringBuilder.ToString());
-                return Unsafe.As<byte[], ImmutableArray<byte>>(ref bytes);
+                SecretId = secretId;
+                IV = iv;
             }
 
             public override bool Equals(object obj)

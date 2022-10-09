@@ -33,7 +33,7 @@ namespace QIQI.EProjectFile
                                 throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
                             }
                             const int lengthOfRead = 8;
-                            var cryptoTransform = new EStdCryptoTransform(new EplSecret.EStd(Encoding.GetEncoding("gbk").GetBytes(password)));
+                            var cryptoTransform = new EStdCryptoTransform(EplSecret.EStd.Factory.Create(Encoding.GetEncoding("gbk").GetBytes(password)));
 
                             // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
                             // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream
@@ -61,7 +61,7 @@ namespace QIQI.EProjectFile
                                 throw new Exception("没有输入密码 或 未正确响应InputPassword事件");
                             }
                             int lengthOfRead = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]tip_bytes */ + tip_bytes;
-                            var cryptoTransform = new CryptoECTransform(new EplSecret.EC(Encoding.GetEncoding("gbk").GetBytes(password)));
+                            var cryptoTransform = new CryptoECTransform(EplSecret.EC.Factory.Create(Encoding.GetEncoding("gbk").GetBytes(password)));
 
                             // 分块的时候，是不区分加密与非加密部分的，不进行 SeekToBegin 直接解密会导致分块错误
                             // 然而我们不能保证 Stream 一定 CanSeek，因此使用 PrefixedStream
