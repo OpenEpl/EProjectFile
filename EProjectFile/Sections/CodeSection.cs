@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json.Serialization;
 using QIQI.EProjectFile.Context;
+using System.Linq;
 
 namespace QIQI.EProjectFile.Sections
 {
@@ -125,20 +126,48 @@ namespace QIQI.EProjectFile.Sections
                 var encoding = context.Encoding;
                 writer.Write(AllocatedIdNum);
                 writer.Write(51113791); // 确认于易语言V5.71
-                LibraryRefInfo.WriteLibraries(writer, encoding, Libraries);
-                writer.Write(Flag);
-                writer.Write(MainMethod);
+                writer.WriteInt32sWithByteSizePrefix(Libraries.Select(x => x.MinRequiredCmd).ToArray());
+                if (context.CryptEC)
+                {
+                    writer.Write(AllocatedIdNum);
+                    writer.Write(MainMethod);
+                    writer.WriteInt16sWithByteSizePrefix(Libraries.Select(x => x.MinRequiredDataType).ToArray());
+                    writer.Write(Flag);
+                    writer.Write(MainMethod);
+                    writer.WriteStringsWithMfcStyleCountPrefix(encoding, Libraries.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
+                    writer.WriteInt16sWithByteSizePrefix(Libraries.Select(x => x.MinRequiredConstant).ToArray());
+                }
+                else
+                {
+                    writer.WriteInt16sWithByteSizePrefix(Libraries.Select(x => x.MinRequiredDataType).ToArray());
+                    writer.WriteInt16sWithByteSizePrefix(Libraries.Select(x => x.MinRequiredConstant).ToArray());
+                    writer.WriteStringsWithMfcStyleCountPrefix(encoding, Libraries.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
+                    writer.Write(Flag);
+                    writer.Write(MainMethod);
+                }
                 if (UnknownBeforeIconData != null)
                 {
                     writer.Write(UnknownBeforeIconData);
                 }
                 writer.WriteBytesWithLengthPrefix(IconData);
                 writer.WriteStringWithLengthPrefix(encoding, DebugCommandParameters);
-                ClassInfo.WriteClasses(writer, encoding, Classes);
-                MethodInfo.WriteMethods(writer, encoding, Methods);
-                AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
-                StructInfo.WriteStructs(writer, encoding, Structs);
-                DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
+                if (context.CryptEC)
+                {
+                    writer.Write(new byte[12]); // Unknown（12个0）
+                    MethodInfo.WriteMethods(writer, encoding, Methods);
+                    DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
+                    AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
+                    ClassInfo.WriteClasses(writer, encoding, Classes);
+                    StructInfo.WriteStructs(writer, encoding, Structs);
+                }
+                else
+                {
+                    ClassInfo.WriteClasses(writer, encoding, Classes);
+                    MethodInfo.WriteMethods(writer, encoding, Methods);
+                    AbstractVariableInfo.WriteVariables(writer, encoding, GlobalVariables);
+                    StructInfo.WriteStructs(writer, encoding, Structs);
+                    DllDeclareInfo.WriteDllDeclares(writer, encoding, DllDeclares);
+                }
                 writer.Write(new byte[40]); // Unknown（40个0）
             });
         }

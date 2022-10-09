@@ -51,13 +51,6 @@ namespace QIQI.EProjectFile
                     ? minRequiredConstants[i] : (short)0;
             }
         }
-        public static void WriteLibraries(BinaryWriter writer, Encoding encoding, LibraryRefInfo[] libraryRef)
-        {
-            writer.WriteInt32sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredCmd).ToArray());
-            writer.WriteInt16sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredDataType).ToArray());
-            writer.WriteInt16sWithByteSizePrefix(libraryRef.Select(x => x.MinRequiredConstant).ToArray());
-            writer.WriteStringsWithMfcStyleCountPrefix(encoding, libraryRef.Select(x => $"{x.FileName}\r{x.GuidString}\r{x.Version.Major}\r{x.Version.Minor}\r{x.Name}").ToArray());
-        }
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, JsonUtils.Options);

@@ -1,4 +1,5 @@
 ﻿using QIQI.EProjectFile.Context;
+using QIQI.EProjectFile.Encryption;
 using QIQI.EProjectFile.Sections;
 using System;
 using System.Collections.Generic;
@@ -62,15 +63,13 @@ namespace QIQI.EProjectFile
                 }
             }
         }
-        public void Save(Stream stream)
+        public void Save(Stream stream) => Save(stream, null);
+        public void Save(Stream stream, EplEncryptionOptions encryptionOptions)
         {
             var encoding = Encoding.GetEncoding("gbk");
-            using (var writer = new ProjectFileWriter(stream))
+            using (var writer = new ProjectFileWriter(stream, encryptionOptions))
             {
-                var context = new BlockByteifierContext()
-                {
-                    Encoding = encoding
-                };
+                var context = new BlockByteifierContext(encoding, writer.CryptEC);
                 foreach (var section in Sections)
                 {
                     if (section is ESystemInfoSection systemInfo)

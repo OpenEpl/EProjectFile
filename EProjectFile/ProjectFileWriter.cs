@@ -1,16 +1,49 @@
-﻿using System;
+﻿using QIQI.EProjectFile.Encryption;
+using QIQI.EProjectFile.Internal;
+using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace QIQI.EProjectFile
 {
     public class ProjectFileWriter : IDisposable
     {
-        private BinaryWriter writer;
+        private readonly BinaryWriter writer;
+        public bool CryptEC { get; } = false;
         private int index;
-        public ProjectFileWriter(Stream stream)
+        public ProjectFileWriter(Stream stream): this(stream, null)
         {
-            writer = new BinaryWriter(stream);
+
+        }
+        public ProjectFileWriter(Stream stream, EplEncryptionOptions encryptionOptions)
+        {
+            switch (encryptionOptions)
+            {
+                case EplEncryptionOptions.EStd eStd:
+                    writer = new BinaryWriter(new CryptoStream(stream, new EStdCryptoTransform(eStd.Password, 8), CryptoStreamMode.Write));
+                    writer.Write(0x454C5457); //WTLE
+                    writer.Write(0x00000001);
+                    writer.Write(eStd.Password.SecretId);
+                    break;
+                case EplEncryptionOptions.EC ec:
+                    {
+                        CryptEC = true;
+                        var hint_bytes = Encoding.GetEncoding("gbk").GetBytes(ec.PasswordHint);
+                        int lengthOfOvert = 4 /* [int]magic1 */ + 4 /* [int]magic2 */ + 4 /* [int]hint_length */ + hint_bytes.Length;
+                        writer = new BinaryWriter(new CryptoStream(stream, new CryptoECTransform(ec.Password, lengthOfOvert), CryptoStreamMode.Write));
+                        writer.Write(0x454C5457); //WTLE
+                        writer.Write(0x00020001);
+                        writer.WriteBytesWithLengthPrefix(hint_bytes);
+                        writer.Write(ec.Password.SecretId);
+                    }
+                    break;
+                case null:
+                    writer = new BinaryWriter(stream);
+                    break;
+                default:
+                    throw new ArgumentException("unsupported encryption is required", nameof(encryptionOptions));
+            }
             writer.Write(0x4752504554574E43L); // CNWTEPRG
         }
         public void WriteSection(RawSectionInfo section)
@@ -34,6 +67,10 @@ namespace QIQI.EProjectFile
             }
 
             writer.Write(GetCheckSum(headerData));
+            if (CryptEC)
+            {
+                headerData[48] ^= 1; // mark it after calculating the checksum
+            }
             writer.Write(headerData);
             writer.Write(section.Data);
         }
