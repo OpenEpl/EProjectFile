@@ -61,7 +61,7 @@ namespace QIQI.EProjectFile
             {
                 try
                 {
-                    Guid.TryParse(x.GuidString, out var guid);
+                    Guid.TryParseExact(x.GuidString.Replace("-", "").Replace("{", "").Replace("}", ""), "N", out var guid);
                     return ELibInfoLoader.Default.Load(guid, x.FileName, x.Version);
                 }
                 catch (Exception)
