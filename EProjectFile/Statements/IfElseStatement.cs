@@ -61,7 +61,7 @@ namespace QIQI.EProjectFile.Statements
             using (a.NewBlock(1))
             {
                 if (UnexaminedCode != null)
-                    new UnexaminedStatement(UnexaminedCode, Mask).WriteTo(a, 0x6B);
+                    new UnexaminedStatement(UnexaminedCode, Mask).WriteTo(a, 0x6B, 0, 0);
                 else
                     new ExpressionStatement(new CallExpression(0, 0, new ParamListExpression() { Condition }), Mask, Comment).WriteTo(a, 0x6B);
                 BlockOnTrue.WriteTo(a);

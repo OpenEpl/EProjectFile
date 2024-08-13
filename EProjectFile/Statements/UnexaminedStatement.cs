@@ -33,12 +33,12 @@ namespace QIQI.EProjectFile.Statements
                 writer.Write("' ");
             writer.Write(unexaminedCode);
         }
-        internal void WriteTo(MethodCodeDataWriterArgs a, byte type)
+        internal void WriteTo(MethodCodeDataWriterArgs a, byte type, short libraryId, int methodId)
         {
             a.LineOffest.Write(a.Offest);
             a.ExpressionData.Write(type);
-            a.ExpressionData.Write(0);
-            a.ExpressionData.Write((short)-1);
+            a.ExpressionData.Write(methodId);
+            a.ExpressionData.Write(libraryId);
             a.ExpressionData.Write((short)(Mask ? 0 : 0x40));
             a.ExpressionData.WriteBStr(a.Encoding, UnexaminedCode);
             a.ExpressionData.WriteBStr(a.Encoding, null);
@@ -48,7 +48,7 @@ namespace QIQI.EProjectFile.Statements
         }
         internal override void WriteTo(MethodCodeDataWriterArgs a)
         {
-            WriteTo(a, 0x6A);
+            WriteTo(a, 0x6A, -1, 0);
 
         }
     }

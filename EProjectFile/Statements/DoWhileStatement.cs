@@ -54,7 +54,7 @@ namespace QIQI.EProjectFile.Statements
                 a.ExpressionData.Write((byte)0x55);
             }
             if (UnexaminedCode != null)
-                new UnexaminedStatement(UnexaminedCode, MaskOnEnd).WriteTo(a, 0x71);
+                new UnexaminedStatement(UnexaminedCode, MaskOnEnd).WriteTo(a, 0x71, 0, 6);
             else
                 new ExpressionStatement(new CallExpression(0, 6, new ParamListExpression() { Condition }), MaskOnEnd, CommentOnEnd).WriteTo(a, 0x71);
         }

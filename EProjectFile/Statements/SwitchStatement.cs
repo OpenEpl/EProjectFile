@@ -94,7 +94,7 @@ namespace QIQI.EProjectFile.Statements
                 foreach (var curCase in Case)
                 {
                     if (curCase.UnexaminedCode != null)
-                        new UnexaminedStatement(curCase.UnexaminedCode, curCase.Mask).WriteTo(a, 0x6E);
+                        new UnexaminedStatement(curCase.UnexaminedCode, curCase.Mask).WriteTo(a, 0x6E, 0, 2);
                     else
                         new ExpressionStatement(new CallExpression(0, 2, new ParamListExpression() { curCase.Condition }), curCase.Mask, curCase.Comment).WriteTo(a, 0x6E);
                     curCase.Block.WriteTo(a);
