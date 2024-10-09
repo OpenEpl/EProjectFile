@@ -40,6 +40,6 @@
       <PrivateAssets>build; analyzers</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="System.Text.Json" Version="6.0.5" />
+    <PackageReference Include="System.Text.Json" Version="6.0.10" />
   </ItemGroup>
 </Project>
